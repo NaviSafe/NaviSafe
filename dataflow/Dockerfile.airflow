@@ -1,0 +1,7 @@
+FROM apache/airflow:2.8.1
+
+# airflow 사용자로 패키지 설치
+USER airflow
+
+COPY requirements.txt /requirements.txt
+RUN pip install --user --no-cache-dir -r /requirements.txt
