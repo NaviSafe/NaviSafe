@@ -21,8 +21,8 @@ public class RoadTraffic {
     private String linkId;
 
     @Column(name = "PRCS_SPD")
-    private String prcsSpd;
+    private int prcsSpd;
 
     @Column(name = "PRCS_TRV_TIME")
-    private String prcsTrvTime;
+    private int prcsTrvTime;
 }
