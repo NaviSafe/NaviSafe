@@ -8,5 +8,5 @@ import java.util.Optional;
 
 @Repository
 public interface OutbreakRepository extends JpaRepository<Outbreak, String> {
-    public Optional<Outbreak> findByAccId(String accId);
+    Optional<Outbreak> findByAccId(String accId);
 }
