@@ -22,8 +22,19 @@ USE `toy_project` ;
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `toy_project`.`REG_CD` (
   `REG_CD` INT NOT NULL COMMENT '서울시 권역 코드\n\n권역코드',
-  `REG_NAME` VARCHAR(45) NULL COMMENT '권역명',
+  `REG_NAME` VARCHAR(45) NOT NULL COMMENT '권역명',
   PRIMARY KEY (`REG_CD`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `toy_project`.`ROAD_TRAFFIC`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `toy_project`.`ROAD_TRAFFIC` (
+  `LINK_ID` VARCHAR(45) NOT NULL COMMENT '서울시 실시간 도로 소통 정보\n\n링크 아이디',
+  `PRCS_SPD` INT NOT NULL COMMENT '속도',
+  `PRCS_TRV_TIME` INT NOT NULL COMMENT '여행 시간',
+  PRIMARY KEY (`LINK_ID`))
 ENGINE = InnoDB;
 
 
@@ -43,6 +54,11 @@ CREATE TABLE IF NOT EXISTS `toy_project`.`LINK_ID` (
     FOREIGN KEY (`REG_CD`)
     REFERENCES `toy_project`.`REG_CD` (`REG_CD`)
     ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_LINK_ID_ROAD_TRAFFIC1`
+    FOREIGN KEY (`LINK_ID`)
+    REFERENCES `toy_project`.`ROAD_TRAFFIC` (`LINK_ID`)
+    ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
@@ -52,7 +68,7 @@ ENGINE = InnoDB;
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `toy_project`.`OUTBREAK_CODE` (
   `ACC_TYPE` VARCHAR(5) NOT NULL COMMENT '서울시 돌발 유형 코드 정보\n\n\"돌발 유형 코드\"\n',
-  `ACC_TYPE_NM` VARCHAR(15) NULL COMMENT '돌발 유형 코드 명',
+  `ACC_TYPE_NM` VARCHAR(15) NOT NULL COMMENT '돌발 유형 코드 명',
   PRIMARY KEY (`ACC_TYPE`))
 ENGINE = InnoDB;
 
@@ -62,7 +78,7 @@ ENGINE = InnoDB;
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `toy_project`.`OUTBREAK_DETAIL_CODE` (
   `ACC_DTYPE` VARCHAR(10) NOT NULL COMMENT '서울시 돌발 세부유형 코드 정보\n\n돌발 세부 유형 코드',
-  `ACC_DTYPE_NM` VARCHAR(15) NULL COMMENT '돌발 세부 유형 코드 명',
+  `ACC_DTYPE_NM` VARCHAR(15) NOT NULL COMMENT '돌발 세부 유형 코드 명',
   PRIMARY KEY (`ACC_DTYPE`))
 ENGINE = InnoDB;
 
@@ -73,8 +89,8 @@ ENGINE = InnoDB;
 CREATE TABLE IF NOT EXISTS `toy_project`.`OUTBREAK` (
   `ACC_ID` VARCHAR(5) NOT NULL COMMENT '서울시 실시간 돌발 정보\n\n돌발 아이디',
   `LINK_ID` VARCHAR(45) NOT NULL COMMENT '링크 아이디',
-  `OCCR_DATE` DATETIME NOT NULL COMMENT '발생 일자',
-  `EXP_CLR_DATE` DATETIME NOT NULL COMMENT '종료 예정 일자',
+  `occr_date_time` DATETIME NOT NULL COMMENT '발생 일자',
+  `exp_clr_date_time` DATETIME NOT NULL COMMENT '종료 예정 일자',
   `ACC_TYPE` VARCHAR(45) NOT NULL COMMENT '돌발 유형 코드',
   `ACC_DTYPE` VARCHAR(10) NOT NULL COMMENT '돌발 세부 유형 코드',
   `ACC_INFO` TINYTEXT NOT NULL COMMENT '돌발 내용',
@@ -116,33 +132,17 @@ ENGINE = InnoDB;
 -- Table `toy_project`.`RAIN`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `toy_project`.`RAIN` (
-  `GU_CODE` INT NOT NULL,
   `RAINFALL10` INT NULL,
   `RECEIVE_TIME` VARCHAR(45) NULL,
-  PRIMARY KEY (`GU_CODE`),
-  CONSTRAINT `fk_RAIN_REGION_GU_CODE`
-    FOREIGN KEY (`GU_CODE`)
+  `REGION_GU_CODE` INT NOT NULL,
+  PRIMARY KEY (`REGION_GU_CODE`),
+  INDEX `fk_RAIN_REGION1_idx` (`REGION_GU_CODE` ASC) VISIBLE,
+  CONSTRAINT `fk_RAIN_REGION1`
+    FOREIGN KEY (`REGION_GU_CODE`)
     REFERENCES `toy_project`.`REGION` (`GU_CODE`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
-
-
--- -----------------------------------------------------
--- Table `toy_project`.`ROAD_TRAFFIC`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `toy_project`.`ROAD_TRAFFIC` (
-  `LINK_ID` VARCHAR(45) NOT NULL COMMENT '서울시 실시간 도로 소통 정보\n\n링크 아이디',
-  `PRCS_SPD` INT NULL COMMENT '속도',
-  `PRCS_TRV_TIME` INT NULL COMMENT '여행 시간',
-  PRIMARY KEY (`LINK_ID`),
-  CONSTRAINT `fk_ROAD_TRAFFIC_ROAD_IDLINK_ID`
-    FOREIGN KEY (`LINK_ID`)
-    REFERENCES `toy_project`.`LINK_ID` (`LINK_ID`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB;
-
 
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;

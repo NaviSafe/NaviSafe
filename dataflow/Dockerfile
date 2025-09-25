@@ -5,11 +5,11 @@ FROM python:3.11-slim
 WORKDIR /app
 
 COPY producer.py .
-COPY consumer.py .
+COPY ./consumers ./consumers
+
 COPY preprocessing.py .
 COPY .env .
 COPY requirements.txt .
-
 # RUN apt-get update && \
 #     apt-get install -y python3 python3-pip python3-distutils curl procps && \
 #     apt-get clean
