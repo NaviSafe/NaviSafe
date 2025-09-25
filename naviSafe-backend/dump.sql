@@ -18,8 +18,8 @@
 --
 -- Table structure for table `link_id`
 --
-CREATE DATABASE IF NOT EXISTS `weather-flow`;
-USE `weather-flow`;
+CREATE DATABASE IF NOT EXISTS `navisafe`;
+USE `navisafe`;
 
 DROP TABLE IF EXISTS `link_id`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -213,8 +213,8 @@ DROP TABLE IF EXISTS `road_traffic`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `road_traffic` (
   `link_id` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
-  `prcs_spd` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
-  `prcs_trv_time` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `prcs_spd` int COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `prcs_trv_time` int COLLATE utf8mb4_general_ci DEFAULT NULL,
   PRIMARY KEY (`link_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
