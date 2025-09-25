@@ -11,7 +11,7 @@ spark = SparkSession.builder \
         "mysql:mysql-connector-java:8.0.33"
     ) \
     .getOrCreate()
-
+ 
 
 # Kafka에서 읽어올 데이터의 스키마 정의
 # schema = StructType([
