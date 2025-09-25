@@ -89,8 +89,8 @@ ENGINE = InnoDB;
 CREATE TABLE IF NOT EXISTS `toy_project`.`OUTBREAK` (
   `ACC_ID` VARCHAR(5) NOT NULL COMMENT '서울시 실시간 돌발 정보\n\n돌발 아이디',
   `LINK_ID` VARCHAR(45) NOT NULL COMMENT '링크 아이디',
-  `OCCR_DATE` DATETIME NOT NULL COMMENT '발생 일자',
-  `EXP_CLR_DATE` DATETIME NOT NULL COMMENT '종료 예정 일자',
+  `occr_date_time` DATETIME NOT NULL COMMENT '발생 일자',
+  `exp_clr_date_time` DATETIME NOT NULL COMMENT '종료 예정 일자',
   `ACC_TYPE` VARCHAR(45) NOT NULL COMMENT '돌발 유형 코드',
   `ACC_DTYPE` VARCHAR(10) NOT NULL COMMENT '돌발 세부 유형 코드',
   `ACC_INFO` TINYTEXT NOT NULL COMMENT '돌발 내용',
