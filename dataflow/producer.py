@@ -30,7 +30,7 @@ if __name__ == "__main__":
     api_list = [
         {'name': 'AccInfo', 'key': OUTBREAK_KEY, 'response_type' : 'xml'},
         {'name': 'ListRainfallService', 'key': RAIN_API_KEY, 'response_type' : 'xml'},
-        {'name': 'LinkInfo', 'key': LINK_ID, 'response_type' : 'xml'},
+        #{'name': 'LinkInfo', 'key': LINK_ID, 'response_type' : 'xml'},
         {'name': 'realtimePosition', 'key': SEOUL_SUBWAY_POSITION_API_KEY, 'response_type' : 'xml'},
         {'name': 'TrafficInfo', 'key': SEOUL_TRAFFIC_REALTIME_API_KEY, 'response_type' : 'xml'}
     ]
