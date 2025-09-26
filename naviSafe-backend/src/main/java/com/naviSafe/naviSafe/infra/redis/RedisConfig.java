@@ -29,18 +29,17 @@ public class RedisConfig {
         template.setConnectionFactory(redisConnectionFactory);
 
         template.setKeySerializer(new StringRedisSerializer());
+        template.setHashKeySerializer(new StringRedisSerializer());
 
         ObjectMapper objectMapper = JsonMapper.builder()
                 .addModule(new JavaTimeModule()) // LocalDateTime 지원
                 .visibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY)
                 .activateDefaultTyping(LaissezFaireSubTypeValidator.instance, ObjectMapper.DefaultTyping.NON_FINAL)
                 .build();
-        Jackson2JsonRedisSerializer<Object> serializer = new Jackson2JsonRedisSerializer<>(Object.class);
-        GenericJackson2JsonRedisSerializer genericSerializer = new GenericJackson2JsonRedisSerializer(objectMapper);
 
+        GenericJackson2JsonRedisSerializer serializer = new GenericJackson2JsonRedisSerializer(objectMapper);
         template.setValueSerializer(serializer);
-        template.setHashKeySerializer(new StringRedisSerializer());
-        template.setHashValueSerializer(genericSerializer);
+        template.setHashValueSerializer(serializer);
 
         template.afterPropertiesSet();
         return template;
