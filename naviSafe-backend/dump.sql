@@ -142,7 +142,7 @@ DROP TABLE IF EXISTS `rain`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `rain` (
   `gu_code` int NOT NULL,
-  `rainfall10` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `rainfall10` int COLLATE utf8mb4_general_ci DEFAULT NULL,
   `receive_time` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
   PRIMARY KEY (`gu_code`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
