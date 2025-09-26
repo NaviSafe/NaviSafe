@@ -18,12 +18,12 @@ public class Rain {
     @Column(name = "GU_CODE")
     private int guCode;
 
-    @OneToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "GU_CODE")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "GU_CODE", insertable = false, updatable = false)
     private Region region;
 
     @Column(name = "RAINFALL10")
-    private String rainFall10;
+    private int rainFall10;
 
     @Column(name = "RECEIVE_TIME")
     private String receiveTime;
