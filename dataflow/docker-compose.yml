@@ -66,12 +66,15 @@ services:
   preprocessing:
     image: jupyter/pyspark-notebook:latest
     container_name: preprocessing
+    environment:
+      - PYTHONPATH=/app
     depends_on:
       - mysql
     volumes:
-      - .:/app
-    working_dir: /app
-    command:  bash -c "pip install --no-cache-dir pyspark==3.5.5 && python preprocessing.py"
+      - ./preprocessing:/app/preprocessing
+      - ./utils:/app/utils
+    working_dir: /app/preprocessing
+    command: bash -c "pip install --no-cache-dir pyspark==3.5.5 redis mysql-connector-python && python outbreak_preprocessing.py"
     restart: unless-stopped
 
 
@@ -141,10 +144,9 @@ services:
     depends_on:
       - redis
     volumes:
-      - .:/app
-    working_dir: /app
-    command: bash -c "pip install redis && python redis_test.py"
-
+      - ./utils:/app/utils
+    working_dir: /app/utils
+    command: bash -c "pip install --no-cache-dir redis && python check_redis.py"
 
   airflow:
     build:
