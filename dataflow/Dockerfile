@@ -7,7 +7,7 @@ WORKDIR /app
 COPY producer.py .
 COPY ./consumers ./consumers
 
-COPY preprocessing.py .
+COPY ./preprocessing /app/preprocessing
 COPY .env .
 COPY requirements.txt .
 # RUN apt-get update && \
