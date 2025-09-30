@@ -1,4 +1,3 @@
-from pyspark.sql import SparkSession
 from pyspark.sql.functions import *
 from pyspark.sql.types import StructType, StructField, StringType, ArrayType
 from utils.spark_session import get_spark
@@ -6,6 +5,8 @@ from utils.mysql_utils import process_batch
 from utils.redis_utils import RedisClient
 import threading
 import time
+import mysql.connector
+import json
 
 # SparkSession 생성 (Kafka 패키지 포함)
 spark = get_spark(app_name="OutbreakConsumer")
@@ -71,11 +72,9 @@ df_json = df_json.drop("occr_date", "occr_time", "exp_clr_date", "exp_clr_time")
 # -----------------------------------
 # Redis 저장 + DB 큐 처리 함수
 # -----------------------------------
-DB_BATCH_SIZE = 100  # Redis에서 한 번에 MySQL로 저장할 개수
-
 def process_batch_with_redis(batch_df, batch_id):
     print(f"--- 배치 {batch_id} ---")
-    batch_df.show(5, truncate=False)
+    batch_df.show(truncate=False)
 
     for row in batch_df.collect():
         item = row.asDict()
@@ -100,6 +99,8 @@ def process_batch_with_redis(batch_df, batch_id):
 # -----------------------------------
 # Redis → MySQL 주기적 배치 저장
 # -----------------------------------
+DB_BATCH_SIZE = 100  # Redis에서 한 번에 MySQL로 저장할 개수
+
 def save_from_redis_to_mysql():
     while True:
         batch = []
@@ -107,15 +108,38 @@ def save_from_redis_to_mysql():
             item = redis_client.lpop("db_queue")
             if item is None:
                 break
-            batch.append(item)
-
+            batch.append(json.loads(item))  # Redis에서 가져온 JSON → dict
+    
         if batch:
-            # DataFrame 변환 후 MySQL 저장
-            spark_df = spark.createDataFrame(batch)
-            process_batch(spark_df, batch_id="redis_batch")
+            unique_batch = list({d["acc_id"]: d for d in batch}.values())
+            print(f"[INFO] Batch size: {len(batch)}")
+            print(f"[INFO] Sample data: {batch[0]}")
+            
+            # MySQL에 batch insert
+            conn = mysql.connector.connect(
+                host="mysql",
+                user="user",
+                password="userpass",
+                database="toy_project"
+            )
+            cursor = conn.cursor()
+
+            cursor.executemany("""
+                INSERT INTO OUTBREAK_Occurrence (acc_id, occr_date_time, exp_clr_date_time)
+                VALUES (%s, %s, %s)
+                ON DUPLICATE KEY UPDATE
+                    occr_date_time=VALUES(occr_date_time),
+                    exp_clr_date_time=VALUES(exp_clr_date_time)
+            """, [(d["acc_id"], d["occr_date_time"], d["exp_clr_date_time"]) for d in unique_batch])
+
+
+            conn.commit()
+            cursor.close()
+            conn.close()
         else:
-            # 리스트가 비어 있으면 잠시 대기
+            print("[INFO] No data in Redis, sleeping 5s...")
             time.sleep(5)
+
 
 # 별도 쓰레드로 실행
 threading.Thread(target=save_from_redis_to_mysql, daemon=True).start()
