@@ -136,6 +136,7 @@ def save_from_redis_to_mysql():
             conn.commit()
             cursor.close()
             conn.close()
+
         else:
             print("[INFO] No data in Redis, sleeping 5s...")
             time.sleep(5)
