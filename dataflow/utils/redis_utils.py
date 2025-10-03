@@ -24,7 +24,7 @@ class RedisClient:
     # -------------------------------
     # 리스트에 push
     # -------------------------------
-    def rpush_list(self, list_name, value):
+    def rpush_list(self, list_name, value): # 배치성 데이터 push -> redis에 저장됨
         """
         리스트 끝에 데이터 추가
         value: dict 또는 str
@@ -36,7 +36,7 @@ class RedisClient:
     # -------------------------------
     # Pub/Sub 발행
     # -------------------------------
-    def publish_channel(self, channel, message):
+    def publish_channel(self, channel, message):    #실시간 데이터 push -> redis에 저장되지 않음, 구독 형식
         """
         채널에 메시지 발행
         message: dict 또는 str
