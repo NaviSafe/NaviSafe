@@ -1,9 +1,6 @@
 package com.naviSafe.naviSafe.domain.outbreakCode.entitiy;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -16,10 +13,15 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class OutbreakCode {
+
     @Id
+    @Column(name = "OUTBREAK_ACC_ID")
+    private String outbreakAccId;
+
     @Column(name = "ACC_TYPE")
     private String accType;
 
-    @Column(name = "ACC_TYPE_NM")
-    private String accTypeNM;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "ACC_TYPE", insertable = false, updatable = false)
+    private OutbreakCodeName outbreakCodeName;
 }
