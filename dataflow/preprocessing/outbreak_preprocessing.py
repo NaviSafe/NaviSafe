@@ -78,20 +78,35 @@ def process_batch_with_redis(batch_df, batch_id):
 
     for row in batch_df.collect():
         item = row.asDict()
-
-        # 1) 지도 좌표
-        redis_client.rpush_list("map_coords", {
-            "acc_id": item["acc_id"],
-            "x": item["grs80tm_x"],
-            "y": item["grs80tm_y"]
-        })
-
-        # 2) 실시간 알림 발행
-        redis_client.publish_channel("acc_alerts", {
-            "occr_date_time": item["occr_date_time"],
-            "exp_clr_date_time": item["exp_clr_date_time"],
-            "acc_info": item["acc_info"]
-        })
+        # -----------------------------
+        # 1) 지도 좌표(중복 체크 포함)
+        # -----------------------------
+        gps_key = f"gps_sent:{item['acc_id']}"
+        if not redis_client.r.exists(gps_key):
+            redis_client.publish_channel("MAP_GPS", {
+                "acc_id": item["acc_id"],
+                "x": item["grs80tm_x"],
+                "y": item["grs80tm_y"]
+            })
+            redis_client.r.set(gps_key, 1, ex=3600)
+        else:
+            print(f"[INFO] Duplicate gps skipped for ACC_ID: {item['acc_id']}")
+        
+        # -----------------------------
+        # 2) 실시간 알림 발행 (중복 체크 포함)
+        # -----------------------------
+        alert_key = f"alert_sent:{item['acc_id']}"
+        if not redis_client.r.exists(alert_key):
+            redis_client.publish_channel("ACC_ALTERTS", {
+                "acc_id": item["acc_id"],
+                "occr_date_time": item["occr_date_time"],
+                "exp_clr_date_time": item["exp_clr_date_time"],
+                "acc_info": item["acc_info"]
+            })
+            # 중복 방지 키 생성, TTL 1시간
+            redis_client.r.set(alert_key, 1, ex=3600)
+        else:
+            print(f"[INFO] Duplicate alert skipped for ACC_ID: {item['acc_id']}")
 
         # 3) MySQL 저장용 데이터 (전체 컬럼 포함)
         redis_client.rpush_list("db_queue", item)  # item은 inner_schema 전체 컬럼
@@ -125,12 +140,48 @@ def save_from_redis_to_mysql():
             cursor = conn.cursor()
 
             cursor.executemany("""
-                INSERT INTO OUTBREAK_Occurrence (acc_id, occr_date_time, exp_clr_date_time)
+                INSERT INTO OUTBREAK_Occurrence (ACC_ID, occr_date_time, exp_clr_date_time)
                 VALUES (%s, %s, %s)
                 ON DUPLICATE KEY UPDATE
                     occr_date_time=VALUES(occr_date_time),
                     exp_clr_date_time=VALUES(exp_clr_date_time)
             """, [(d["acc_id"], d["occr_date_time"], d["exp_clr_date_time"]) for d in unique_batch])
+
+            cursor.executemany("""
+                INSERT INTO OUTBREAK_CODE (OUTBREAK_ACC_ID, ACC_TYPE)
+                VALUES (%s, %s)
+                ON DUPLICATE KEY UPDATE
+                    ACC_TYPE=VALUES(ACC_TYPE)
+            """, [(d["acc_id"], d["acc_type"]) for d in unique_batch])
+
+            cursor.executemany("""
+                INSERT INTO OUTBREAK_DETAIL_CODE (OUTBREAK_ACC_ID , ACC_DTYPE)
+                VALUES (%s, %s)
+                ON DUPLICATE KEY UPDATE
+                    ACC_DTYPE=VALUES(ACC_DTYPE)
+            """, [(d["acc_id"], d["acc_dtype"]) for d in unique_batch])
+
+            cursor.executemany("""
+                INSERT INTO MAP_GPS (OUTBREAK_ACC_ID , GRS80TM_X, GRS80TM_Y)
+                VALUES (%s, %s, %s)
+                ON DUPLICATE KEY UPDATE
+                    GRS80TM_X=VALUES(GRS80TM_X),
+                    GRS80TM_Y=VALUES(GRS80TM_Y),         
+            """, [(d["acc_id"], d["acc_dtype"]) for d in unique_batch])
+
+            cursor.executemany("""
+                INSERT INTO ACC_ALTERTS (OUTBREAK_ACC_ID , ACC_INFO)
+                VALUES (%s, %s)
+                ON DUPLICATE KEY UPDATE
+                    ACC_INFO=VALUES(ACC_INFO)
+            """, [(d["acc_id"], d["acc_info"]) for d in unique_batch])
+
+            cursor.executemany("""
+                INSERT INTO OUTBREAK_LINK (OUTBREAK_ACC_ID , LINK_ID)
+                VALUES (%s, %s)
+                ON DUPLICATE KEY UPDATE
+                    LINK_ID=VALUES(LINK_ID)
+            """, [(d["acc_id"], d["link_id "]) for d in unique_batch])            
 
 
             conn.commit()
