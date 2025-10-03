@@ -1,4 +1,4 @@
-package com.naviSafe.naviSafe.domain.outbreak.dto;
+package com.naviSafe.naviSafe.domain.outbreakOccur.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

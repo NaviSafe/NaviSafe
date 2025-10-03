@@ -1,12 +1,11 @@
-package com.naviSafe.naviSafe.domain.outbreak.service;
+package com.naviSafe.naviSafe.domain.outbreakOccur.service;
 
-import com.naviSafe.naviSafe.domain.outbreak.entitiy.Outbreak;
-import com.naviSafe.naviSafe.domain.outbreak.repository.OutbreakRepository;
+import com.naviSafe.naviSafe.domain.outbreakOccur.entitiy.OutbreakOccur;
+import com.naviSafe.naviSafe.domain.outbreakOccur.repository.OutbreakRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
-import java.security.Key;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -23,14 +22,14 @@ public class OutbreakService {
         this.redisTemplate = redisTemplate;
     }
 
-    public List<Outbreak> findAll() {
+    public List<OutbreakOccur> findAll() {
 
-        List<Outbreak> cached = (List<Outbreak>) redisTemplate.opsForValue().get(KEY);
+        List<OutbreakOccur> cached = (List<OutbreakOccur>) redisTemplate.opsForValue().get(KEY);
         if(cached != null) {
             return cached;
         }
 
-        List<Outbreak> outbreaks = outbreakRepository.findAll();
+        List<OutbreakOccur> outbreaks = outbreakRepository.findAll();
 
         redisTemplate.opsForValue().set(KEY, outbreaks, 30, TimeUnit.MINUTES);
 
