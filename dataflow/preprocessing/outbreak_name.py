@@ -14,8 +14,8 @@ redis_client = RedisClient(host="redis", port=6379, db=0)
 
 # 스키마 (배열 안에 객체)
 inner_schema = StructType([
-    StructField("ACC_DTYPE", StringType(), True),
-    StructField("ACC_DTYPE_NM", StringType(), True),
+    StructField("acc_id", StringType(), True),
+    StructField("link_id", StringType(), True),
     StructField("occr_date", StringType(), True),
     StructField("occr_time", StringType(), True),
     StructField("exp_clr_date", StringType(), True),
@@ -110,14 +110,6 @@ def process_batch_with_redis(batch_df, batch_id):
 
         # 3) MySQL 저장용 데이터 (전체 컬럼 포함)
         redis_client.rpush_list("db_queue", item)  # item은 inner_schema 전체 컬럼
-
-        # 4) LinkInfo API 호출용 데이터 (link_queue)
-        link_id = item.get("link_id")
-        if link_id and not redis_client.r.exists(f"link_sent:{link_id}"):
-            redis_client.rpush_list("link_queue", {"link_id": link_id})
-            redis_client.r.set(f"link_sent:{link_id}", 1, ex=3600)
-            print(f"[INFO] link_queue에 LINK_ID 추가됨: {link_id}")
-
 
 # -----------------------------------
 # Redis → MySQL 주기적 배치 저장
