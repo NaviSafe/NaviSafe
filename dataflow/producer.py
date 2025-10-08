@@ -12,6 +12,11 @@ from dotenv import load_dotenv
 
 load_dotenv()
 OUTBREAK_KEY = os.getenv("OUTBREAK_KEY")    # 돌발정보
+OUTBREAK_CODE_NAME = os.getenv("OUTBREAK_CODE_NAME")    # outbreak code name
+OUTBREAK_Detail_CODE = os.getenv("OUTBREAK_Detail_CODE")    # outbreak detail code
+
+REG_CODE = os.getenv("REG_CODE") # 권역코드
+
 TRAFFIC_INFORMATION = os.getenv("TRAFFIC_INFORMATION") # 교통량
 RAIN_API_KEY = os.getenv("RAIN_API_KEY")    # 강우량
 
@@ -29,10 +34,12 @@ SEOUL_TRAFFIC_REALTIME_API_KEY = os.getenv("SEOUL_TRAFFIC_REALTIME_API_KEY") # �
 if __name__ == "__main__":
     api_list = [
         {'name': 'AccInfo', 'key': OUTBREAK_KEY, 'response_type' : 'xml'},
-        {'name': 'ListRainfallService', 'key': RAIN_API_KEY, 'response_type' : 'xml'},
-        #{'name': 'LinkInfo', 'key': LINK_ID, 'response_type' : 'xml'},
-        {'name': 'realtimePosition', 'key': SEOUL_SUBWAY_POSITION_API_KEY, 'response_type' : 'xml'},
-        {'name': 'TrafficInfo', 'key': SEOUL_TRAFFIC_REALTIME_API_KEY, 'response_type' : 'xml'}
+        {'name': 'AccMainCode', 'key': OUTBREAK_CODE_NAME, 'response_type' : 'xml'},
+        {'name': 'AccSubCode', 'key': OUTBREAK_Detail_CODE, 'response_type' : 'xml'},
+        {'name': 'LinkInfo', 'key': LINK_ID, 'response_type' : 'xml'},
+        {'name': 'RegionInfo', 'key': REG_CODE, 'response_type' : 'xml'},
+        {'name': 'TrafficInfo', 'key': SEOUL_TRAFFIC_REALTIME_API_KEY, 'response_type' : 'xml'},
+        {'name': 'realtimePosition', 'key': SEOUL_SUBWAY_POSITION_API_KEY, 'response_type' : 'xml'}
     ]
 
 lines = ['1호선', '2호선', '3호선', '4호선', '5호선', '6호선', '7호선', '8호선', '9호선', '신분당선', '경의중앙선', '공항철도']
@@ -42,12 +49,19 @@ lines = ['1호선', '2호선', '3호선', '4호선', '5호선', '6호선', '7호
 # -----------------------------
 topic_mapping = {
     'AccInfo': 'outbreak_topic',
-    'ListRainfallService': 'rain_topic',
+    'AccMainCode' : 'outbreak_topic',
+    'AccSubCode' : 'outbreak_topic',
+    
+    'LinkInfo' : 'realtime_trafficInfo',
+    'TrafficInfo': 'realtime_trafficInfo',
+    'RegionInfo' : 'realtime_trafficInfo',
 
+    'ListRainfallService': 'rain_topic',
     'realtimeStationArrival': 'subway_arrival_topic',
-    'realtimePosition': 'subway_position_topic',
-    'TrafficInfoRealtime': 'realtime_traffic_topic',
-    'TrafficInfo': 'realtime_trafficInfo'
+    'realtimePosition': 'subway_position_topic'
+
+    #'TrafficInfoRealtime': 'realtime_traffic_topic',
+    
 }
 # http://swopenapi.seoul.go.kr/7a6b676a67646e64313035504a516556/xml/realtimePosition/1/500/1호선
 # http://swopenapi.seoul.go.kr/api/subway/sample/xml/realtimePosition/0/5/1%ED%98%B8%EC%84%A0
