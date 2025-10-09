@@ -108,10 +108,14 @@ def process_batch_with_redis(batch_df, batch_id):
         else:
             print(f"[INFO] Duplicate alert skipped for ACC_ID: {item['acc_id']}")
 
+        # -----------------------------
         # 3) MySQL 저장용 데이터 (전체 컬럼 포함)
+        # -----------------------------
         redis_client.rpush_list("db_queue", item)  # item은 inner_schema 전체 컬럼
 
-        # 4) LinkInfo API 호출용 데이터 (link_queue)
+        # -----------------------------
+        # 4) LinkInfo, TrafficInfo API 호출용 데이터 (link_queue)
+        # -----------------------------
         link_id = item.get("link_id")
         if link_id and not redis_client.r.exists(f"link_sent:{link_id}"):
             redis_client.rpush_list("link_queue", {"link_id": link_id})
