@@ -1,37 +1,140 @@
-import json, time, requests
+import requests
+import mysql.connector
+import json
+import time
+import xml.etree.ElementTree as ET
 from utils.redis_utils import RedisClient
-
+import os
+# Redis 연결
 redis_client = RedisClient(host="redis", port=6379, db=0)
 
+LINK_ID = os.getenv("LINK_ID") 
+SEOUL_TRAFFIC_REALTIME_API_KEY = os.getenv("SEOUL_TRAFFIC_REALTIME_API_KEY") 
+DB_BATCH_SIZE = 50
+MYSQL_CONFIG = {
+    "host": "mysql",
+    "user": "user",
+    "password": "userpass",
+    "database": "toy_project"
+}
+
+# ------------------------------------------------------------------
+# XML 파싱 함수
+# ------------------------------------------------------------------
+def parse_linkinfo(xml_str):
+    try:
+        root = ET.fromstring(xml_str)
+        row = root.find("row")
+        if row is None:
+            return None
+        return {
+            "link_id": row.findtext("link_id"),
+            "road_name": row.findtext("road_name"),
+            "st_node_nm": row.findtext("st_node_nm"),
+            "ed_node_nm": row.findtext("ed_node_nm"),
+            "map_dist": int(row.findtext("map_dist") or 0),
+            "reg_cd": int(row.findtext("reg_cd"))
+        }
+    except Exception as e:
+        print(f"[ERROR] LinkInfo XML 파싱 실패: {e}")
+        return None
+
+
+def parse_trafficinfo(xml_str):
+    try:
+        root = ET.fromstring(xml_str)
+        row = root.find("row")
+        if row is None:
+            return None
+        return {
+            "link_id": row.findtext("link_id"),
+            "prcs_spd": int(row.findtext("prcs_spd") or 0),
+            "prcs_trv_time": int(row.findtext("prcs_trv_time") or 0)
+        }
+    except Exception as e:
+        print(f"[ERROR] TrafficInfo XML 파싱 실패: {e}")
+        return None
+
+
+# ------------------------------------------------------------------
+# API 호출 함수
+# ------------------------------------------------------------------
 def fetch_linkinfo(link_id):
-    url = f"http://openapi.seoul.go.kr:8088/sample/xml/LinkInfo/1/5/{link_id}/"
+    url = f"http://openapi.seoul.go.kr:8088/{LINK_ID}/xml/LinkInfo/1/5/{link_id}/"
     try:
         res = requests.get(url, timeout=5)
         res.raise_for_status()
-        print(f"[INFO] LinkInfo API 호출 성공: {link_id}")
-        return res.text  # 필요시 XML 파싱 가능
+        return parse_linkinfo(res.text)
     except Exception as e:
         print(f"[ERROR] LinkInfo 호출 실패 ({link_id}): {e}")
         return None
 
-def process_link_queue():
+
+def fetch_trafficinfo(link_id):
+    url = f"http://openapi.seoul.go.kr:8088/{SEOUL_TRAFFIC_REALTIME_API_KEY}/xml/TrafficInfo/1/5/{link_id}/"
+    try:
+        res = requests.get(url, timeout=5)
+        res.raise_for_status()
+        return parse_trafficinfo(res.text)
+    except Exception as e:
+        print(f"[ERROR] TrafficInfo 호출 실패 ({link_id}): {e}")
+        return None
+
+
+# ------------------------------------------------------------------
+# Redis → MySQL 저장 함수
+# ------------------------------------------------------------------
+def save_link_and_traffic_to_mysql():
     while True:
-        item = redis_client.lpop("link_queue")
-        if not item:
-            print("[INFO] link_queue 비어 있음. 5초 대기...")
+        batch = []
+        for _ in range(DB_BATCH_SIZE):
+            item = redis_client.lpop("link_queue")
+            if item is None:
+                break
+            batch.append(json.loads(item))  # {"link_id": "1220003800"}
+
+        if not batch:
             time.sleep(5)
             continue
 
-        link_id = json.loads(item)["link_id"]
-        data = fetch_linkinfo(link_id)
-        if data:
-            # 성공 시 후속 처리 (MySQL 저장 or Redis publish 등)
-            pass
-        else:
-            # 실패 시 재시도 큐에 푸시
-            redis_client.rpush_list("link_queue_retry", {"link_id": link_id})
-            print(f"[WARN] LinkInfo 재시도 큐에 추가됨: {link_id}")
+        conn = mysql.connector.connect(**MYSQL_CONFIG)
+        cursor = conn.cursor()
+
+        for entry in batch:
+            link_id = entry.get("link_id")
+            if not link_id:
+                continue
+
+            link_info = fetch_linkinfo(link_id)
+            traffic_info = fetch_trafficinfo(link_id)
+
+            if link_info:
+                cursor.execute("""
+                    INSERT INTO OUTBREAK_LINK (LINK_ID, ROAD_NAME, ST_NODE_NM, ED_NODE_NM, MAP_DIST, REG_CD)
+                    VALUES (%(link_id)s, %(road_name)s, %(st_node_nm)s, %(ed_node_nm)s, %(map_dist)s, %(reg_cd)s)
+                    ON DUPLICATE KEY UPDATE
+                        ROAD_NAME = VALUES(ROAD_NAME),
+                        ST_NODE_NM = VALUES(ST_NODE_NM),
+                        ED_NODE_NM = VALUES(ED_NODE_NM),
+                        MAP_DIST = VALUES(MAP_DIST),
+                        REG_CD = VALUES(REG_CD)
+                """, link_info)
+
+            if traffic_info:
+                cursor.execute("""
+                    INSERT INTO TRAFFICINFO_TABLE (LINK_ID, PRCS_SPD, PRCS_TRV_TIME)
+                    VALUES (%(link_id)s, %(prcs_spd)s, %(prcs_trv_time)s)
+                    ON DUPLICATE KEY UPDATE
+                        PRCS_SPD = VALUES(PRCS_SPD),
+                        PRCS_TRV_TIME = VALUES(PRCS_TRV_TIME)
+                """, traffic_info)
+
+        conn.commit()
+        cursor.close()
+        conn.close()
+        print(f"[INFO] {len(batch)}개의 LINK_ID 처리 완료")
+
 
 if __name__ == "__main__":
-    print("[START] LinkInfo Worker 실행 시작")
-    process_link_queue()
+    print("[SYSTEM] Link Worker 시작")
+    save_link_and_traffic_to_mysql()
