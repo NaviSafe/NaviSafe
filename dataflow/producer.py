@@ -52,8 +52,8 @@ topic_mapping = {
     'AccMainCode' : 'outbreak_topic',
     'AccSubCode' : 'outbreak_topic',
     
-    'LinkInfo' : 'realtime_trafficInfo',
-    'TrafficInfo': 'realtime_trafficInfo',
+    # 'LinkInfo' : 'realtime_trafficInfo',
+    # 'TrafficInfo': 'realtime_trafficInfo',
     'RegionInfo' : 'realtime_trafficInfo',
 
     'ListRainfallService': 'rain_topic',
@@ -128,7 +128,7 @@ def send_to_kafka(api):
 
         else:
             # 나머지 API
-            url = f"http://openapi.seoul.go.kr:8088/{api['key']}/{response_type}/{api_name}/1/4/"
+            url = f"http://openapi.seoul.go.kr:8088/{api['key']}/{response_type}/{api_name}/1/500/"
             response = requests.get(url, timeout=10)
             response.raise_for_status()
             if response_type == 'xml':
