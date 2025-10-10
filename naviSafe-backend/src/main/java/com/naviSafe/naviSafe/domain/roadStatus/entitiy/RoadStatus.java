@@ -32,10 +32,6 @@ public class RoadStatus {
     private int mapDist;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "LINK_ID", insertable = false, updatable = false)
-    private RoadTraffic roadTraffic;
-
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "REG_CD")
     private RegionCode regionCode;
 }

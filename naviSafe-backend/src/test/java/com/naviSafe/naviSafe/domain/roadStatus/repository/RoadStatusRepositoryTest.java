@@ -59,7 +59,6 @@ class RoadStatusRepositoryTest {
                         .endNodeNm("울산전통시장")
                         .mapDist(123)
                         .regionCode(regionCode1)
-                        .roadTraffic(roadTraffic1)
                         .build());
 
 
@@ -85,7 +84,6 @@ class RoadStatusRepositoryTest {
                         .endNodeNm("울산동구 마을센터")
                         .mapDist(199)
                         .regionCode(regionCode2)
-                        .roadTraffic(roadTraffic2)
                         .build());
         em.flush();
         em.clear();
