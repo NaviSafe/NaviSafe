@@ -1,5 +1,6 @@
 package com.naviSafe.naviSafe.domain.roadStatus.entitiy;
 
+import com.naviSafe.naviSafe.domain.roadTraffic.entitiy.RoadTraffic;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -22,4 +23,8 @@ public class RoadStatusLink {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "LINK_ID")
     private RoadStatus roadStatus;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "LINK_ID", insertable = false, updatable = false)
+    private RoadTraffic roadTraffic;
 }
