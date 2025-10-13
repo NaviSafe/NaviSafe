@@ -90,15 +90,10 @@ ENGINE = InnoDB;
 -- Table `toy_project`.`ROAD_TRAFFIC`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `toy_project`.`ROAD_TRAFFIC` (
-  `LINK_ID` VARCHAR(45) NOT NULL COMMENT '서울시 실시간 도로 소통 정보\n\n링크 아이디',
+  `LINK_ID` VARCHAR(45) NOT NULL,
   `PRCS_SPD` INT NULL COMMENT '속도',
   `PRCS_TRV_TIME` INT NULL COMMENT '여행 시간',
-  PRIMARY KEY (`LINK_ID`),
-  CONSTRAINT `fk_ROAD_TRAFFIC_LINK_ID1`
-    FOREIGN KEY (`LINK_ID`)
-    REFERENCES `toy_project`.`LINK_ID` (`LINK_ID`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
+  PRIMARY KEY (`LINK_ID`))
 ENGINE = InnoDB;
 
 
@@ -116,7 +111,7 @@ ENGINE = InnoDB;
 -- Table `toy_project`.`OUTBREAK_DETAIL_CODE`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `toy_project`.`OUTBREAK_DETAIL_CODE` (
-  `OUTBREAK_ACC_ID` VARCHAR(5) NOT NULL,
+  `OUTBREAK_ACC_ID` VARCHAR(10) NOT NULL,
   `ACC_DTYPE` VARCHAR(10) NULL,
   PRIMARY KEY (`OUTBREAK_ACC_ID`),
   CONSTRAINT `fk_OUTBREAK_DETAIL_CODE_OUTBREAK1`
@@ -146,7 +141,7 @@ ENGINE = InnoDB;
 -- Table `toy_project`.`OUTBREAK_CODE`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `toy_project`.`OUTBREAK_CODE` (
-  `OUTBREAK_ACC_ID` VARCHAR(5) NOT NULL,
+  `OUTBREAK_ACC_ID` VARCHAR(10) NOT NULL,
   `ACC_TYPE` VARCHAR(5) NULL COMMENT '서울시 돌발 유형 코드 정보\n\n\"돌발 유형 코드\"\n',
   PRIMARY KEY (`OUTBREAK_ACC_ID`),
   CONSTRAINT `fk_OUTBREAK`
@@ -161,12 +156,11 @@ CREATE TABLE IF NOT EXISTS `toy_project`.`OUTBREAK_CODE` (
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
-
 -- -----------------------------------------------------
 -- Table `toy_project`.`ACC_ALTERTS`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `toy_project`.`ACC_ALTERTS` (
-  `OUTBREAK_ACC_ID` VARCHAR(5) NOT NULL,
+  `OUTBREAK_ACC_ID` VARCHAR(10) NOT NULL,
   `ACC_INFO` TEXT(800) NULL,
   PRIMARY KEY (`OUTBREAK_ACC_ID`),
   CONSTRAINT `fk_ACC_ALTERTS_OUTBREAK1`
@@ -181,7 +175,7 @@ ENGINE = InnoDB;
 -- Table `toy_project`.`MAP_GPS`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `toy_project`.`MAP_GPS` (
-  `OUTBREAK_ACC_ID` VARCHAR(5) NOT NULL,
+  `OUTBREAK_ACC_ID` VARCHAR(10) NOT NULL,
   `GRS80TM_X` FLOAT NULL,
   `GRS80TM_Y` FLOAT NULL,
   PRIMARY KEY (`OUTBREAK_ACC_ID`),
@@ -197,18 +191,23 @@ ENGINE = InnoDB;
 -- Table `toy_project`.`OUTBREAK_LINK`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `toy_project`.`OUTBREAK_LINK` (
-  `OUTBREAK_ACC_ID` VARCHAR(5) NOT NULL,
-  `LINK_ID_LINK_ID` VARCHAR(45) NOT NULL,
-  PRIMARY KEY (`OUTBREAK_ACC_ID`, `LINK_ID_LINK_ID`),
-  INDEX `fk_OUTBREAK_LINK_LINK_ID1_idx` (`LINK_ID_LINK_ID` ASC) VISIBLE,
+  `OUTBREAK_ACC_ID` VARCHAR(10) NOT NULL,
+  `LINK_ID` VARCHAR(45) NOT NULL,
+  PRIMARY KEY (`OUTBREAK_ACC_ID`, `LINK_ID`),
+  INDEX `fk_OUTBREAK_LINK_LINK_ID1_idx` (`LINK_ID` ASC) VISIBLE,
   CONSTRAINT `fk_OUTBREAK_LINK_OUTBREAK1`
     FOREIGN KEY (`OUTBREAK_ACC_ID`)
     REFERENCES `toy_project`.`OUTBREAK_Occurrence` (`ACC_ID`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_OUTBREAK_LINK_LINK_ID1`
-    FOREIGN KEY (`LINK_ID_LINK_ID`)
+    FOREIGN KEY (`LINK_ID`)
     REFERENCES `toy_project`.`LINK_ID` (`LINK_ID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_OUTBREAK_LINK_ROAD_TRAFFIC`
+    FOREIGN KEY (`LINK_ID`)
+    REFERENCES `toy_project`.`ROAD_TRAFFIC` (`LINK_ID`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
