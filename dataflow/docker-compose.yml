@@ -77,6 +77,18 @@ services:
     command: bash -c "pip install --no-cache-dir pyspark==3.5.5 redis mysql-connector-python && python outbreak_preprocessing.py"
     restart: unless-stopped
 
+  linkinfo:
+    build: .
+    container_name: linkinfo
+    depends_on:
+      - preprocessing
+    volumes:
+      - ./:/app
+    working_dir: /app/preprocessing
+    environment:
+      - PYTHONPATH=/app
+    command: bash -c "pip install --no-cache-dir redis mysql-connector-python && python linkinfo_worker.py"
+    restart: unless-stopped
 
   spark-master:
     image: bitnami/spark:3.5.5
