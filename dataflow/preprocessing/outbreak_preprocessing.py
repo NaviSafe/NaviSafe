@@ -14,18 +14,18 @@ redis_client = RedisClient(host="redis", port=6379, db=0)
 
 # 스키마 (배열 안에 객체)
 inner_schema = StructType([
-    StructField("ACC_DTYPE", StringType(), True),
-    StructField("ACC_DTYPE_NM", StringType(), True),
+    StructField("acc_id", StringType(), True),
     StructField("occr_date", StringType(), True),
     StructField("occr_time", StringType(), True),
     StructField("exp_clr_date", StringType(), True),
     StructField("exp_clr_time", StringType(), True),
     StructField("acc_type", StringType(), True),
     StructField("acc_dtype", StringType(), True),
-    StructField("acc_info", StringType(), True),
+    StructField("link_id", StringType(), True),
     StructField("grs80tm_x", StringType(), True),
     StructField("grs80tm_y", StringType(), True),
     StructField("acc_road_code", StringType(), True),
+    StructField("acc_info", StringType(), True)
 ])
 
 schema = ArrayType(inner_schema)
@@ -111,7 +111,10 @@ def process_batch_with_redis(batch_df, batch_id):
         # -----------------------------
         # 3) MySQL 저장용 데이터 (전체 컬럼 포함)
         # -----------------------------
-        redis_client.rpush_list("db_queue", item)  # item은 inner_schema 전체 컬럼
+        if item.get("acc_id"):  # acc_id가 존재하는 경우만 db_queue에 저장
+            redis_client.rpush_list("db_queue", item)
+        else:
+            print(f"[SKIP] acc_id 없음 → db_queue에 저장 안함: {item}")
 
         # -----------------------------
         # 4) LinkInfo, TrafficInfo API 호출용 데이터 (link_queue)
@@ -137,72 +140,105 @@ def save_from_redis_to_mysql():
                 break
             batch.append(json.loads(item))  # Redis에서 가져온 JSON → dict
     
-        if batch:
-            unique_batch = list({d["acc_id"]: d for d in batch}.values())
-            print(f"[INFO] Batch size: {len(batch)}")
-            print(f"[INFO] Sample data: {batch[0]}")
-            
-            # MySQL에 batch insert
-            conn = mysql.connector.connect(
-                host="mysql",
-                user="user",
-                password="userpass",
-                database="toy_project"
-            )
-            cursor = conn.cursor()
+        if not batch:
+            print("[INFO] No data in Redis, sleeping 5s...")
+            time.sleep(5)
+            continue
 
-            cursor.executemany("""
-                INSERT INTO OUTBREAK_Occurrence (ACC_ID, occr_date_time, exp_clr_date_time)
-                VALUES (%s, %s, %s)
-                ON DUPLICATE KEY UPDATE
-                    occr_date_time=VALUES(occr_date_time),
-                    exp_clr_date_time=VALUES(exp_clr_date_time)
-            """, [(d["acc_id"], d["occr_date_time"], d["exp_clr_date_time"]) for d in unique_batch])
+        unique_batch = list({d["acc_id"]: d for d in batch}.values())
+        print(f"[INFO] Batch size: {len(unique_batch)}")
+        print(f"[INFO] Sample data: {unique_batch[0]}")
 
+        conn = mysql.connector.connect(
+            host="mysql",
+            user="user",
+            password="userpass",
+            database="toy_project"
+        )
+        cursor = conn.cursor()
+
+        try:
+            # -----------------------------
+            # OUTBREAK_Occurrence (occr_date_time 필터)
+            # -----------------------------
+            batch_occurrence = [d for d in unique_batch if d["occr_date_time"] is not None]
+            if batch_occurrence:
+                cursor.executemany("""
+                    INSERT IGNORE INTO OUTBREAK_Occurrence (ACC_ID, occr_date_time, exp_clr_date_time)
+                    VALUES (%s, %s, %s)
+                    ON DUPLICATE KEY UPDATE
+                        occr_date_time=VALUES(occr_date_time),
+                        exp_clr_date_time=VALUES(exp_clr_date_time)
+                """, [(d["acc_id"], d["occr_date_time"], d["exp_clr_date_time"]) for d in batch_occurrence])
+        except Exception as e:
+            print(f"[ERROR] OUTBREAK_Occurrence 삽입 실패: {e}")
+
+        try:
+            # -----------------------------
+            # FK 체크: OUTBREAK_DETAIL_CODE_NAME
+            # -----------------------------
+            cursor.execute("SELECT ACC_DTYPE FROM OUTBREAK_DETAIL_CODE_NAME")
+            valid_dtypes = set([r[0] for r in cursor.fetchall()])
+            batch_detail = [d for d in unique_batch if d["acc_dtype"] in valid_dtypes]
+            if batch_detail:
+                cursor.executemany("""
+                    INSERT IGNORE INTO OUTBREAK_DETAIL_CODE (OUTBREAK_ACC_ID , ACC_DTYPE)
+                    VALUES (%s, %s)
+                    ON DUPLICATE KEY UPDATE
+                        ACC_DTYPE=VALUES(ACC_DTYPE)
+                """, [(d["acc_id"], d["acc_dtype"]) for d in batch_detail])
+        except Exception as e:
+            print(f"[ERROR] OUTBREAK_DETAIL_CODE 삽입 실패: {e}")
+
+        try:
+            # -----------------------------
+            # FK 체크: LINK_ID
+            # -----------------------------
+            cursor.execute("SELECT LINK_ID FROM LINK_ID")
+            valid_links = set([r[0] for r in cursor.fetchall()])
+            batch_link = [d for d in unique_batch if d["link_id"] in valid_links]
+            if batch_link:
+                cursor.executemany("""
+                    INSERT IGNORE INTO OUTBREAK_LINK (OUTBREAK_ACC_ID , LINK_ID)
+                    VALUES (%s, %s)
+                    ON DUPLICATE KEY UPDATE
+                        LINK_ID=VALUES(LINK_ID)
+                """, [(d["acc_id"], d["link_id"]) for d in batch_link])
+        except Exception as e:
+            print(f"[ERROR] OUTBREAK_LINK 삽입 실패: {e}")
+
+        try:
+            # -----------------------------
+            # 나머지 테이블 (MAP_GPS, ACC_ALTERTS, OUTBREAK_CODE)
+            # -----------------------------
             cursor.executemany("""
-                INSERT INTO OUTBREAK_CODE (OUTBREAK_ACC_ID, ACC_TYPE)
+                INSERT IGNORE INTO OUTBREAK_CODE (OUTBREAK_ACC_ID, ACC_TYPE)
                 VALUES (%s, %s)
                 ON DUPLICATE KEY UPDATE
                     ACC_TYPE=VALUES(ACC_TYPE)
             """, [(d["acc_id"], d["acc_type"]) for d in unique_batch])
 
             cursor.executemany("""
-                INSERT INTO OUTBREAK_DETAIL_CODE (OUTBREAK_ACC_ID , ACC_DTYPE)
-                VALUES (%s, %s)
-                ON DUPLICATE KEY UPDATE
-                    ACC_DTYPE=VALUES(ACC_DTYPE)
-            """, [(d["acc_id"], d["acc_dtype"]) for d in unique_batch])
-
-            cursor.executemany("""
-                INSERT INTO MAP_GPS (OUTBREAK_ACC_ID , GRS80TM_X, GRS80TM_Y)
+                INSERT IGNORE INTO MAP_GPS (OUTBREAK_ACC_ID , GRS80TM_X, GRS80TM_Y)
                 VALUES (%s, %s, %s)
                 ON DUPLICATE KEY UPDATE
                     GRS80TM_X=VALUES(GRS80TM_X),
-                    GRS80TM_Y=VALUES(GRS80TM_Y),         
-            """, [(d["acc_id"], d["acc_dtype"]) for d in unique_batch])
+                    GRS80TM_Y=VALUES(GRS80TM_Y)         
+            """, [(d["acc_id"], d["grs80tm_x"], d["grs80tm_y"]) for d in unique_batch])
 
             cursor.executemany("""
-                INSERT INTO ACC_ALTERTS (OUTBREAK_ACC_ID , ACC_INFO)
+                INSERT IGNORE INTO ACC_ALTERTS (OUTBREAK_ACC_ID , ACC_INFO)
                 VALUES (%s, %s)
                 ON DUPLICATE KEY UPDATE
                     ACC_INFO=VALUES(ACC_INFO)
             """, [(d["acc_id"], d["acc_info"]) for d in unique_batch])
 
-            cursor.executemany("""
-                INSERT INTO OUTBREAK_LINK (OUTBREAK_ACC_ID , LINK_ID)
-                VALUES (%s, %s)
-                ON DUPLICATE KEY UPDATE
-                    LINK_ID=VALUES(LINK_ID)
-            """, [(d["acc_id"], d["link_id "]) for d in unique_batch])            
+        except Exception as e:
+            print(f"[ERROR] 나머지 테이블 삽입 실패: {e}")
 
-
-            conn.commit()
-            cursor.close()
-            conn.close()
-
-        else:
-            print("[INFO] No data in Redis, sleeping 5s...")
-            time.sleep(5)
+        conn.commit()
+        cursor.close()
+        conn.close()
 
 
 # 별도 쓰레드로 실행

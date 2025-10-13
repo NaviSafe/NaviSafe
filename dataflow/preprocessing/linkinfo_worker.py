@@ -110,7 +110,7 @@ def save_link_and_traffic_to_mysql():
 
             if link_info:
                 cursor.execute("""
-                    INSERT INTO OUTBREAK_LINK (LINK_ID, ROAD_NAME, ST_NODE_NM, ED_NODE_NM, MAP_DIST, REG_CD)
+                    INSERT INTO LINK_ID (LINK_ID, ROAD_NAME, ST_NODE_NM, ED_NODE_NM, MAP_DIST, REG_CD)
                     VALUES (%(link_id)s, %(road_name)s, %(st_node_nm)s, %(ed_node_nm)s, %(map_dist)s, %(reg_cd)s)
                     ON DUPLICATE KEY UPDATE
                         ROAD_NAME = VALUES(ROAD_NAME),
@@ -122,7 +122,7 @@ def save_link_and_traffic_to_mysql():
 
             if traffic_info:
                 cursor.execute("""
-                    INSERT INTO TRAFFICINFO_TABLE (LINK_ID, PRCS_SPD, PRCS_TRV_TIME)
+                    INSERT INTO ROAD_TRAFFIC (LINK_ID, PRCS_SPD, PRCS_TRV_TIME)
                     VALUES (%(link_id)s, %(prcs_spd)s, %(prcs_trv_time)s)
                     ON DUPLICATE KEY UPDATE
                         PRCS_SPD = VALUES(PRCS_SPD),
