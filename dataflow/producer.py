@@ -34,11 +34,11 @@ SEOUL_TRAFFIC_REALTIME_API_KEY = os.getenv("SEOUL_TRAFFIC_REALTIME_API_KEY") # �
 if __name__ == "__main__":
     api_list = [
         {'name': 'AccInfo', 'key': OUTBREAK_KEY, 'response_type' : 'xml'},
-        {'name': 'AccMainCode', 'key': OUTBREAK_CODE_NAME, 'response_type' : 'xml'},
-        {'name': 'AccSubCode', 'key': OUTBREAK_Detail_CODE, 'response_type' : 'xml'},
-        {'name': 'LinkInfo', 'key': LINK_ID, 'response_type' : 'xml'},
+        # {'name': 'AccMainCode', 'key': OUTBREAK_CODE_NAME, 'response_type' : 'xml'},
+        # {'name': 'AccSubCode', 'key': OUTBREAK_Detail_CODE, 'response_type' : 'xml'},
+        #{'name': 'LinkInfo', 'key': LINK_ID, 'response_type' : 'xml'},
         {'name': 'RegionInfo', 'key': REG_CODE, 'response_type' : 'xml'},
-        {'name': 'TrafficInfo', 'key': SEOUL_TRAFFIC_REALTIME_API_KEY, 'response_type' : 'xml'},
+        #{'name': 'TrafficInfo', 'key': SEOUL_TRAFFIC_REALTIME_API_KEY, 'response_type' : 'xml'},
         {'name': 'realtimePosition', 'key': SEOUL_SUBWAY_POSITION_API_KEY, 'response_type' : 'xml'}
     ]
 
@@ -49,15 +49,15 @@ lines = ['1호선', '2호선', '3호선', '4호선', '5호선', '6호선', '7호
 # -----------------------------
 topic_mapping = {
     'AccInfo': 'outbreak_topic',
-    'AccMainCode' : 'outbreak_topic',
-    'AccSubCode' : 'outbreak_topic',
+    # 'AccMainCode' : 'outbreak_topic',
+    # 'AccSubCode' : 'outbreak_topic',
     
     # 'LinkInfo' : 'realtime_trafficInfo',
     # 'TrafficInfo': 'realtime_trafficInfo',
     'RegionInfo' : 'realtime_trafficInfo',
 
-    'ListRainfallService': 'rain_topic',
-    'realtimeStationArrival': 'subway_arrival_topic',
+    # 'ListRainfallService': 'rain_topic',
+    # 'realtimeStationArrival': 'subway_arrival_topic',
     'realtimePosition': 'subway_position_topic'
 
     #'TrafficInfoRealtime': 'realtime_traffic_topic',
