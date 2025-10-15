@@ -70,6 +70,8 @@ services:
       - PYTHONPATH=/app
     depends_on:
       - mysql
+      - airflow-scheduler
+      - airflow-webserver
     volumes:
       - ./preprocessing:/app/preprocessing
       - ./utils:/app/utils
@@ -135,6 +137,10 @@ services:
       MYSQL_PASSWORD: userpass
     volumes:
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      retries: 5
     depends_on:
       - weather-consumer
       - traffic-consumer
@@ -160,35 +166,56 @@ services:
     working_dir: /app/utils
     command: bash -c "pip install --no-cache-dir redis && python check_redis.py"
 
-  airflow:
+  airflow-webserver:
     build:
       context: .
-      dockerfile: Dockerfile.airflow   # airflow 전용 Dockerfile
-    #image: apache/airflow:2.8.1
-    container_name: airflow
+      dockerfile: Dockerfile.airflow
+    container_name: airflow-webserver
     restart: unless-stopped
-
     environment:
       AIRFLOW__CORE__EXECUTOR: LocalExecutor
       AIRFLOW__CORE__FERNET_KEY: '5ozw1xClhNUKElcA31BOLTCr3f8de2whokz13dLXQ1w='
       AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
       AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: 'mysql+pymysql://user:userpass@mysql:3306/airflow_db'
       AIRFLOW__WEBSERVER__RBAC: 'true'
-    # env_file:
-    #   - .env
-    depends_on:
-      - mysql
-    ports:
-      - "8081:8080"   # Airflow Web UI
     volumes:
-      - ./dags:/opt/airflow/dags
-      - ./logs:/opt/airflow/logs
-      - ./plugins:/opt/airflow/plugins
-      - ./requirements.txt:/requirements.txt
-    command: bash -c "airflow db init && airflow users create --username admin --password admin --firstname Admin --lastname User --role Admin --email admin@example.com && exec airflow webserver"
+      - ./airflow/dags:/opt/airflow/dags
+      - ./airflow/plugins:/opt/airflow/plugins
+      - ./airflow/logs:/opt/airflow/logs
+      - ./wait-for-it.sh:/wait-for-it.sh
+    depends_on:
+      mysql:
+        condition: service_healthy
+    ports:
+      - "8081:8080"
+    entrypoint: ["/wait-for-it.sh", "mysql", "3306", "--"]
+    command: bash -c "airflow db upgrade && airflow users create --username admin --password admin --firstname Admin --lastname User --role Admin --email admin@example.com && exec airflow webserver"
 
-    #bash -c "pip install --no-cache-dir pymysql && airflow db init && airflow users create --username admin --password admin --firstname Admin --lastname User --role Admin --email admin@example.com && exec airflow webserver"
-    #bash -c "pip install --no-cache-dir -r /requirements.txt && exec airflow webserver"
+  airflow-scheduler:
+    build:
+      context: .
+      dockerfile: Dockerfile.airflow
+    container_name: airflow-scheduler
+    restart: unless-stopped
+    environment:
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      AIRFLOW__CORE__FERNET_KEY: '5ozw1xClhNUKElcA31BOLTCr3f8de2whokz13dLXQ1w='
+      AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
+      #AIRFLOW__CORE__PLUGINS_FOLDER: /opt/airflow/plugins
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: 'mysql+pymysql://user:userpass@mysql:3306/airflow_db'
+    volumes:
+      - ./airflow/dags:/opt/airflow/dags
+      - ./airflow/plugins:/opt/airflow/plugins
+      - ./airflow/logs:/opt/airflow/logs
+      - ./wait-for-it.sh:/wait-for-it.sh
+    depends_on:
+      mysql:
+        condition: service_healthy
+    #entrypoint: ["/wait-for-it.sh", "mysql", "3306", "--"]
+    command: >
+      bash -c "until airflow db check; do echo 'Waiting for airflow DB...'; sleep 2; done && exec airflow scheduler"
+
+
   
   subway-api:
     build: .
