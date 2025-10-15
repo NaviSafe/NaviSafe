@@ -1,7 +1,11 @@
+# Airflow 공식 이미지 기반
 FROM apache/airflow:2.8.1
 
 # airflow 사용자로 패키지 설치
 USER airflow
 
+# 필요한 파이썬 패키지 설치
 COPY requirements.txt /requirements.txt
 RUN pip install --user --no-cache-dir -r /requirements.txt
+
+# dags, plugins, logs는 docker-compose에서 volume으로 마운트

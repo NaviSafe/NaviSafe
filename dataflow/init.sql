@@ -1,4 +1,13 @@
 -- MySQL Workbench Forward Engineering
+CREATE SCHEMA IF NOT EXISTS `toy_project` DEFAULT CHARACTER SET utf8 COLLATE utf8_bin ;
+-- Airflow DB
+CREATE DATABASE IF NOT EXISTS airflow_db;
+
+-- 공통 사용자 생성
+CREATE USER IF NOT EXISTS 'user'@'%' IDENTIFIED BY 'userpass';
+GRANT ALL PRIVILEGES ON toy_project.* TO 'user'@'%';
+GRANT ALL PRIVILEGES ON airflow_db.* TO 'user'@'%';
+FLUSH PRIVILEGES;
 
 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
@@ -14,7 +23,7 @@ SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,N
 --
 -- CREATE SCHEMA IF NOT EXISTS `mydb` DEFAULT CHARACTER SET utf8 
 -- -----------------------------------------------------
-CREATE SCHEMA IF NOT EXISTS `toy_project` DEFAULT CHARACTER SET utf8 COLLATE utf8_bin ;
+
 USE `toy_project` ;
 
 -- -----------------------------------------------------
