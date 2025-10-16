@@ -17,10 +17,17 @@ def parse_regioninfo(xml_str):
     try:
         root = ET.fromstring(xml_str)
         rows = root.findall("row")
-        return [{"reg_cd": int(r.findtext("reg_cd")), "reg_name": r.findtext("reg_name")} for r in rows]
+        result = []
+        for r in rows:
+            result.append({
+                "reg_cd": r.findtext("reg_cd"),
+                "reg_name": r.findtext("reg_name")
+            })
+        return result
     except Exception as e:
         print(f"[ERROR] RegionInfo XML 파싱 실패: {e}")
         return []
+
 
 # API 호출
 def fetch_regioninfo():
@@ -33,17 +40,22 @@ def fetch_regioninfo():
 def save_regioninfo_to_mysql(region_list):
     conn = mysql.connector.connect(**MYSQL_CONFIG)
     cursor = conn.cursor()
-    for region in region_list:
-        cursor.execute("""
-            INSERT INTO REGION_CD (REG_CD, REG_NAME)
-            VALUES (%(reg_cd)s, %(reg_name)s)
-            ON DUPLICATE KEY UPDATE
-                REG_NAME = VALUES(REG_NAME)
-        """, region)
-    conn.commit()
-    cursor.close()
-    conn.close()
-    print(f"[INFO] {len(region_list)}개의 지역 코드 저장 완료")
+    try: 
+        for region in region_list:
+            cursor.execute("""
+                INSERT INTO REG_CD (REG_CD, REG_NAME)
+                VALUES (%(reg_cd)s, %(reg_name)s)
+                ON DUPLICATE KEY UPDATE
+                    REG_NAME = VALUES(REG_NAME)
+            """, region)
+        conn.commit()
+        print(f"[INFO] {len(region_list)}개의 지역 코드 저장 완료")
+    except Exception as e:
+        print(f"[ERROR] MySQL 저장 실패: {e}")
+        raise
+    finally:
+        cursor.close()
+        conn.close()
 
 # Airflow에서 호출할 함수
 def update_region_code_name():
