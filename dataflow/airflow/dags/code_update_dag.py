@@ -40,7 +40,7 @@ with DAG(
 
     task_region = PythonOperator(
         task_id='update_region_name',
-        python_callable=update_region_name
+        python_callable=update_region_code_name
     )
 
     # 실행 순서: 병렬 실행
