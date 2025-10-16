@@ -1,0 +1,57 @@
+[2025-10-16T10:54:02.607+0000] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: daily_code_update.update_region_name scheduled__2025-10-14T15:00:00+00:00 [queued]>
+[2025-10-16T10:54:02.619+0000] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: daily_code_update.update_region_name scheduled__2025-10-14T15:00:00+00:00 [queued]>
+[2025-10-16T10:54:02.620+0000] {taskinstance.py:2170} INFO - Starting attempt 1 of 2
+[2025-10-16T10:54:02.642+0000] {taskinstance.py:2191} INFO - Executing <Task(PythonOperator): update_region_name> on 2025-10-14 15:00:00+00:00
+[2025-10-16T10:54:02.647+0000] {standard_task_runner.py:60} INFO - Started process 193 to run task
+[2025-10-16T10:54:02.652+0000] {standard_task_runner.py:87} INFO - Running: ['airflow', 'tasks', 'run', 'daily_code_update', 'update_region_name', 'scheduled__2025-10-14T15:00:00+00:00', '--job-id', '5', '--raw', '--subdir', 'DAGS_FOLDER/code_update_dag.py', '--cfg-path', '/tmp/tmplsqy14az']
+[2025-10-16T10:54:02.654+0000] {standard_task_runner.py:88} INFO - Job 5: Subtask update_region_name
+[2025-10-16T10:54:02.721+0000] {task_command.py:423} INFO - Running <TaskInstance: daily_code_update.update_region_name scheduled__2025-10-14T15:00:00+00:00 [running]> on host c8969fdcf46c
+[2025-10-16T10:54:02.792+0000] {taskinstance.py:2480} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='navisafe' AIRFLOW_CTX_DAG_ID='daily_code_update' AIRFLOW_CTX_TASK_ID='update_region_name' AIRFLOW_CTX_EXECUTION_DATE='2025-10-14T15:00:00+00:00' AIRFLOW_CTX_TRY_NUMBER='1' AIRFLOW_CTX_DAG_RUN_ID='scheduled__2025-10-14T15:00:00+00:00'
+[2025-10-16T10:54:02.793+0000] {logging_mixin.py:188} INFO - [INFO] update_region_code_name 실행 시작
+[2025-10-16T10:54:03.101+0000] {logging_mixin.py:188} INFO - [WARN] 가져온 데이터가 없습니다.
+[2025-10-16T10:54:03.101+0000] {python.py:201} INFO - Done. Returned value was: None
+[2025-10-16T10:54:03.107+0000] {taskinstance.py:1138} INFO - Marking task as SUCCESS. dag_id=daily_code_update, task_id=update_region_name, execution_date=20251014T150000, start_date=20251016T105402, end_date=20251016T105403
+[2025-10-16T10:54:03.145+0000] {local_task_job_runner.py:234} INFO - Task exited with return code 0
+[2025-10-16T10:54:03.155+0000] {taskinstance.py:3280} INFO - 0 downstream tasks scheduled from follow-on schedule check
+[2025-10-16T11:22:24.566+0000] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: daily_code_update.update_region_name scheduled__2025-10-14T15:00:00+00:00 [queued]>
+[2025-10-16T11:22:24.576+0000] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: daily_code_update.update_region_name scheduled__2025-10-14T15:00:00+00:00 [queued]>
+[2025-10-16T11:22:24.577+0000] {taskinstance.py:2170} INFO - Starting attempt 1 of 2
+[2025-10-16T11:22:24.599+0000] {taskinstance.py:2191} INFO - Executing <Task(PythonOperator): update_region_name> on 2025-10-14 15:00:00+00:00
+[2025-10-16T11:22:24.605+0000] {standard_task_runner.py:60} INFO - Started process 192 to run task
+[2025-10-16T11:22:24.610+0000] {standard_task_runner.py:87} INFO - Running: ['airflow', 'tasks', 'run', 'daily_code_update', 'update_region_name', 'scheduled__2025-10-14T15:00:00+00:00', '--job-id', '7', '--raw', '--subdir', 'DAGS_FOLDER/code_update_dag.py', '--cfg-path', '/tmp/tmpno42gjj1']
+[2025-10-16T11:22:24.613+0000] {standard_task_runner.py:88} INFO - Job 7: Subtask update_region_name
+[2025-10-16T11:22:24.694+0000] {task_command.py:423} INFO - Running <TaskInstance: daily_code_update.update_region_name scheduled__2025-10-14T15:00:00+00:00 [running]> on host bf9f223133c9
+[2025-10-16T11:22:24.771+0000] {taskinstance.py:2480} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='navisafe' AIRFLOW_CTX_DAG_ID='daily_code_update' AIRFLOW_CTX_TASK_ID='update_region_name' AIRFLOW_CTX_EXECUTION_DATE='2025-10-14T15:00:00+00:00' AIRFLOW_CTX_TRY_NUMBER='1' AIRFLOW_CTX_DAG_RUN_ID='scheduled__2025-10-14T15:00:00+00:00'
+[2025-10-16T11:22:24.773+0000] {logging_mixin.py:188} INFO - [INFO] update_region_code_name 실행 시작
+[2025-10-16T11:22:25.204+0000] {logging_mixin.py:188} INFO - [ERROR] MySQL 저장 실패: 1146 (42S02): Table 'toy_project.REGION_CD' doesn't exist
+[2025-10-16T11:22:25.205+0000] {logging_mixin.py:188} INFO - [ERROR] update_region_code_name 실패: 1146 (42S02): Table 'toy_project.REGION_CD' doesn't exist
+[2025-10-16T11:22:25.206+0000] {taskinstance.py:2698} ERROR - Task failed with exception
+Traceback (most recent call last):
+  File "/home/airflow/.local/lib/python3.8/site-packages/mysql/connector/connection_cext.py", line 535, in cmd_query
+    self._cmysql.query(query,
+_mysql_connector.MySQLInterfaceError: Table 'toy_project.REGION_CD' doesn't exist
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/airflow/.local/lib/python3.8/site-packages/airflow/models/taskinstance.py", line 433, in _execute_task
+    result = execute_callable(context=context, **execute_callable_kwargs)
+  File "/home/airflow/.local/lib/python3.8/site-packages/airflow/operators/python.py", line 199, in execute
+    return_value = self.execute_callable()
+  File "/home/airflow/.local/lib/python3.8/site-packages/airflow/operators/python.py", line 216, in execute_callable
+    return self.python_callable(*self.op_args, **self.op_kwargs)
+  File "/opt/airflow/plugins/airflow_utils/region_name.py", line 72, in update_region_code_name
+    raise e
+  File "/opt/airflow/plugins/airflow_utils/region_name.py", line 68, in update_region_code_name
+    save_regioninfo_to_mysql(regions)
+  File "/opt/airflow/plugins/airflow_utils/region_name.py", line 45, in save_regioninfo_to_mysql
+    cursor.execute("""
+  File "/home/airflow/.local/lib/python3.8/site-packages/mysql/connector/cursor_cext.py", line 269, in execute
+    result = self._cnx.cmd_query(stmt, raw=self._raw,
+  File "/home/airflow/.local/lib/python3.8/site-packages/mysql/connector/connection_cext.py", line 540, in cmd_query
+    raise errors.get_mysql_exception(exc.errno, msg=exc.msg,
+mysql.connector.errors.ProgrammingError: 1146 (42S02): Table 'toy_project.REGION_CD' doesn't exist
+[2025-10-16T11:22:25.219+0000] {taskinstance.py:1138} INFO - Marking task as UP_FOR_RETRY. dag_id=daily_code_update, task_id=update_region_name, execution_date=20251014T150000, start_date=20251016T112224, end_date=20251016T112225
+[2025-10-16T11:22:25.235+0000] {standard_task_runner.py:107} ERROR - Failed to execute job 7 for task update_region_name (1146 (42S02): Table 'toy_project.REGION_CD' doesn't exist; 192)
+[2025-10-16T11:22:25.266+0000] {local_task_job_runner.py:234} INFO - Task exited with return code 1
+[2025-10-16T11:22:25.277+0000] {taskinstance.py:3280} INFO - 0 downstream tasks scheduled from follow-on schedule check
