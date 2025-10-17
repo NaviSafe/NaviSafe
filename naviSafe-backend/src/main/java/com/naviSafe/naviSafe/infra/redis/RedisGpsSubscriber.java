@@ -66,7 +66,7 @@ public class RedisGpsSubscriber implements MessageListener {
      */
     private synchronized void flushGpsBatch() {
         if (!gpsBuffer.isEmpty()) {
-            System.out.println("[INFO] ⏱️ 5초간 입력 없음, GPS 배치 전송 (" + gpsBuffer.size() + "개)");
+            log.info("5초간 입력 없음, GPS 배치 전송 ({})", gpsBuffer.size());
             gpsWebSocketHandler.broadcastGpsBatch(new ArrayList<>(gpsBuffer));
             gpsBuffer.clear();
         }
