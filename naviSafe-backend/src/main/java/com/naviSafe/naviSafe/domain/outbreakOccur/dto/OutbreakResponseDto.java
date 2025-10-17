@@ -14,8 +14,8 @@ public class OutbreakResponseDto {
     private ZonedDateTime occrDate;
     private ZonedDateTime expClrDate;
     private String accInfo;
-    private float grs80tmX;
-    private float grs80tmY;
+    private double grs80tmX;
+    private double grs80tmY;
 
     private String accTypeName;
     private String accDetailTypeName;
