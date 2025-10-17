@@ -23,7 +23,7 @@ export const Home = () => {
     const fetchInitialData = async () => {
       try {
         const res = await axios.get<OutbreakOccur[]>(
-          "http://localhost:8080/api/naviSafe/accInfo"
+          `${import.meta.env.VITE_API_BASE_URL}/api/naviSafe/accInfo`
         );
         setOutbreakOccurList(res.data);
 
