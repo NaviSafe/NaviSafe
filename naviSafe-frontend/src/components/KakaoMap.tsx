@@ -12,6 +12,7 @@ export const KakaoMap = () => {
     const [windowHeightSize, setWindowHeightSize] = useState<number>(window.innerHeight);
     const mapRef = useRef<any>(null); // 지도 참조
     const markersRef = useRef<any[]>([]); // 마커 배열
+    const [isMapLoaded, setIsMapLoaded] = useState<boolean>(false);
 
     useEffect(() => {
         const handleWindowResize = () => {
@@ -40,6 +41,7 @@ export const KakaoMap = () => {
                     level: 9,
                 };
                 mapRef.current = new window.kakao.maps.Map(container, options);
+                setIsMapLoaded(true);
             });
         };
 
@@ -48,7 +50,7 @@ export const KakaoMap = () => {
 
     // gpsList 변경 시 마커 업데이트
     useEffect(() => {
-        if (!mapRef.current) return;
+        if (!isMapLoaded || !mapRef.current) return;
 
         // 기존 마커 제거
         markersRef.current.forEach(marker => marker.setMap(null));
@@ -62,7 +64,7 @@ export const KakaoMap = () => {
             });
             markersRef.current.push(marker);
         });
-    }, [gpsList]);
+    }, [gpsList, isMapLoaded]);
 
 
     return (
