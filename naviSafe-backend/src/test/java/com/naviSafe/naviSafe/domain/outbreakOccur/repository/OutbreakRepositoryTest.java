@@ -81,32 +81,32 @@ class OutbreakRepositoryTest {
         RoadTraffic roadTraffic1 = roadTrafficRepository.save(
                 RoadTraffic
                         .builder()
-                        .linkId("1")
+                        .linkId("1180001100")
                         .prcsSpd(10)
                         .prcsTrvTime(2)
                         .build());
         RegionCode regionCode1 = regionCodeRepository.save(
                 RegionCode
                         .builder()
-                        .regCode(1)
-                        .regName("울산남구")
+                        .regCode(118)
+                        .regName("영등포구")
                         .build());
 
         RoadStatus roadStatus1 = roadStatusRepository.save(
                 RoadStatus
                         .builder()
-                        .linkId("1")
-                        .roadName("돋질로")
-                        .startNodeNm("시청앞")
-                        .endNodeNm("울산전통시장")
-                        .mapDist(123)
+                        .linkId("1180001100")
+                        .roadName("경인로")
+                        .startNodeNm("서울교남단")
+                        .endNodeNm("영등포로타리")
+                        .mapDist(273)
                         .regionCode(regionCode1)
                         .build());
 
         RoadStatusLink roadStatusLink1 = roadStatusLinkRepository.save(
                 RoadStatusLink.builder()
-                        .outbreakAccId("1")
-                        .linkIdLinkId("1")
+                        .outbreakAccId("1029246")
+                        .linkIdLinkId("1180001100")
                         .roadStatus(roadStatus1)
                         .roadTraffic(roadTraffic1)
                         .build()
@@ -115,7 +115,7 @@ class OutbreakRepositoryTest {
         OutbreakCodeName outbreakCodeName1 = outbreakCodeNameRepository.save(
                 OutbreakCodeName
                         .builder()
-                        .accType("01")
+                        .accType("A04")
                         .accTypeNM("공사")
                         .build()
         );
@@ -123,39 +123,39 @@ class OutbreakRepositoryTest {
         OutbreakCode outbreakCode1 = outbreakCodeRepository.save(
                 OutbreakCode
                         .builder()
-                        .outbreakAccId("1")
-                        .accType("01")
+                        .outbreakAccId("1029246")
+                        .accType("A04")
                         .outbreakCodeName(outbreakCodeName1)
                         .build()
         );
 
         OutbreakDetailCodeName outbreakDetailCodeName1 = outbreakDetailCodeNameRepository.save(
                 OutbreakDetailCodeName.builder()
-                        .accDtype("01A")
-                        .accTypeNM("공사세부")
+                        .accDtype("04B01")
+                        .accTypeNM("시설물보수")
                         .build()
         );
 
         OutbreakDetailCode outbreakDetailCode1 = outbreakDetailCodeRepository.save(
                 OutbreakDetailCode.builder()
-                        .outbreakAccId("1")
-                        .accDtype("01A")
+                        .outbreakAccId("1029246")
+                        .accDtype("04B01")
                         .outbreakDetailCodeName(outbreakDetailCodeName1)
                         .build()
         );
 
         OutbreakMapGps mapGps1 = outbreakMapGpsRepository.save(
                 OutbreakMapGps.builder()
-                        .outbreakAccId("1")
-                        .grs80tmX(10.0f)
-                        .grs80tmY(10.2f)
+                        .outbreakAccId("1029246")
+                        .grs80tmX(192385.0401850186)
+                        .grs80tmY(446645.5247824667)
                         .build()
         );
 
         AccidentAlert accident1 = accidentAlertRepository.save(
                 AccidentAlert.builder()
-                        .outbreakAccId("1")
-                        .accInfo("울산 시청앞 사고부근 150m 방면 5종 추돌 발생")
+                        .outbreakAccId("1029246")
+                        .accInfo("경인로 (영등포로터리 → 서울교남단) 구간 영등포고가 철거관련 공사 시설물보수")
                         .build()
         );
 
@@ -163,8 +163,8 @@ class OutbreakRepositoryTest {
         outbreakRepository.save(
                 OutbreakOccur.builder()
                         .accId("1")
-                        .occrDate(ZonedDateTime.of(2025, 6, 22, 0,0,0, 0, ZoneId.of("Asia/Seoul")))
-                        .expClrDate(ZonedDateTime.of(2026, 6, 22, 0,0,0, 0, ZoneId.of("Asia/Seoul")))
+                        .occrDate(ZonedDateTime.of(2025, 6, 10, 0,0,0, 0, ZoneId.of("Asia/Seoul")))
+                        .expClrDate(ZonedDateTime.of(2026, 6, 30, 0,0,0, 0, ZoneId.of("Asia/Seoul")))
                         .roadStatusLink(roadStatusLink1)
                         .outbreakCode(outbreakCode1)
                         .outbreakDetailCode(outbreakDetailCode1)

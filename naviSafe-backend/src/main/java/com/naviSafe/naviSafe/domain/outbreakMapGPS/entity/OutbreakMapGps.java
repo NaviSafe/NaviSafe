@@ -20,8 +20,8 @@ public class OutbreakMapGps {
     private String outbreakAccId;
 
     @Column(name = "GRS80TM_X")
-    private float grs80tmX;
+    private double grs80tmX;
 
     @Column(name = "GRS80TM_Y")
-    private float grs80tmY;
+    private double grs80tmY;
 }
