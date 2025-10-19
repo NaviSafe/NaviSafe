@@ -83,12 +83,17 @@ services:
     build: .
     container_name: linkinfo
     depends_on:
-      - preprocessing
+      - redis
+      - mysql
+      #- preprocessing
     volumes:
-      - ./:/app
+      - ./preprocessing:/app/preprocessing
+      - ./utils:/app/utils
     working_dir: /app/preprocessing
     environment:
       - PYTHONPATH=/app
+    env_file:
+      - ./.env
     command: bash -c "pip install --no-cache-dir redis mysql-connector-python && python linkinfo_worker.py"
     restart: unless-stopped
 
@@ -130,6 +135,8 @@ services:
     container_name: redis
     ports:
       - "6379:6379"
+    volumes:
+      - ./utils:/app/utils
     #command: python3 redis.py
     restart: unless-stopped
 
