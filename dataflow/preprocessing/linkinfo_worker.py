@@ -85,20 +85,38 @@ def fetch_trafficinfo(link_id):
 # Redis → MySQL 저장 함수
 # ------------------------------------------------------------------
 def save_link_and_traffic_to_mysql():
+    print("[SYSTEM] Link Worker 시작")
     while True:
         batch = []
         for _ in range(DB_BATCH_SIZE):
-            item = redis_client.lpop("link_queue")
-            if item is None:
+            item_json = redis_client.lpop("link_queue")
+            if item_json is None:
                 break
-            batch.append(json.loads(item))  # {"link_id": "1220003800"}
+            try:
+                item = json.loads(item_json)
+                print(item)
+            except json.JSONDecodeError:
+                print(f"[ERROR] JSON 디코딩 실패: {item_json}")
+                continue
+
+            if "link_id" not in item or not item["link_id"]:
+                print(f"[SKIP] link_id 없음: {item}")
+                continue
+
+            batch.append(item)
 
         if not batch:
+            print("[INFO] link_queue에 처리할 데이터 없음, 5초 대기")
             time.sleep(5)
             continue
 
-        conn = mysql.connector.connect(**MYSQL_CONFIG)
-        cursor = conn.cursor()
+        try:
+            conn = mysql.connector.connect(**MYSQL_CONFIG)
+            cursor = conn.cursor()
+        except mysql.connector.Error as e:
+            print(f"[ERROR] MySQL 연결 실패: {e}")
+            time.sleep(5)
+            continue
 
         for entry in batch:
             link_id = entry.get("link_id")
@@ -107,17 +125,17 @@ def save_link_and_traffic_to_mysql():
 
             link_info = fetch_linkinfo(link_id)
             traffic_info = fetch_trafficinfo(link_id)
-
+            print(link_info)
             if link_info:
                 cursor.execute("""
-                    INSERT INTO LINK_ID (LINK_ID, ROAD_NAME, ST_NODE_NM, ED_NODE_NM, MAP_DIST, REG_CD)
+                    INSERT INTO LINK_ID (LINK_ID, ROAD_NAME, ST_NODE_NM, ED_NODE_NM, MAP_DIST, REG_CD_REG_CD)
                     VALUES (%(link_id)s, %(road_name)s, %(st_node_nm)s, %(ed_node_nm)s, %(map_dist)s, %(reg_cd)s)
                     ON DUPLICATE KEY UPDATE
                         ROAD_NAME = VALUES(ROAD_NAME),
                         ST_NODE_NM = VALUES(ST_NODE_NM),
                         ED_NODE_NM = VALUES(ED_NODE_NM),
                         MAP_DIST = VALUES(MAP_DIST),
-                        REG_CD = VALUES(REG_CD)
+                        REG_CD_REG_CD = VALUES(REG_CD_REG_CD)
                 """, link_info)
 
             if traffic_info:
@@ -136,5 +154,4 @@ def save_link_and_traffic_to_mysql():
 
 
 if __name__ == "__main__":
-    print("[SYSTEM] Link Worker 시작")
     save_link_and_traffic_to_mysql()
