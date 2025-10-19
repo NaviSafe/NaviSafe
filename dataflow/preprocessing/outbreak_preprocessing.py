@@ -7,6 +7,7 @@ import threading
 import time
 import mysql.connector
 import json
+import subprocess
 
 # SparkSession 생성 (Kafka 패키지 포함)
 spark = get_spark(app_name="OutbreakConsumer")
@@ -146,8 +147,8 @@ def save_from_redis_to_mysql():
             continue
 
         unique_batch = list({d["acc_id"]: d for d in batch}.values())
-        print(f"[INFO] Batch size: {len(unique_batch)}")
-        print(f"[INFO] Sample data: {unique_batch[0]}")
+        #print(f"[INFO] Batch size: {len(unique_batch)}")
+        #print(f"[INFO] Sample data: {unique_batch[0]}")
 
         conn = mysql.connector.connect(
             host="mysql",
@@ -190,6 +191,20 @@ def save_from_redis_to_mysql():
         except Exception as e:
             print(f"[ERROR] OUTBREAK_DETAIL_CODE 삽입 실패: {e}")
 
+        # =======================================================
+        #  linkinfo_worker.py 실행 (OUTBREAK_LINK 삽입 전)
+        # =======================================================
+        # print("[SYSTEM] linkinfo_worker.py 실행 중...")
+        # try:
+        #     result = subprocess.run(
+        #     ["python", "/app/preprocessing/linkinfo_worker.py"],
+        #     capture_output=True, text=True, timeout=30
+        #     )
+        #     print(result.stdout)
+        # except subprocess.CalledProcessError as e:
+        #     print(f"[ERROR] linkinfo_worker.py 실행 실패: {e.stderr}")
+        # =======================================================
+
         try:
             # -----------------------------
             # FK 체크: LINK_ID
@@ -199,17 +214,15 @@ def save_from_redis_to_mysql():
             batch_link = [d for d in unique_batch if d["link_id"] in valid_links]
             if batch_link:
                 cursor.executemany("""
-                    INSERT IGNORE INTO OUTBREAK_LINK (OUTBREAK_ACC_ID , LINK_ID)
+                    INSERT INTO OUTBREAK_LINK (OUTBREAK_ACC_ID , LINK_ID)
                     VALUES (%s, %s)
-                    ON DUPLICATE KEY UPDATE
-                        LINK_ID=VALUES(LINK_ID)
                 """, [(d["acc_id"], d["link_id"]) for d in batch_link])
         except Exception as e:
             print(f"[ERROR] OUTBREAK_LINK 삽입 실패: {e}")
 
         try:
             # -----------------------------
-            # 나머지 테이블 (MAP_GPS, ACC_ALTERTS, OUTBREAK_CODE)
+            # 나머지 테이블 (MAP_GPS, ACC_ALTERTS, OUTBREAK_CODE, OUTBREAK_LINK)
             # -----------------------------
             cursor.executemany("""
                 INSERT IGNORE INTO OUTBREAK_CODE (OUTBREAK_ACC_ID, ACC_TYPE)
