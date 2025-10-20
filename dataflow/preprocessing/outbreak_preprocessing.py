@@ -159,20 +159,17 @@ def save_from_redis_to_mysql():
         cursor = conn.cursor()
 
         try:
-            # -----------------------------
-            # OUTBREAK_Occurrence (occr_date_time 필터)
-            # -----------------------------
-            batch_occurrence = [d for d in unique_batch if d["occr_date_time"] is not None]
-            if batch_occurrence:
-                cursor.executemany("""
-                    INSERT IGNORE INTO OUTBREAK_Occurrence (ACC_ID, occr_date_time, exp_clr_date_time)
-                    VALUES (%s, %s, %s)
-                    ON DUPLICATE KEY UPDATE
-                        occr_date_time=VALUES(occr_date_time),
-                        exp_clr_date_time=VALUES(exp_clr_date_time)
-                """, [(d["acc_id"], d["occr_date_time"], d["exp_clr_date_time"]) for d in batch_occurrence])
+            # 모든 unique_batch 삽입 (occr_date_time이 None이어도 OK)
+            cursor.executemany("""
+                INSERT IGNORE INTO OUTBREAK_Occurrence (ACC_ID, occr_date_time, exp_clr_date_time)
+                VALUES (%s, %s, %s)
+                ON DUPLICATE KEY UPDATE
+                    occr_date_time=VALUES(occr_date_time),
+                    exp_clr_date_time=VALUES(exp_clr_date_time)
+            """, [(d["acc_id"], d.get("occr_date_time"), d.get("exp_clr_date_time")) for d in unique_batch])
         except Exception as e:
             print(f"[ERROR] OUTBREAK_Occurrence 삽입 실패: {e}")
+
 
         try:
             # -----------------------------
@@ -194,16 +191,20 @@ def save_from_redis_to_mysql():
         # =======================================================
         #  linkinfo_worker.py 실행 (OUTBREAK_LINK 삽입 전)
         # =======================================================
-        # print("[SYSTEM] linkinfo_worker.py 실행 중...")
-        # try:
-        #     result = subprocess.run(
-        #     ["python", "/app/preprocessing/linkinfo_worker.py"],
-        #     capture_output=True, text=True, timeout=30
-        #     )
-        #     print(result.stdout)
-        # except subprocess.CalledProcessError as e:
-        #     print(f"[ERROR] linkinfo_worker.py 실행 실패: {e.stderr}")
-        # =======================================================
+        import subprocess
+        import os
+        env = os.environ.copy()
+        print("[SYSTEM] linkinfo_worker.py 실행 중...")
+        try:
+            result = subprocess.run(
+                ["python", "/app/preprocessing/linkinfo_worker.py"],
+                capture_output=True, text=True, timeout=30, env=env  # 최대 5분 대기
+            )
+            print(result.stdout)
+        except subprocess.CalledProcessError as e:
+            print(f"[ERROR] linkinfo_worker.py 실행 실패: {e.stderr}")
+        except subprocess.TimeoutExpired:
+            print("[ERROR] linkinfo_worker.py 실행 시간 초과")
 
         try:
             # -----------------------------
