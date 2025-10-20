@@ -8,6 +8,8 @@ import os
 # Redis 연결
 redis_client = RedisClient(host="redis", port=6379, db=0)
 
+# Redis 연결
+
 LINK_ID = os.getenv("LINK_ID") 
 SEOUL_TRAFFIC_REALTIME_API_KEY = os.getenv("SEOUL_TRAFFIC_REALTIME_API_KEY") 
 DB_BATCH_SIZE = 50
@@ -46,10 +48,12 @@ def parse_trafficinfo(xml_str):
         row = root.find("row")
         if row is None:
             return None
+        prcs_spd_text = row.findtext("prcs_spd") or "0"
+        prcs_trv_time_text = row.findtext("prcs_trv_time") or "0"
         return {
             "link_id": row.findtext("link_id"),
-            "prcs_spd": int(row.findtext("prcs_spd") or 0),
-            "prcs_trv_time": int(row.findtext("prcs_trv_time") or 0)
+            "prcs_spd": float(prcs_spd_text),        # float로 변환
+            "prcs_trv_time": int(float(prcs_trv_time_text))  # 필요 시 int
         }
     except Exception as e:
         print(f"[ERROR] TrafficInfo XML 파싱 실패: {e}")
@@ -60,7 +64,9 @@ def parse_trafficinfo(xml_str):
 # API 호출 함수
 # ------------------------------------------------------------------
 def fetch_linkinfo(link_id):
+    global LINK_ID  # 전역 변수 사용 명시
     url = f"http://openapi.seoul.go.kr:8088/{LINK_ID}/xml/LinkInfo/1/5/{link_id}/"
+    print(f"Calling LinkInfo API: {url}")
     try:
         res = requests.get(url, timeout=5)
         res.raise_for_status()
@@ -71,7 +77,9 @@ def fetch_linkinfo(link_id):
 
 
 def fetch_trafficinfo(link_id):
+    global SEOUL_TRAFFIC_REALTIME_API_KEY  # 전역 변수 사용 명시
     url = f"http://openapi.seoul.go.kr:8088/{SEOUL_TRAFFIC_REALTIME_API_KEY}/xml/TrafficInfo/1/5/{link_id}/"
+    print(f"Calling TrafficInfo API: {url}")
     try:
         res = requests.get(url, timeout=5)
         res.raise_for_status()
@@ -80,43 +88,35 @@ def fetch_trafficinfo(link_id):
         print(f"[ERROR] TrafficInfo 호출 실패 ({link_id}): {e}")
         return None
 
-
-# ------------------------------------------------------------------
-# Redis → MySQL 저장 함수
-# ------------------------------------------------------------------
 def save_link_and_traffic_to_mysql():
-    print("[SYSTEM] Link Worker 시작")
-    while True:
+    """Redis link_queue 데이터를 MySQL로 옮기고 종료"""
+    try:
+        conn = mysql.connector.connect(
+            host="mysql",
+            user="user",
+            password="userpass",
+            database="toy_project"
+        )
+        cursor = conn.cursor(dictionary=True)
+
         batch = []
-        for _ in range(DB_BATCH_SIZE):
-            item_json = redis_client.lpop("link_queue")
-            if item_json is None:
-                break
-            try:
-                item = json.loads(item_json)
-                print(item)
-            except json.JSONDecodeError:
-                print(f"[ERROR] JSON 디코딩 실패: {item_json}")
-                continue
-
-            if "link_id" not in item or not item["link_id"]:
-                print(f"[SKIP] link_id 없음: {item}")
-                continue
-
-            batch.append(item)
+        # Redis 큐에 데이터가 존재할 때만 꺼내 처리
+        while True:
+            item = redis_client.lpop("link_queue")
+            if not item:
+                break  # 큐가 비면 종료
+            print("Redis에서 꺼낸 item:", item)
+            data = json.loads(item)
+            link_id = data.get("link_id")
+            print("파싱 후 link_id:", link_id)
+            if link_id:
+                batch.append(data)
 
         if not batch:
-            print("[INFO] link_queue에 처리할 데이터 없음, 5초 대기")
-            time.sleep(5)
-            continue
+            print("[INFO] 처리할 link_queue 데이터가 없습니다.")
+            return
 
-        try:
-            conn = mysql.connector.connect(**MYSQL_CONFIG)
-            cursor = conn.cursor()
-        except mysql.connector.Error as e:
-            print(f"[ERROR] MySQL 연결 실패: {e}")
-            time.sleep(5)
-            continue
+        print(f"[INFO] {len(batch)}개의 LINK_ID 데이터를 처리합니다...")
 
         for entry in batch:
             link_id = entry.get("link_id")
@@ -124,8 +124,9 @@ def save_link_and_traffic_to_mysql():
                 continue
 
             link_info = fetch_linkinfo(link_id)
-            traffic_info = fetch_trafficinfo(link_id)
             print(link_info)
+            traffic_info = fetch_trafficinfo(link_id)
+
             if link_info:
                 cursor.execute("""
                     INSERT INTO LINK_ID (LINK_ID, ROAD_NAME, ST_NODE_NM, ED_NODE_NM, MAP_DIST, REG_CD_REG_CD)
@@ -137,6 +138,7 @@ def save_link_and_traffic_to_mysql():
                         MAP_DIST = VALUES(MAP_DIST),
                         REG_CD_REG_CD = VALUES(REG_CD_REG_CD)
                 """, link_info)
+                print(f"link_info 데이터 삽입 완료")
 
             if traffic_info:
                 cursor.execute("""
@@ -146,12 +148,16 @@ def save_link_and_traffic_to_mysql():
                         PRCS_SPD = VALUES(PRCS_SPD),
                         PRCS_TRV_TIME = VALUES(PRCS_TRV_TIME)
                 """, traffic_info)
+                print(f"ROAD_TRAFFIC 데이터 삽입 완료")
 
         conn.commit()
+        print(f"[INFO] {len(batch)}개의 LINK_ID 데이터 처리 완료")
+
+    except Exception as e:
+        print(f"[ERROR] 데이터 저장 중 오류 발생: {e}")
+    finally:
         cursor.close()
         conn.close()
-        print(f"[INFO] {len(batch)}개의 LINK_ID 처리 완료")
-
 
 if __name__ == "__main__":
     save_link_and_traffic_to_mysql()
