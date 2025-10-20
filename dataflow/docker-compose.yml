@@ -76,6 +76,8 @@ services:
       - ./preprocessing:/app/preprocessing
       - ./utils:/app/utils
     working_dir: /app/preprocessing
+    env_file:
+      - ./.env
     command: bash -c "pip install --no-cache-dir pyspark==3.5.5 redis mysql-connector-python && python outbreak_preprocessing.py"
     restart: unless-stopped
 
@@ -94,7 +96,7 @@ services:
       - PYTHONPATH=/app
     env_file:
       - ./.env
-    command: bash -c "pip install --no-cache-dir redis mysql-connector-python && python linkinfo_worker.py"
+    command: bash -c "pip install --no-cache-dir redis mysql-connector-python && python linkinfo_worker.py && tail -f /dev/null"
     restart: unless-stopped
 
   spark-master:
