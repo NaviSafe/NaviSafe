@@ -32,7 +32,6 @@ export const Home = () => {
           const [x, y] = proj4(GRS80, WGS84, [item.grs80tmX, item.grs80tmY]);
           return { acc_id : item.accId , x : x, y : y };
         });
-        console.log(converted);
         setGpsList(converted);
       } catch (err) {
         console.error("초기 데이터 로드 실패:", err);
