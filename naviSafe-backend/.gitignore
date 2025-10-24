@@ -35,3 +35,8 @@ out/
 
 ### VS Code ###
 .vscode/
+
+### resource ###
+src/main/resources/application.yml
+src/main/resources/firebaseServiceAccount.json
+
