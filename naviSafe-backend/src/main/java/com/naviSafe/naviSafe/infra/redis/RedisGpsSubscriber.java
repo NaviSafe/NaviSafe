@@ -32,10 +32,11 @@ public class RedisGpsSubscriber implements MessageListener {
     @Override
     public void onMessage(Message message, byte[] pattern) {
         try {
+            String channel = new String(message.getChannel());
             String data = new String(message.getBody());
             Map<String, Object> gpsData = objectMapper.readValue(data, Map.class);
 
-            if (!"MAP_GPS".equals(gpsData.get("type"))) {
+            if (!"MAP_GPS".equals(channel)) {
                 return;
             }
 

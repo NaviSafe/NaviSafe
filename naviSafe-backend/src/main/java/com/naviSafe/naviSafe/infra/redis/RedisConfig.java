@@ -61,13 +61,17 @@ public class RedisConfig {
     @Bean
     public RedisMessageListenerContainer redisMessageListenerContainer(
             RedisConnectionFactory connectionFactory,
-            RedisGpsSubscriber redisGpsSubscriber) {
+            RedisGpsSubscriber redisGpsSubscriber,
+            RedisAlertSubscriber redisAlertSubscriber) {
 
         RedisMessageListenerContainer container = new RedisMessageListenerContainer();
         container.setConnectionFactory(connectionFactory);
 
         // "MAP_GPS" 채널 구독
         container.addMessageListener(redisGpsSubscriber, new ChannelTopic("MAP_GPS"));
+
+        // "ACC_ALERTS" 체널 구독
+        container.addMessageListener(redisAlertSubscriber, new ChannelTopic("ACC_ALERTS"));
 
         return container;
     }
