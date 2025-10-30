@@ -166,13 +166,13 @@ CREATE TABLE IF NOT EXISTS `toy_project`.`OUTBREAK_CODE` (
 ENGINE = InnoDB;
 
 -- -----------------------------------------------------
--- Table `toy_project`.`ACC_ALTERTS`
+-- Table `toy_project`.`ACC_ALERTS`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `toy_project`.`ACC_ALTERTS` (
+CREATE TABLE IF NOT EXISTS `toy_project`.`ACC_ALERTS` (
   `OUTBREAK_ACC_ID` VARCHAR(10) NOT NULL,
   `ACC_INFO` TEXT(800) NULL,
   PRIMARY KEY (`OUTBREAK_ACC_ID`),
-  CONSTRAINT `fk_ACC_ALTERTS_OUTBREAK1`
+  CONSTRAINT `fk_ACC_ALERTS_OUTBREAK1`
     FOREIGN KEY (`OUTBREAK_ACC_ID`)
     REFERENCES `toy_project`.`OUTBREAK_Occurrence` (`ACC_ID`)
     ON DELETE NO ACTION
@@ -216,6 +216,43 @@ CREATE TABLE IF NOT EXISTS `toy_project`.`OUTBREAK_LINK` (
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
+-- -----------------------------------------------------
+-- Table `toy_project`.`SHELTER_TYEP`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `toy_project`.`SHELTER_TYEP` (
+  `SHELTER_CODE` INT NOT NULL,
+  `SHELTER_CODE_NAME` VARCHAR(45) NOT NULL,
+  PRIMARY KEY (`SHELTER_CODE`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `toy_project`.`SHELTER_GPS`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `toy_project`.`SHELTER_GPS` (
+  `SHELTER_CODE_NAME` INT NOT NULL,
+  `SHELTER_NAME` VARCHAR(45) NOT NULL,
+  `SHELTER_ADDRESS` MEDIUMTEXT NULL,
+  `LOT` FLOAT NOT NULL,
+  `LAT` FLOAT NOT NULL,
+  PRIMARY KEY (`SHELTER_CODE_NAME`, `SHELTER_NAME`),
+  CONSTRAINT `fk_SHELTER_GPS_SHELTER_TYEP_CODE`
+    FOREIGN KEY (`SHELTER_CODE_NAME`)
+    REFERENCES `toy_project`.`SHELTER_TYEP` (`SHELTER_CODE`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `toy_project`.`CREATED_AT`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `toy_project`.`CREATED_AT` (
+  `ID` INT NOT NULL,
+  `device_token` MEDIUMTEXT NULL,
+  `created_at` DATE NULL,
+  PRIMARY KEY (`ID`))
+ENGINE = InnoDB;
 
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
