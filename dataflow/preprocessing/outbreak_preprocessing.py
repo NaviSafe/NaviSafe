@@ -98,7 +98,7 @@ def process_batch_with_redis(batch_df, batch_id):
         # -----------------------------
         alert_key = f"alert_sent:{item['acc_id']}"
         if not redis_client.r.exists(alert_key):
-            redis_client.publish_channel("ACC_ALTERTS", {
+            redis_client.publish_channel("ACC_ALERTS", {
                 "acc_id": item["acc_id"],
                 "occr_date_time": item["occr_date_time"],
                 "exp_clr_date_time": item["exp_clr_date_time"],
@@ -223,7 +223,7 @@ def save_from_redis_to_mysql():
 
         try:
             # -----------------------------
-            # 나머지 테이블 (MAP_GPS, ACC_ALTERTS, OUTBREAK_CODE, OUTBREAK_LINK)
+            # 나머지 테이블 (MAP_GPS, ACC_ALERTS, OUTBREAK_CODE, OUTBREAK_LINK)
             # -----------------------------
             cursor.executemany("""
                 INSERT IGNORE INTO OUTBREAK_CODE (OUTBREAK_ACC_ID, ACC_TYPE)
@@ -241,7 +241,7 @@ def save_from_redis_to_mysql():
             """, [(d["acc_id"], d["grs80tm_x"], d["grs80tm_y"]) for d in unique_batch])
 
             cursor.executemany("""
-                INSERT IGNORE INTO ACC_ALTERTS (OUTBREAK_ACC_ID , ACC_INFO)
+                INSERT IGNORE INTO ACC_ALERTS (OUTBREAK_ACC_ID , ACC_INFO)
                 VALUES (%s, %s)
                 ON DUPLICATE KEY UPDATE
                     ACC_INFO=VALUES(ACC_INFO)
