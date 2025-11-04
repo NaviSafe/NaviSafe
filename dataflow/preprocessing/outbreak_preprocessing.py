@@ -113,7 +113,7 @@ def process_batch_with_redis(batch_df, batch_id):
         # 3) MySQL 저장용 데이터 (전체 컬럼 포함)
         # -----------------------------
         if item.get("acc_id"):  # acc_id가 존재하는 경우만 db_queue에 저장
-            redis_client.rpush_list("db_queue", item)
+            redis_client.rpush_list("db_queue", item) 
         else:
             print(f"[SKIP] acc_id 없음 → db_queue에 저장 안함: {item}")
 
