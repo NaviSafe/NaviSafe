@@ -1,10 +1,12 @@
-# Airflow 공식 이미지 기반
 FROM apache/airflow:2.8.1
 
-# airflow 사용자로 패키지 설치
+# airflow 사용자로 유지
 USER airflow
 
-# 필요한 파이썬 패키지 설치
+# 추가 패키지 설치 (Airflow 공식 권장 방식)
+ENV _PIP_ADDITIONAL_REQUIREMENTS="pyspark==3.5.0"
+
+# 필요한 패키지 설치
 COPY requirements.txt /requirements.txt
 RUN pip install --user --no-cache-dir -r /requirements.txt
 
