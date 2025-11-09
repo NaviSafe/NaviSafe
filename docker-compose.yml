@@ -55,9 +55,9 @@ services:
     # environment:
     #   API_KEY: ${API_KEY}
     volumes:
-      - ./dataflow/producer.py:/app/producer.py   # 로컬 producer.py → 컨테이너 /app/producer.py
+      - ./dataflow/producer.py:/app/preprocessing/producer.py
     working_dir: /app
-    command: python3 producer.py
+    command: sleep infinity
 
   weather-consumer:
     build:
@@ -222,7 +222,9 @@ services:
     volumes:
       - ./dataflow/airflow/dags:/opt/airflow/dags
       - ./dataflow/airflow/logs:/opt/airflow/logs
-      - ./dataflow/airflow/plugins:/opt/airflow/plugin
+      - ./dataflow/airflow/plugins:/opt/airflow/plugins
+      - ./dataflow:/opt/airflow/dataflow
+      - ./dataflow/preprocessing:/app/preprocessing
 
   airflow-scheduler:
     build:
@@ -240,6 +242,9 @@ services:
       - ./dataflow/airflow/dags:/opt/airflow/dags
       - ./dataflow/airflow/plugins:/opt/airflow/plugins
       - ./dataflow/airflow/logs:/opt/airflow/logs
+      - ./dataflow/preprocessing:/app/preprocessing
+      - ./dataflow:/opt/airflow/dataflow
+      - ./dataflow/utils:/app/utils
       - ./dataflow/wait-for-it.sh:/wait-for-it.sh
     working_dir: /opt/airflow
     env_file:
@@ -269,6 +274,8 @@ services:
       - ./dataflow/airflow/dags:/opt/airflow/dags
       - ./dataflow/airflow/plugins:/opt/airflow/plugins
       - ./dataflow/airflow/logs:/opt/airflow/logs
+      - ./dataflow:/opt/airflow/dataflow
+      - ./dataflow/preprocessing:/app/preprocessing
       - ./dataflow/wait-for-it.sh:/wait-for-it.sh
     working_dir: /opt/airflow
     depends_on:
