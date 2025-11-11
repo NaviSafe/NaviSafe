@@ -34,9 +34,9 @@ SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,N
 USE `toy_project` ;
 
 -- -----------------------------------------------------
--- Table `toy_project`.`OUTBREAK_Occurrence`
+-- Table `toy_project`.`OUTBREAK_OCCURRENCE`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `toy_project`.`OUTBREAK_Occurrence` (
+CREATE TABLE IF NOT EXISTS `toy_project`.`OUTBREAK_OCCURRENCE` (
   `ACC_ID` VARCHAR(20) NOT NULL COMMENT '서울시 실시간 돌발 정보\n\n돌발 아이디',
   `occr_date_time` DATETIME NULL,
   `exp_clr_date_time` DATETIME NULL,
@@ -132,7 +132,7 @@ CREATE TABLE IF NOT EXISTS `toy_project`.`OUTBREAK_DETAIL_CODE` (
   PRIMARY KEY (`OUTBREAK_ACC_ID`),
   CONSTRAINT `fk_OUTBREAK_DETAIL_CODE_OUTBREAK1`
     FOREIGN KEY (`OUTBREAK_ACC_ID`)
-    REFERENCES `toy_project`.`OUTBREAK_Occurrence` (`ACC_ID`)
+    REFERENCES `toy_project`.`OUTBREAK_OCCURRENCE` (`ACC_ID`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_OUTBREAK_DETAIL_CODE_OUTBREAK_DETAIL_CODE_NAME2`
@@ -162,7 +162,7 @@ CREATE TABLE IF NOT EXISTS `toy_project`.`OUTBREAK_CODE` (
   PRIMARY KEY (`OUTBREAK_ACC_ID`),
   CONSTRAINT `fk_OUTBREAK`
     FOREIGN KEY (`OUTBREAK_ACC_ID`)
-    REFERENCES `toy_project`.`OUTBREAK_Occurrence` (`ACC_ID`)
+    REFERENCES `toy_project`.`OUTBREAK_OCCURRENCE` (`ACC_ID`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_OUTBREAK_CODE_OUTBREAK_NAME2`
@@ -181,7 +181,7 @@ CREATE TABLE IF NOT EXISTS `toy_project`.`ACC_ALERTS` (
   PRIMARY KEY (`OUTBREAK_ACC_ID`),
   CONSTRAINT `fk_ACC_ALERTS_OUTBREAK1`
     FOREIGN KEY (`OUTBREAK_ACC_ID`)
-    REFERENCES `toy_project`.`OUTBREAK_Occurrence` (`ACC_ID`)
+    REFERENCES `toy_project`.`OUTBREAK_OCCURRENCE` (`ACC_ID`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
@@ -197,7 +197,7 @@ CREATE TABLE IF NOT EXISTS `toy_project`.`MAP_GPS` (
   PRIMARY KEY (`OUTBREAK_ACC_ID`),
   CONSTRAINT `fk_MAP_GPS_OUTBREAK1`
     FOREIGN KEY (`OUTBREAK_ACC_ID`)
-    REFERENCES `toy_project`.`OUTBREAK_Occurrence` (`ACC_ID`)
+    REFERENCES `toy_project`.`OUTBREAK_OCCURRENCE` (`ACC_ID`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
@@ -213,7 +213,7 @@ CREATE TABLE IF NOT EXISTS `toy_project`.`OUTBREAK_LINK` (
   INDEX `fk_OUTBREAK_LINK_LINK_ID1_idx` (`LINK_ID` ASC) VISIBLE,
   CONSTRAINT `fk_OUTBREAK_LINK_OUTBREAK1`
     FOREIGN KEY (`OUTBREAK_ACC_ID`)
-    REFERENCES `toy_project`.`OUTBREAK_Occurrence` (`ACC_ID`)
+    REFERENCES `toy_project`.`OUTBREAK_OCCURRENCE` (`ACC_ID`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_OUTBREAK_LINK_LINK_ID1`
@@ -260,12 +260,12 @@ ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `toy_project`.`CREATED_AT`
+-- Table `toy_project`.`fcm_device_token`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `toy_project`.`CREATED_AT` (
+CREATE TABLE IF NOT EXISTS `toy_project`.`fcm_device_token` (
   `ID` INT NOT NULL,
   `device_token` MEDIUMTEXT NULL,
-  `created_at` DATE NULL,
+  `created_at` DATETIME NULL,
   PRIMARY KEY (`ID`))
 ENGINE = InnoDB;
 
