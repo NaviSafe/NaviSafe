@@ -1,31 +1,4 @@
 services:
-  frontend:
-    build:
-      context: ./naviSafe-frontend
-      dockerfile: Dockerfile
-    container_name: frontend
-    ports:
-      - "5173:5173"
-    environment:
-      - NODE_ENV=development
-    volumes:
-      - ./naviSafe-frontend:/app
-      - /app/node_modules
-    command: npm run dev
-    depends_on:
-      - backend
-
-  backend:
-    build:
-      context: ./naviSafe-backend
-      dockerfile: Dockerfile
-    container_name: backend
-    ports:
-      - "8080:8080"
-    command: java -jar app.jar
-    depends_on:
-      - mysql
-
   zookeeper:
     image: wurstmeister/zookeeper:latest
     container_name: zookeeper
@@ -306,6 +279,34 @@ services:
       - "5000:5000"               # Flask API 외부 노출
     command: python3 app.py
     restart: unless-stopped
+    
+  frontend:
+    build:
+      context: ./naviSafe-frontend
+      dockerfile: Dockerfile
+    container_name: frontend
+    ports:
+      - "5173:5173"
+    environment:
+      - NODE_ENV=development
+    volumes:
+      - ./naviSafe-frontend:/app
+      - /app/node_modules
+    command: npm run dev
+    depends_on:
+      - backend
+
+  backend:
+    build:
+      context: ./naviSafe-backend
+      dockerfile: Dockerfile
+    container_name: backend
+    ports:
+      - "8080:8080"
+    command: java -jar app.jar
+    depends_on:
+      mysql:
+        condition: service_healthy
 
 
 networks:
