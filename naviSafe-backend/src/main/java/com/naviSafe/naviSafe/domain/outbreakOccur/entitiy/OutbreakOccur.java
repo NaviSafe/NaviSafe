@@ -11,7 +11,7 @@ import lombok.*;
 import java.time.ZonedDateTime;
 
 @Entity
-@Table(name = "OUTBREAK_OCCURENCE")
+@Table(name = "OUTBREAK_OCCURRENCE")
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
