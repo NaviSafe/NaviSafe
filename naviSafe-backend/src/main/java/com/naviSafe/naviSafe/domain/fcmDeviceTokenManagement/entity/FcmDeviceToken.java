@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Table(name = "fcm_device_token")
 public class FcmDeviceToken {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

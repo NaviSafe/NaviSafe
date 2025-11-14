@@ -1,7 +1,6 @@
 package com.naviSafe.naviSafe.domain.roadStatus.entitiy;
 
 import com.naviSafe.naviSafe.domain.regionCode.entitiy.RegionCode;
-import com.naviSafe.naviSafe.domain.roadTraffic.entitiy.RoadTraffic;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,6 +18,9 @@ public class RoadStatus {
     @Column(name = "LINK_ID")
     private String linkId;
 
+    @Column(name = "REG_CD_REG_CD", insertable = false, updatable = false)
+    private int regCdRegCd;
+
     @Column(name = "ROAD_NAME")
     private String roadName;
 
@@ -32,6 +34,6 @@ public class RoadStatus {
     private int mapDist;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "REG_CD")
+    @JoinColumn(name = "REG_CD_REG_CD", referencedColumnName = "REG_CD")
     private RegionCode regionCode;
 }
