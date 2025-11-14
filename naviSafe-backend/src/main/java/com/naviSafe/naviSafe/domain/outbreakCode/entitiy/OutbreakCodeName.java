@@ -10,7 +10,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "OUTBREAK_CODE_NAME")
+@Table(name = "OUTBREAK_NAME")
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
