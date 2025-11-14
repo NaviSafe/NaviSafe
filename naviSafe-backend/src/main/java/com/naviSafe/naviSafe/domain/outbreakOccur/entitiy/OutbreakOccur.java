@@ -22,10 +22,10 @@ public class OutbreakOccur {
     @Column(name = "ACC_ID")
     private String accId;
 
-    @Column(name = "OCCR_DATE_TIME")
+    @Column(name = "occr_date_time")
     private ZonedDateTime occrDate;
 
-    @Column(name = "EXP_CLR_DATE_TIME")
+    @Column(name = "exp_clr_date_time")
     private ZonedDateTime expClrDate;
 
     @OneToOne(fetch = FetchType.LAZY)
