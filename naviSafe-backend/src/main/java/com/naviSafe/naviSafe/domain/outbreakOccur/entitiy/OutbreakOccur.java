@@ -22,30 +22,30 @@ public class OutbreakOccur {
     @Column(name = "ACC_ID")
     private String accId;
 
-    @Column(name = "OCCR_DATE")
+    @Column(name = "OCCR_DATE_TIME")
     private ZonedDateTime occrDate;
 
-    @Column(name = "EXP_CLR_DATE")
+    @Column(name = "EXP_CLR_DATE_TIME")
     private ZonedDateTime expClrDate;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "OUTBREAK_ACC_ID")
+    @JoinColumn(name = "ACC_ID", referencedColumnName = "OUTBREAK_ACC_ID")
     private OutbreakCode outbreakCode;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "OUTBREAK_ACC_ID", insertable = false, updatable = false)
+    @JoinColumn(name = "ACC_ID", referencedColumnName = "OUTBREAK_ACC_ID")
     private OutbreakDetailCode outbreakDetailCode;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "OUTBREAK_ACC_ID", insertable = false, updatable = false)
+    @JoinColumn(name = "ACC_ID", referencedColumnName = "OUTBREAK_ACC_ID")
     private OutbreakMapGps outbreakMapGps;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "OUTBREAK_ACC_ID", insertable = false, updatable = false)
+    @JoinColumn(name = "ACC_ID", referencedColumnName = "OUTBREAK_ACC_ID")
     private RoadStatusLink roadStatusLink;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "OUTBREAK_ACC_ID", insertable = false, updatable = false)
+    @JoinColumn(name = "ACC_ID", referencedColumnName = "OUTBREAK_ACC_ID")
     private AccidentAlert accidentAlert;
 
 

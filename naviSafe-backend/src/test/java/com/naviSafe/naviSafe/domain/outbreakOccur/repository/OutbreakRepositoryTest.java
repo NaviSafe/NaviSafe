@@ -96,6 +96,7 @@ class OutbreakRepositoryTest {
                 RoadStatus
                         .builder()
                         .linkId("1180001100")
+                        .regCdRegCd(118)
                         .roadName("경인로")
                         .startNodeNm("서울교남단")
                         .endNodeNm("영등포로타리")
@@ -106,7 +107,7 @@ class OutbreakRepositoryTest {
         RoadStatusLink roadStatusLink1 = roadStatusLinkRepository.save(
                 RoadStatusLink.builder()
                         .outbreakAccId("1029246")
-                        .linkIdLinkId("1180001100")
+                        .linkId("1180001100")
                         .roadStatus(roadStatus1)
                         .roadTraffic(roadTraffic1)
                         .build()
@@ -162,7 +163,7 @@ class OutbreakRepositoryTest {
 
         outbreakRepository.save(
                 OutbreakOccur.builder()
-                        .accId("1")
+                        .accId("1029246")
                         .occrDate(ZonedDateTime.of(2025, 6, 10, 0,0,0, 0, ZoneId.of("Asia/Seoul")))
                         .expClrDate(ZonedDateTime.of(2026, 6, 30, 0,0,0, 0, ZoneId.of("Asia/Seoul")))
                         .roadStatusLink(roadStatusLink1)
