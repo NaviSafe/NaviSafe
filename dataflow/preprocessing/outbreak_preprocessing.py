@@ -132,6 +132,7 @@ def save_from_redis_to_mysql():
     env = os.environ.copy()
     try:
         result = subprocess.run(
+
             ["python3", "/app/preprocessing/linkinfo_worker.py"],
             capture_output=True, text=True, timeout=30, env=env
         )
@@ -149,7 +150,6 @@ def save_from_redis_to_mysql():
         log.error("[ERROR] linkinfo_worker.py 실행 시간 초과")
     except Exception as e:
         log.error(f"[ERROR] linkinfo_worker.py 실행 실패: {e}")
-
 
     # OUTBREAK_LINK
     try:

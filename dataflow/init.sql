@@ -263,7 +263,7 @@ ENGINE = InnoDB;
 -- Table `toy_project`.`fcm_device_token`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `toy_project`.`fcm_device_token` (
-  `ID` INT NOT NULL,
+  `ID` INT AUTO_INCREMENT NOT NULL,
   `device_token` MEDIUMTEXT NULL,
   `created_at` DATETIME NULL,
   PRIMARY KEY (`ID`))
