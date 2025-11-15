@@ -132,14 +132,24 @@ def save_from_redis_to_mysql():
     env = os.environ.copy()
     try:
         result = subprocess.run(
-            ["python", "/app/preprocessing/linkinfo_worker.py"],
+
+            ["python3", "/app/preprocessing/linkinfo_worker.py"],
             capture_output=True, text=True, timeout=30, env=env
         )
-        log.info(result.stdout)
-    except subprocess.CalledProcessError as e:
-        log.error(f"[ERROR] linkinfo_worker.py 실행 실패: {e.stderr}")
+
+        log.info(f"[SYSTEM] linkinfo_worker.py 종료 코드: {result.returncode}")
+        if result.stdout:
+            log.info("[STDOUT]\n" + result.stdout)
+        if result.stderr:
+            log.error("[STDERR]\n" + result.stderr)
+
+        if result.returncode != 0:
+            log.error(f"[ERROR] linkinfo_worker.py 비정상 종료 (code={result.returncode})")
+
     except subprocess.TimeoutExpired:
         log.error("[ERROR] linkinfo_worker.py 실행 시간 초과")
+    except Exception as e:
+        log.error(f"[ERROR] linkinfo_worker.py 실행 실패: {e}")
 
     # OUTBREAK_LINK
     try:
@@ -150,6 +160,9 @@ def save_from_redis_to_mysql():
             cursor.executemany("""
                 INSERT INTO OUTBREAK_LINK (OUTBREAK_ACC_ID, LINK_ID)
                 VALUES (%s, %s)
+                ON DUPLICATE KEY UPDATE
+                    OUTBREAK_ACC_ID = VALUES(OUTBREAK_ACC_ID),
+                    LINK_ID = VALUES(LINK_ID)
             """, [(d["acc_id"], d["link_id"]) for d in batch_link])
             log.info(f"[DB] OUTBREAK_LINK 삽입 완료 ({len(batch_link)}건)")
     except Exception as e:
