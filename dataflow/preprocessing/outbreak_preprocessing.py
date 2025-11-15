@@ -99,18 +99,18 @@ def save_from_redis_to_mysql():
     )
     cursor = conn.cursor()
 
-    # OUTBREAK_Occurrence
+    # OUTBREAK_OCCURRENCE
     try:
         cursor.executemany("""
-            INSERT IGNORE INTO OUTBREAK_Occurrence (ACC_ID, occr_date_time, exp_clr_date_time)
+            INSERT IGNORE INTO OUTBREAK_OCCURRENCE (ACC_ID, occr_date_time, exp_clr_date_time)
             VALUES (%s, %s, %s)
             ON DUPLICATE KEY UPDATE
                 occr_date_time=VALUES(occr_date_time),
                 exp_clr_date_time=VALUES(exp_clr_date_time)
         """, [(d["acc_id"], d.get("occr_date_time"), d.get("exp_clr_date_time")) for d in unique_batch])
-        log.info(f"[DB] OUTBREAK_Occurrence 삽입 완료 ({len(unique_batch)}건)")
+        log.info(f"[DB] OUTBREAK_OCCURRENCE 삽입 완료 ({len(unique_batch)}건)")
     except Exception as e:
-        log.error(f"[ERROR] OUTBREAK_Occurrence 삽입 실패: {e}")
+        log.error(f"[ERROR] OUTBREAK_OCCURRENCE 삽입 실패: {e}")
 
     # OUTBREAK_DETAIL_CODE
     try:
