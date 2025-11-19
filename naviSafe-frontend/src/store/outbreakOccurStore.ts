@@ -2,7 +2,6 @@ import {create} from 'zustand';
 
 export interface OutbreakOccur {
     accId: string;
-    occrDate: string;
     expClrDate: string;
     accInfo: string;
     grs80tmX: number;
@@ -13,8 +12,6 @@ export interface OutbreakOccur {
     startNodeName: string,
     endNodeName: string,
     mapDistance: number,
-    speedLoadTraffic: number,
-    travelTimeLoad: number,
     regionName: string
 }
 
