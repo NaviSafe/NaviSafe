@@ -108,7 +108,6 @@ class OutbreakRepositoryTest {
                         .outbreakAccId("1029246")
                         .linkId("1180001100")
                         .roadStatus(roadStatus1)
-                        .roadTraffic(roadTraffic1)
                         .build()
         );
 
@@ -183,7 +182,6 @@ class OutbreakRepositoryTest {
             System.out.println("돌발상황 = " + outbreak.getOutbreakCode().getOutbreakCodeName().getAccTypeNM());
             System.out.println("돌발상황세부 = " + outbreak.getOutbreakDetailCode().getOutbreakDetailCodeName().getAccTypeNM());
             System.out.println("돌발 발생 도로명 = " + outbreak.getRoadStatusLink().getRoadStatus().getRoadName());
-            System.out.println("돌발 발생 도로 상황(교통속도) = " + outbreak.getRoadStatusLink().getRoadTraffic().getPrcsSpd());
             System.out.println("돌발 발생 지역 = " + outbreak.getRoadStatusLink().getRoadStatus().getRegionCode().getRegName());
         }
 

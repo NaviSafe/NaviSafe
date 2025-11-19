@@ -21,7 +21,6 @@ public interface OutbreakRepository extends JpaRepository<OutbreakOccur, String>
                     "roadStatusLink",
                     "roadStatusLink.roadStatus",
                     "roadStatusLink.roadStatus.regionCode",
-                    "roadStatusLink.roadTraffic",
                     "accidentAlert"
             })
     List<OutbreakOccur> findAll();
