@@ -59,11 +59,20 @@ export const KakaoMap = () => {
         markersRef.current.forEach(marker => marker.setMap(null));
         markersRef.current = [];
 
+        const imageSize = new window.kakao.maps.Size(35,35);
+        const outboundOccurMarkerSrc = 'public/outboundOccur.png';
+        const shelterMarkerSrc = 'public/shelterIcon.png';
+
+        const outboundOccurMarkerImage = new window.kakao.maps.MarkerImage(outboundOccurMarkerSrc , imageSize);
+        const shelterMarkerImage = new window.kakao.maps.MarkerImage(shelterMarkerSrc , imageSize);
+
+
         // 새 마커 추가
         gpsList.forEach(item => {
             const marker = new window.kakao.maps.Marker({
                 position: new window.kakao.maps.LatLng(item.y, item.x),
                 map: mapRef.current,
+                image : outboundOccurMarkerImage
             });
             markersRef.current.push(marker);
         });
@@ -74,10 +83,7 @@ export const KakaoMap = () => {
             const marker = new window.kakao.maps.Marker({
                 position: new window.kakao.maps.LatLng(item.lat, item.lot),
                 map: mapRef.current,
-                image: new window.kakao.maps.MarkerImage(
-                    "https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/marker_red.png",
-                    new window.kakao.maps.Size(24, 35)
-                )
+                image: shelterMarkerImage
             });
             markersRef.current.push(marker);
         });
