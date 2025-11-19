@@ -1,14 +1,17 @@
 import { useEffect, useState, useRef } from "react";
 import { useGpsStore } from "../store/gpsStore";
+import { useShelterTypeState } from "../store/shelterStore";
 
 declare global {
-  interface Window {
-    kakao: any;
-  }
+    interface Window {
+        kakao: any;
+    }
 }
 
 export const KakaoMap = () => {
     const gpsList = useGpsStore((state) => state.gpsList);
+    const shelterType = useShelterTypeState((state) => state.shelterType);
+
     const [windowHeightSize, setWindowHeightSize] = useState<number>(window.innerHeight);
     const mapRef = useRef<any>(null); // 지도 참조
     const markersRef = useRef<any[]>([]); // 마커 배열
@@ -64,7 +67,21 @@ export const KakaoMap = () => {
             });
             markersRef.current.push(marker);
         });
-    }, [gpsList, isMapLoaded]);
+
+
+        // shelterGpsList 마커 추가
+        shelterType.shelterGpsList.forEach(item => {
+            const marker = new window.kakao.maps.Marker({
+                position: new window.kakao.maps.LatLng(item.lat, item.lot),
+                map: mapRef.current,
+                image: new window.kakao.maps.MarkerImage(
+                    "https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/marker_red.png",
+                    new window.kakao.maps.Size(24, 35)
+                )
+            });
+            markersRef.current.push(marker);
+        });
+    }, [gpsList, shelterType, isMapLoaded]);
 
 
     return (
