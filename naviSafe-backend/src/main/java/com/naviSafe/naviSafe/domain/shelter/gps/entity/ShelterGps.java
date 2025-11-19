@@ -19,7 +19,7 @@ public class ShelterGps {
     @Column(name = "SHELTER_NAME")
     private String shelterName;
 
-    @Column(name = "SHELER_ADDRESS")
+    @Column(name = "SHELTER_ADDRESS")
     private String shelterAddress;
 
     @Column(name = "LOT")
