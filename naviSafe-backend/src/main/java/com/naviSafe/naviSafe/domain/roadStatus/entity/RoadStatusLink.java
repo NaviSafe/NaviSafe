@@ -23,8 +23,4 @@ public class RoadStatusLink {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "LINK_ID", insertable = false, updatable = false)
     private RoadStatus roadStatus;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "LINK_ID", insertable = false, updatable = false)
-    private RoadTraffic roadTraffic;
 }
