@@ -1,4 +1,4 @@
-package com.naviSafe.naviSafe.domain.region.entitiy;
+package com.naviSafe.naviSafe.domain.outbreakDetailCode.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -10,16 +10,16 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "REGION")
+@Table(name = "OUTBREAK_DETAIL_CODE_NAME")
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class Region {
+public class OutbreakDetailCodeName {
     @Id
-    @Column(name = "GU_CODE")
-    private int guCode;
+    @Column(name = "ACC_DTYPE")
+    private String accDtype;
 
-    @Column(name = "GU_NAME")
-    private String guName;
+    @Column(name = "ACC_DTYPE_NM")
+    private String accTypeNM;
 }

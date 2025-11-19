@@ -1,7 +1,7 @@
 package com.naviSafe.naviSafe.domain.outbreakOccur.controller;
 
 import com.naviSafe.naviSafe.domain.outbreakOccur.dto.OutbreakResponseDto;
-import com.naviSafe.naviSafe.domain.outbreakOccur.entitiy.OutbreakOccur;
+import com.naviSafe.naviSafe.domain.outbreakOccur.entity.OutbreakOccur;
 import com.naviSafe.naviSafe.domain.outbreakOccur.service.OutbreakService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

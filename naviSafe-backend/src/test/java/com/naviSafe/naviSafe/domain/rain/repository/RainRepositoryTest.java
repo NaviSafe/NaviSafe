@@ -1,7 +1,7 @@
 package com.naviSafe.naviSafe.domain.rain.repository;
 
-import com.naviSafe.naviSafe.domain.rain.entitiy.Rain;
-import com.naviSafe.naviSafe.domain.region.entitiy.Region;
+import com.naviSafe.naviSafe.domain.rain.entity.Rain;
+import com.naviSafe.naviSafe.domain.region.entity.Region;
 import com.naviSafe.naviSafe.domain.region.repository.RegionRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -13,8 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @Transactional

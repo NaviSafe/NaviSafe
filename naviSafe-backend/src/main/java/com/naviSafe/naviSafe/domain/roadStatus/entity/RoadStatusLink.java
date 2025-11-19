@@ -1,6 +1,6 @@
-package com.naviSafe.naviSafe.domain.roadStatus.entitiy;
+package com.naviSafe.naviSafe.domain.roadStatus.entity;
 
-import com.naviSafe.naviSafe.domain.roadTraffic.entitiy.RoadTraffic;
+import com.naviSafe.naviSafe.domain.roadTraffic.entity.RoadTraffic;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
