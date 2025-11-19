@@ -1,9 +1,9 @@
 package com.naviSafe.naviSafe.domain.roadStatus.repository;
 
-import com.naviSafe.naviSafe.domain.regionCode.entitiy.RegionCode;
+import com.naviSafe.naviSafe.domain.regionCode.entity.RegionCode;
 import com.naviSafe.naviSafe.domain.regionCode.repository.RegionCodeRepository;
-import com.naviSafe.naviSafe.domain.roadStatus.entitiy.RoadStatus;
-import com.naviSafe.naviSafe.domain.roadTraffic.entitiy.RoadTraffic;
+import com.naviSafe.naviSafe.domain.roadStatus.entity.RoadStatus;
+import com.naviSafe.naviSafe.domain.roadTraffic.entity.RoadTraffic;
 import com.naviSafe.naviSafe.domain.roadTraffic.repository.RoadTrafficRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
@@ -13,8 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 class RoadStatusRepositoryTest {

@@ -1,7 +1,6 @@
 package com.naviSafe.naviSafe.domain.roadStatus.repository;
 
-import com.naviSafe.naviSafe.domain.roadStatus.entitiy.RoadStatus;
-import org.springframework.data.domain.Example;
+import com.naviSafe.naviSafe.domain.roadStatus.entity.RoadStatus;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

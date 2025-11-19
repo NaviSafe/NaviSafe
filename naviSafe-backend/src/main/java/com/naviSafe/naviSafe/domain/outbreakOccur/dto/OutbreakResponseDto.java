@@ -11,7 +11,6 @@ import java.time.ZonedDateTime;
 @Builder
 public class OutbreakResponseDto {
     private String accId;
-    private ZonedDateTime occrDate;
     private ZonedDateTime expClrDate;
     private String accInfo;
     private double grs80tmX;
@@ -24,9 +23,6 @@ public class OutbreakResponseDto {
     private String startNodeName;
     private String endNodeName;
     private int mapDistance;
-
-    private int speedLoadTraffic;
-    private int travelTimeLoad;
 
     private String regionName;
 }

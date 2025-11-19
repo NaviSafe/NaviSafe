@@ -1,6 +1,6 @@
 package com.naviSafe.naviSafe.domain.outbreakOccur.service;
 
-import com.naviSafe.naviSafe.domain.outbreakOccur.entitiy.OutbreakOccur;
+import com.naviSafe.naviSafe.domain.outbreakOccur.entity.OutbreakOccur;
 import com.naviSafe.naviSafe.domain.outbreakOccur.repository.OutbreakRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;

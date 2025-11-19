@@ -1,4 +1,4 @@
-package com.naviSafe.naviSafe.domain.outbreakCode.entitiy;
+package com.naviSafe.naviSafe.domain.outbreakCode.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
