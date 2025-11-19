@@ -1,7 +1,6 @@
 package com.naviSafe.naviSafe.domain.rain.repository;
 
-import com.naviSafe.naviSafe.domain.rain.entitiy.Rain;
-import org.springframework.data.domain.Example;
+import com.naviSafe.naviSafe.domain.rain.entity.Rain;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 

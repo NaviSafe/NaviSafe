@@ -1,6 +1,6 @@
-package com.naviSafe.naviSafe.domain.roadStatus.entitiy;
+package com.naviSafe.naviSafe.domain.roadStatus.entity;
 
-import com.naviSafe.naviSafe.domain.regionCode.entitiy.RegionCode;
+import com.naviSafe.naviSafe.domain.regionCode.entity.RegionCode;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
