@@ -1,10 +1,10 @@
-package com.naviSafe.naviSafe.domain.outbreakOccur.entitiy;
+package com.naviSafe.naviSafe.domain.outbreakOccur.entity;
 
 import com.naviSafe.naviSafe.domain.accidentAlert.entity.AccidentAlert;
-import com.naviSafe.naviSafe.domain.outbreakCode.entitiy.OutbreakCode;
-import com.naviSafe.naviSafe.domain.outbreakDetailCode.entitiy.OutbreakDetailCode;
+import com.naviSafe.naviSafe.domain.outbreakCode.entity.OutbreakCode;
+import com.naviSafe.naviSafe.domain.outbreakDetailCode.entity.OutbreakDetailCode;
 import com.naviSafe.naviSafe.domain.outbreakMapGPS.entity.OutbreakMapGps;
-import com.naviSafe.naviSafe.domain.roadStatus.entitiy.RoadStatusLink;
+import com.naviSafe.naviSafe.domain.roadStatus.entity.RoadStatusLink;
 import jakarta.persistence.*;
 import lombok.*;
 

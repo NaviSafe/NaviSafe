@@ -1,4 +1,4 @@
-package com.naviSafe.naviSafe.domain.outbreakCode.entitiy;
+package com.naviSafe.naviSafe.domain.roadTraffic.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -10,16 +10,19 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "OUTBREAK_NAME")
+@Table(name = "ROAD_TRAFFIC")
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class OutbreakCodeName {
+public class RoadTraffic {
     @Id
-    @Column(name = "ACC_TYPE")
-    private String accType;
+    @Column(name = "LINK_ID")
+    private String linkId;
 
-    @Column(name = "ACC_TYPE_NM")
-    private String accTypeNM;
+    @Column(name = "PRCS_SPD")
+    private int prcsSpd;
+
+    @Column(name = "PRCS_TRV_TIME")
+    private int prcsTrvTime;
 }

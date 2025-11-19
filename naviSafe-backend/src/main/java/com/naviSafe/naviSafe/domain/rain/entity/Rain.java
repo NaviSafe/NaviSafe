@@ -1,6 +1,6 @@
-package com.naviSafe.naviSafe.domain.rain.entitiy;
+package com.naviSafe.naviSafe.domain.rain.entity;
 
-import com.naviSafe.naviSafe.domain.region.entitiy.Region;
+import com.naviSafe.naviSafe.domain.region.entity.Region;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
