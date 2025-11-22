@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { useGpsStore } from "../store/gpsStore";
 import { useShelterTypeState } from "../store/shelterStore";
+import { useSelectedShelter } from "../store/selectedShelterStore";
 
 declare global {
     interface Window {
@@ -11,6 +12,7 @@ declare global {
 export const KakaoMap = () => {
     const gpsList = useGpsStore((state) => state.gpsList);
     const shelterType = useShelterTypeState((state) => state.shelterType);
+    const { setSelectedShelter } = useSelectedShelter();
 
     const [windowHeightSize, setWindowHeightSize] = useState<number>(window.innerHeight);
     const mapRef = useRef<any>(null);
@@ -128,6 +130,11 @@ export const KakaoMap = () => {
 
                 overlay.setMap(mapRef.current);
                 overlayRef.current = overlay;
+
+                setSelectedShelter({
+                    code: item.shelterCode,
+                    name: item.shelterName,
+                });
             });
 
             return marker;
@@ -147,6 +154,7 @@ export const KakaoMap = () => {
             if (overlayRef.current) {
                 overlayRef.current.setMap(null);
                 overlayRef.current = null;
+                setSelectedShelter(null);
             }
         };
     
@@ -162,6 +170,7 @@ export const KakaoMap = () => {
         if (overlayRef.current) {
             overlayRef.current.setMap(null);
             overlayRef.current = null;
+            setSelectedShelter(null);
         }
     }, [shelterType]);
 
