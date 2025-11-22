@@ -18,6 +18,7 @@ export const KakaoMap = () => {
     const [isMapLoaded, setIsMapLoaded] = useState<boolean>(false);
 
     const markersRef = useRef<any[]>([]); // 돌발상황 마커만 넣음
+    const overlayRef = useRef<any>(null);
 
     useEffect(() => {
         const handleWindowResize = () => {
@@ -95,16 +96,74 @@ export const KakaoMap = () => {
          * 2) 대피소 마커 (클러스터링 O)
          */
         const shelterMarkers = shelterType.shelterGpsList.map((item) => {
-            return new window.kakao.maps.Marker({
+            const marker =  new window.kakao.maps.Marker({
                 position: new window.kakao.maps.LatLng(item.lat, item.lot),
                 image: shelterMarkerImage,
             });
+
+            window.kakao.maps.event.addListener(marker, "click", () => {
+                if (overlayRef.current) overlayRef.current.setMap(null);
+
+                const content = `
+                    <div class="overlay-box"
+                        style="padding:8px 12px; 
+                        background:white; 
+                        border-radius:8px; 
+                        box-shadow: 0 2px 6px rgba(0,0,0,0.3); 
+                        border:1px solid #ddd;
+                        pointer-events: auto;
+                        ">
+                        <div style="font-size:14px; font-weight:600; margin-bottom:4px;">
+                            ${item.shelterName}
+                        </div>
+                        <div style="font-size:12px;">${item.shelterAddress}</div>
+                    </div>
+                    `;
+
+                const overlay = new window.kakao.maps.CustomOverlay({
+                    position: new window.kakao.maps.LatLng(item.lat, item.lot),
+                    content: content,
+                    yAnchor: 1.2,
+                });
+
+                overlay.setMap(mapRef.current);
+                overlayRef.current = overlay;
+            });
+
+            return marker;
         });
 
         // 클러스터러에 넣기
         clustererRef.current.addMarkers(shelterMarkers);
 
     }, [gpsList, shelterType, isMapLoaded]);
+
+    // 지도 클릭 시 오버레이 제거
+    useEffect(() => {
+        if (!isMapLoaded || !mapRef.current) return;
+    
+        const map = mapRef.current;
+        const handleClick = () => {
+            if (overlayRef.current) {
+                overlayRef.current.setMap(null);
+                overlayRef.current = null;
+            }
+        };
+    
+        window.kakao.maps.event.addListener(map, "click", handleClick);
+    
+        return () => {
+            window.kakao.maps.event.removeListener(map, "click", handleClick);
+        };
+    }, [isMapLoaded]);
+
+    // 대피소 상태 변경 시 오버레이 제거
+    useEffect(() => {
+        if (overlayRef.current) {
+            overlayRef.current.setMap(null);
+            overlayRef.current = null;
+        }
+    }, [shelterType]);
 
     return (
         <div
