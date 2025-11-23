@@ -11,7 +11,7 @@ def load_producer():
     from producer import run_kafka_producer
     return run_kafka_producer
 
-def load_preprocessing():
+def load_outbreak_preprocessing():
     from outbreak_preprocessing import save_from_redis_to_mysql
     return save_from_redis_to_mysql
 
@@ -38,9 +38,9 @@ with DAG(
         python_callable=lambda: load_producer()(),
     )
 
-    save_task = PythonOperator(
-        task_id='save_redis_to_mysql',
-        python_callable=lambda: load_preprocessing()(),
+    outbreak_save_task = PythonOperator(
+        task_id='outbreak_save_redis_to_mysql',
+        python_callable=lambda: load_outbreak_preprocessing()(),
     )
 
-    produce_task >> save_task
+    produce_task >> outbreak_save_task
