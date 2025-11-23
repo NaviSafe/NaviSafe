@@ -30,9 +30,11 @@ DB_BATCH_SIZE = 100  # Redis→MySQL 저장 단위
 def process_batch_with_redis(batch_df, batch_id):
     log.info(f"--- 배치 {batch_id} 시작 ---")
     batch_df.show(truncate=False)
-
+    
     for row in batch_df.collect():
         item = row.asDict()
+        link_id = item.get("link_id")
+        acc_id = item.get("acc_id")
 
         # 지도 좌표(중복 체크 포함)
         gps_key = f"gps_sent:{item['acc_id']}"
@@ -60,17 +62,18 @@ def process_batch_with_redis(batch_df, batch_id):
             log.info(f"[INFO] Duplicate alert skipped for ACC_ID: {item['acc_id']}")
 
         # MySQL 저장용 데이터 (db_queue)
-        if item.get("acc_id"):
+        if link_id and acc_id:
             redis_client.rpush_list("db_queue", item)
         else:
             log.warning(f"[SKIP] acc_id 없음 → db_queue에 저장 안함: {item}")
 
         # LinkInfo API 호출용 데이터 (link_queue)
-        link_id = item.get("link_id")
-        if link_id and not redis_client.r.exists(f"link_sent:{link_id}"):
-            redis_client.rpush_list("link_queue", {"link_id": link_id})
-            redis_client.r.set(f"link_sent:{link_id}", 1, ex=3600)
-            log.info(f"[INFO] link_queue에 LINK_ID 추가됨: {link_id}")
+
+        if link_id and acc_id:
+            if link_id and not redis_client.r.exists(f"link_sent:{link_id}"):
+                redis_client.rpush_list("link_queue", {"link_id": link_id})
+                redis_client.r.set(f"link_sent:{link_id}", 1, ex=3600)
+                log.info(f"[INFO] link_queue에 LINK_ID 추가됨: {link_id}")
 
 
 # -----------------------------------
@@ -89,7 +92,12 @@ def save_from_redis_to_mysql():
         time.sleep(5)
         return
 
-    unique_batch = list({d["acc_id"]: d for d in batch}.values())
+    unique_batch = list({
+    d["acc_id"]: d
+    for d in batch
+    if d.get("link_id")  # link_id가 존재하는 경우만
+    }.values())
+
 
     conn = mysql.connector.connect(
         host="mysql",
