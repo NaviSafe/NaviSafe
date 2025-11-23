@@ -1,4 +1,5 @@
 from kafka import KafkaConsumer
+import json
 ## 실시간 지하철 위치 데이터
 subway_consumer = KafkaConsumer(
     "subway_position_topic",
@@ -10,4 +11,7 @@ subway_consumer = KafkaConsumer(
 
 print("🚇 Subway Group Listening...")
 for msg in subway_consumer:
-    print(f"[{msg.topic}] {msg.value.decode('utf-8')}")
+    raw = msg.value.decode('utf-8')
+    data = json.loads(raw) 
+    
+    print(f"[{msg.topic}] {data}")

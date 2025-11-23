@@ -4,3 +4,5 @@ python-dotenv
 Flask
 pymysql
 pyproj
+redis
+mysql-connector-python
