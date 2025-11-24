@@ -31,8 +31,15 @@ public class OutbreakService {
 
         List<OutbreakOccur> outbreaks = outbreakRepository.findAll();
 
-        redisTemplate.opsForValue().set(KEY, outbreaks, 30, TimeUnit.MINUTES);
+        boolean hasNull = outbreaks.stream().anyMatch(o ->
+                o.getRoadStatusLink().getLinkId() == null ||
+                        o.getRoadStatusLink().getRoadStatus() == null ||
+                        o.getRoadStatusLink().getOutbreakAccId() == null
+        );
 
+        if (!hasNull) {
+            redisTemplate.opsForValue().set(KEY, outbreaks, 30, TimeUnit.MINUTES);
+        }
         return outbreaks;
     }
 }
