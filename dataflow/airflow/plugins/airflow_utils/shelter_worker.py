@@ -26,16 +26,18 @@ MYSQL_CONFIG = {
 # ------------------------------------------------------------------
 # 좌표 변환기 설정 (GRS80TM → WGS84)
 # ------------------------------------------------------------------
-transformer = Transformer.from_crs("EPSG:2097", "EPSG:4326", always_xy=True)
+
+transformer = Transformer.from_crs("EPSG:5179", "EPSG:4326", always_xy=True)
+
 
 def convert_to_gps(x, y):
-    """GRS80TM 좌표를 WGS84(GPS) 경위도로 변환"""
     try:
         lon, lat = transformer.transform(float(x), float(y))
         return lon, lat
     except Exception as e:
-        print(f"[ERROR] 좌표 변환 실패: {e}")
+        print(f"[ERROR] 좌표 변환 실패: x={x}, y={y}, error={e}")
         return None, None
+
 
 # ------------------------------------------------------------------
 # 공통 API 호출 함수
@@ -71,9 +73,9 @@ def parse_shelter_data(xml_str, shelter_code):
             elif shelter_code == 2:
                 name = row.findtext("ACTC_FCLT_NM")
                 address = row.findtext("DADDR")
-                x = row.findtext("XCRD")
-                y = row.findtext("YCRD")
-                lot, lat = convert_to_gps(x, y)
+                lot = row.findtext("LOT")
+                lat = row.findtext("LAT")
+                #lot, lat = convert_to_gps(x, y)
 
             # 무더위 쉼터
             elif shelter_code == 3:
