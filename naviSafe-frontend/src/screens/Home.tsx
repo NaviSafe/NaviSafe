@@ -2,7 +2,7 @@ import { KakaoMap } from "../components/KakaoMap";
 import { useOutbreakOccur } from "../hooks/useOutbreakOccur";
 import type { ShelterInfo } from "../type/Shelter";
 import { useShelter } from "../hooks/useShelter";
-import { useSelectedShelter } from "../store/selectedShelterStore";
+import { BottomBar } from "../components/BottomBar";
 
 export const Home = () => {
   useOutbreakOccur();
@@ -15,7 +15,6 @@ export const Home = () => {
   ];
 
   const { shelterType, handleShelterClick } = useShelter(1);
-  const { selectedShelter } = useSelectedShelter();
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center px-0 text-center">
@@ -36,29 +35,7 @@ export const Home = () => {
       </div>
       <KakaoMap />
 
-      {selectedShelter && (
-        <div className="absolute bottom-0 left-0 w-full bg-white p-4 flex justify-between items-center shadow-lg z-50">
-          <span
-            className="font-medium"
-            style={{
-              fontSize:
-                selectedShelter.name.length > 10
-                  ? "12px"
-                  : selectedShelter.name.length > 5
-                  ? "14px"
-                  : "16px",
-            }}
-          >
-            {selectedShelter.name}
-          </span>
-          <button
-            className="bg-blue-500 text-white px-4 py-2 rounded-lg"
-            onClick={() => console.log(`${selectedShelter.name}로 이동`)}
-          >
-            여기로 이동
-          </button>
-        </div>
-      )}
+      <BottomBar />
     </div>
   );
 }
