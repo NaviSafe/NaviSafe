@@ -1,9 +1,15 @@
 import { create } from "zustand";
-import type { ShelterInfo } from "../type/Shelter";
+
+type ShelterDetailInfo = {
+    code: number;
+    name: String;
+    lat : number;
+    lot : number;
+}
 
 interface SelectedShelterState {
-selectedShelter: ShelterInfo | null;
-setSelectedShelter: (shelter: ShelterInfo | null) => void;
+selectedShelter: ShelterDetailInfo | null;
+setSelectedShelter: (shelter: ShelterDetailInfo | null) => void;
 }
 
 export const useSelectedShelter = create<SelectedShelterState>((set) => ({

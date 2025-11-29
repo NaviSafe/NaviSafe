@@ -134,6 +134,8 @@ export const KakaoMap = () => {
                 setSelectedShelter({
                     code: item.shelterCode,
                     name: item.shelterName,
+                    lat : item.lat,
+                    lot : item.lot
                 });
             });
 
