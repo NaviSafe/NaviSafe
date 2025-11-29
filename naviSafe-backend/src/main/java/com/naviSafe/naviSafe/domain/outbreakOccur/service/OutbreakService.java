@@ -51,7 +51,7 @@ public class OutbreakService {
         );
 
         if (!hasNull) {
-            redisTemplate.opsForValue().set(KEY, validOutbreaks, 30, TimeUnit.MINUTES);
+            redisTemplate.opsForValue().set(KEY, validOutbreaks, 1, TimeUnit.MINUTES);
         }
         return validOutbreaks;
     }
