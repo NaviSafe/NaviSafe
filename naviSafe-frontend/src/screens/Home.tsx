@@ -14,7 +14,7 @@ export const Home = () => {
     { code: 4, name: "미세먼지 대피소" },
   ];
 
-  const { shelterType, handleShelterClick } = useShelter(1);
+  const { shelterType, handleShelterClick } = useShelter(0);
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center px-0 text-center">
