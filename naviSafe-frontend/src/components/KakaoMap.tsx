@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from "react";
+import { useOutbreakOccurState } from "../store/outbreakOccurStore";
 import { useGpsStore } from "../store/gpsStore";
 import { useShelterTypeState } from "../store/shelterStore";
 import { useSelectedShelter } from "../store/selectedShelterStore";
@@ -11,6 +12,7 @@ declare global {
 }
 
 export const KakaoMap = () => {
+    const outbreakOccurs = useOutbreakOccurState((state) => state.outbreakOccurList);
     const gpsList = useGpsStore((state) => state.gpsList);
     const shelterType = useShelterTypeState((state) => state.shelterType);
     const { setSelectedShelter } = useSelectedShelter();
@@ -87,15 +89,50 @@ export const KakaoMap = () => {
         /* 
          * 돌발상황 마커 (클러스터링 X)
          */
-        gpsList.forEach((item) => {
+        gpsList.map((item) => {
             const marker = new window.kakao.maps.Marker({
                 position: new window.kakao.maps.LatLng(item.y, item.x),
                 map: mapRef.current, // 바로 지도에 표시
                 image: outboundOccurMarkerImage,
             });
 
+            window.kakao.maps.event.addListener(marker, "click", () => {
+                if (overlayRef.current) overlayRef.current.setMap(null);
+                const matchedByOutbreakOccurId = outbreakOccurs.find((occur) => occur.accId === item.acc_id);
+                
+                if (!matchedByOutbreakOccurId) {
+                    return;
+                }
+
+                const content = `
+                    <div class="overlay-box"
+                        style="padding:8px 12px; 
+                        background:white; 
+                        border-radius:8px; 
+                        box-shadow: 0 2px 6px rgba(0,0,0,0.3); 
+                        border:1px solid #ddd;
+                        pointer-events: auto;
+                        ">
+                        <div style="font-size:10px; font-weight:600; margin-bottom:4px;">
+                            ${matchedByOutbreakOccurId.accInfo}
+                        </div>
+                        <div style="font-size:12px;">종료일자 : ${matchedByOutbreakOccurId.expClrDate}</div>
+                    </div>
+                    `;
+
+                const overlay = new window.kakao.maps.CustomOverlay({
+                    position: new window.kakao.maps.LatLng(item.y, item.x),
+                    content: content,
+                    yAnchor: 1.2,
+                });
+
+                overlay.setMap(mapRef.current);
+                overlayRef.current = overlay;
+            });
+
+
             markersRef.current.push(marker);
-        });
+        })
 
         /* 
          * 2) 대피소 마커 (클러스터링 O)
