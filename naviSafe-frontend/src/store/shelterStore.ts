@@ -17,6 +17,7 @@ type ShelterGps = {
 interface ShelterTypeState {
     shelterType : ShelterType;
     setShelterType: (shelter : ShelterType) => void;
+    resetShelterType : () => void;
 }
 
 export const useShelterTypeState = create<ShelterTypeState>((set) => ({
@@ -25,5 +26,12 @@ export const useShelterTypeState = create<ShelterTypeState>((set) => ({
         shelterCodeName: "",
         shelterGpsList: []
     },
-    setShelterType: (shelter) => set({shelterType: shelter})
+    setShelterType: (shelter) => set({shelterType: shelter}),
+    resetShelterType : () => set({
+        shelterType : {
+            shelterCode: 0,
+            shelterCodeName: "",
+            shelterGpsList: []
+        }
+    })
 }))
