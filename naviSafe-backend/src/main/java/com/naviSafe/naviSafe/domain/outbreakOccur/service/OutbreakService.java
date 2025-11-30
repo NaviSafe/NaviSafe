@@ -42,9 +42,9 @@ public class OutbreakService {
                     ZonedDateTime expDate = outbreak.getExpClrDate();
                     return expDate == null || expDate.isAfter(nowInKorea);
                 })
-                .toList();
+                .collect(Collectors.toList());
 
-        boolean hasNull = outbreaks.stream().anyMatch(o ->
+        boolean hasNull = validOutbreaks.stream().anyMatch(o ->
                 o.getRoadStatusLink().getLinkId() == null ||
                         o.getRoadStatusLink().getRoadStatus() == null ||
                         o.getRoadStatusLink().getOutbreakAccId() == null
