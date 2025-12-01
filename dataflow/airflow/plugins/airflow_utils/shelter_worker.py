@@ -27,7 +27,7 @@ MYSQL_CONFIG = {
 # 좌표 변환기 설정 (GRS80TM → WGS84)
 # ------------------------------------------------------------------
 
-transformer = Transformer.from_crs("EPSG:5179", "EPSG:4326", always_xy=True)
+transformer = Transformer.from_crs("EPSG:5186", "EPSG:4326", always_xy=True)
 
 
 def convert_to_gps(x, y):
