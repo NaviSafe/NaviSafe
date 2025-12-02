@@ -25,9 +25,9 @@ export const BottomBar = () => {
         }
 
         // actual my current coords
-        // const startCoords = { lat : currentLocation.lat, lon : currentLocation.lon};
+        const startCoords = { lat : currentLocation.lat, lon : currentLocation.lon};
         // for testing = 서울시청
-        const startCoords = { lat : 37.5663, lon : 126.9779};
+        //const startCoords = { lat : 37.5663, lon : 126.9779};
         
         const destination = { lat : selectedShelter.lat, lon : selectedShelter.lot};
         
