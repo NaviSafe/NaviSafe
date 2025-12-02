@@ -42,7 +42,9 @@ def process_batch_with_redis(batch_df, batch_id):
             redis_client.publish_channel("MAP_GPS", {
                 "acc_id": item["acc_id"],
                 "x": item["grs80tm_x"],
-                "y": item["grs80tm_y"]
+                "y": item["grs80tm_y"],
+                "acc_info" : item["acc_info"],
+                'exp_clr_date_time': item['exp_clr_date_time'] 
             })
             redis_client.r.set(gps_key, 1, ex=3600)
         else:
