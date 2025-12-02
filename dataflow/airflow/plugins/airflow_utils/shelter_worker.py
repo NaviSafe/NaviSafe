@@ -95,9 +95,12 @@ def parse_shelter_data(xml_str, shelter_code):
             # 필수 값 확인
             if not (name and lot and lat):
                 continue
-
+            
+            #옥외 지진대피소를 1번으로 병합
+            save_code = 1 if shelter_code == 2 else shelter_code
+            
             shelters.append({
-                "SHELTER_CODE": shelter_code,
+                "SHELTER_CODE": save_code,
                 "SHELTER_NAME": name.strip(),
                 "SHELTER_ADDRESS": address or "",
                 "LOT": float(lot),
