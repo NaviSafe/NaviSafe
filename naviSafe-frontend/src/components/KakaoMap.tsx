@@ -104,6 +104,23 @@ export const KakaoMap = () => {
                     return;
                 }
 
+                let formattedDate = "";
+                if (matchedByOutbreakOccurId.expClrDate) {
+                    const rawDate = matchedByOutbreakOccurId.expClrDate;
+                    const dateObj = new Date(rawDate);
+
+                    // 날짜 객체가 유효할 때만 변환
+                    if (!isNaN(dateObj.getTime())) {
+                        formattedDate =
+                            `${dateObj.getFullYear()}년 ` +
+                            `${String(dateObj.getMonth() + 1).padStart(2, "0")}월 ` +
+                            `${String(dateObj.getDate()).padStart(2, "0")}일 ` +
+                            `${String(dateObj.getHours()).padStart(2, "0")}:` +
+                            `${String(dateObj.getMinutes()).padStart(2, "0")}:` +
+                            `${String(dateObj.getSeconds()).padStart(2, "0")}`;
+                    }
+                }
+
                 const content = `
                     <div class="overlay-box"
                         style="padding:8px 12px; 
@@ -116,7 +133,7 @@ export const KakaoMap = () => {
                         <div style="font-size:10px; font-weight:600; margin-bottom:4px;">
                             ${matchedByOutbreakOccurId.accInfo}
                         </div>
-                        <div style="font-size:12px;">종료일자 : ${matchedByOutbreakOccurId.expClrDate}</div>
+                        <div style="font-size:12px;">종료일자 : ${formattedDate || "정보 없음"}</div>
                     </div>
                     `;
 
