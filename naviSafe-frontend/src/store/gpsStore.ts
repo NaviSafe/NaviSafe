@@ -4,6 +4,8 @@ export interface GpsItem {
     acc_id: string;
     x: number;
     y: number;
+    acc_info : string;
+    exp_clr_date_time : string;
 }
 
 interface GpsState {

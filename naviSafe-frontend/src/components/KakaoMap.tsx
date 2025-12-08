@@ -1,9 +1,9 @@
 import { useEffect, useState, useRef } from "react";
-import { useOutbreakOccurState } from "../store/outbreakOccurStore";
 import { useGpsStore } from "../store/gpsStore";
 import { useShelterTypeState } from "../store/shelterStore";
 import { useSelectedShelter } from "../store/selectedShelterStore";
 import { useRouteStore } from "../store/routeStore";
+import {useLocationStore} from "../store/myLocationStore";
 
 declare global {
     interface Window {
@@ -12,11 +12,11 @@ declare global {
 }
 
 export const KakaoMap = () => {
-    const outbreakOccurs = useOutbreakOccurState((state) => state.outbreakOccurList);
     const gpsList = useGpsStore((state) => state.gpsList);
     const shelterType = useShelterTypeState((state) => state.shelterType);
     const { setSelectedShelter } = useSelectedShelter();
     const { routeCoords } = useRouteStore();
+    const { location } = useLocationStore();
 
     const [windowHeightSize, setWindowHeightSize] = useState<number>(window.innerHeight);
     const mapRef = useRef<any>(null);
@@ -26,6 +26,7 @@ export const KakaoMap = () => {
     const markersRef = useRef<any[]>([]); // 돌발상황 마커만 넣음
     const overlayRef = useRef<any>(null);
     const polylineRef = useRef<any>(null);
+    const myLocationMarkerRef = useRef<any>(null);
 
     useEffect(() => {
         const handleWindowResize = () => {
@@ -98,10 +99,22 @@ export const KakaoMap = () => {
 
             window.kakao.maps.event.addListener(marker, "click", () => {
                 if (overlayRef.current) overlayRef.current.setMap(null);
-                const matchedByOutbreakOccurId = outbreakOccurs.find((occur) => occur.accId === item.acc_id);
                 
-                if (!matchedByOutbreakOccurId) {
-                    return;
+                let formattedDate = "";
+                if (item.exp_clr_date_time) {
+                    const rawDate = item.exp_clr_date_time;
+                    const dateObj = new Date(rawDate);
+
+                    // 날짜 객체가 유효할 때만 변환
+                    if (!isNaN(dateObj.getTime())) {
+                        formattedDate =
+                            `${dateObj.getFullYear()}년 ` +
+                            `${String(dateObj.getMonth() + 1).padStart(2, "0")}월 ` +
+                            `${String(dateObj.getDate()).padStart(2, "0")}일 ` +
+                            `${String(dateObj.getHours()).padStart(2, "0")}:` +
+                            `${String(dateObj.getMinutes()).padStart(2, "0")}:` +
+                            `${String(dateObj.getSeconds()).padStart(2, "0")}`;
+                    }
                 }
 
                 const content = `
@@ -114,9 +127,9 @@ export const KakaoMap = () => {
                         pointer-events: auto;
                         ">
                         <div style="font-size:10px; font-weight:600; margin-bottom:4px;">
-                            ${matchedByOutbreakOccurId.accInfo}
+                            ${item.acc_info}
                         </div>
-                        <div style="font-size:12px;">종료일자 : ${matchedByOutbreakOccurId.expClrDate}</div>
+                        <div style="font-size:12px;">종료일자 : ${formattedDate || "정보 없음"}</div>
                     </div>
                     `;
 
@@ -241,6 +254,36 @@ export const KakaoMap = () => {
         // 지도 중심 이동 (선의 시작점)
         mapRef.current.setCenter(path[0]);
     }, [routeCoords, isMapLoaded]);
+
+    // 내 위치 마커 업데이트
+    useEffect(() => {
+        if (!isMapLoaded || !mapRef.current || !location) return;
+
+        const { lat, lon } = location;
+
+        const pos = new window.kakao.maps.LatLng(lat, lon);
+
+        // 기존 마커가 있다면 제거
+        if (myLocationMarkerRef.current) {
+            myLocationMarkerRef.current.setMap(null);
+        }
+
+        // 내 위치 마커 이미지
+        const imageSrc = "public/myLocation.png";
+        const imageSize = new window.kakao.maps.Size(25, 25);
+
+        const markerImage = new window.kakao.maps.MarkerImage(imageSrc, imageSize);
+
+        // 새 마커 생성
+        const marker = new window.kakao.maps.Marker({
+            position: pos,
+            image: markerImage,
+            zIndex: 9999, // 가장 위에 보이도록
+        });
+
+        marker.setMap(mapRef.current);
+        myLocationMarkerRef.current = marker;
+    }, [location, isMapLoaded]);
 
     return (
         <div
