@@ -32,7 +32,7 @@ export const useOutbreakOccur = () => {
             // GRS80 → WGS84 변환
             const converted: GpsItem[] = res.data.map((item) => {
             const [x, y] = proj4(GRS80, WGS84, [item.grs80tmX, item.grs80tmY]);
-            return { acc_id: item.accId, x, y };
+            return { acc_id: item.accId, x: x, y: y, acc_info: item.accInfo, exp_clr_date_time: item.expClrDate };
             });
             setGpsList(converted);
         } catch (err) {

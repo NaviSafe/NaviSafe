@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useLocationStore } from "../store/myLocationStore";
 
 interface Position {
     lat: number;
@@ -13,7 +14,9 @@ interface UseCurrentLocationReturn {
 }
 
 export const useCurrentLocation = () : UseCurrentLocationReturn => {
-    const [location, setLocation] = useState<Position | null>(null);
+    const location = useLocationStore((s) => s.location);
+    const setLocation = useLocationStore((s) => s.setLocation);
+    
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
