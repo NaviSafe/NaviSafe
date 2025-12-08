@@ -1,5 +1,4 @@
 import { useEffect, useState, useRef } from "react";
-import { useOutbreakOccurState } from "../store/outbreakOccurStore";
 import { useGpsStore } from "../store/gpsStore";
 import { useShelterTypeState } from "../store/shelterStore";
 import { useSelectedShelter } from "../store/selectedShelterStore";
@@ -13,7 +12,6 @@ declare global {
 }
 
 export const KakaoMap = () => {
-    const outbreakOccurs = useOutbreakOccurState((state) => state.outbreakOccurList);
     const gpsList = useGpsStore((state) => state.gpsList);
     const shelterType = useShelterTypeState((state) => state.shelterType);
     const { setSelectedShelter } = useSelectedShelter();
@@ -101,15 +99,10 @@ export const KakaoMap = () => {
 
             window.kakao.maps.event.addListener(marker, "click", () => {
                 if (overlayRef.current) overlayRef.current.setMap(null);
-                const matchedByOutbreakOccurId = outbreakOccurs.find((occur) => occur.accId === item.acc_id);
                 
-                if (!matchedByOutbreakOccurId) {
-                    return;
-                }
-
                 let formattedDate = "";
-                if (matchedByOutbreakOccurId.expClrDate) {
-                    const rawDate = matchedByOutbreakOccurId.expClrDate;
+                if (item.exp_clr_date_time) {
+                    const rawDate = item.exp_clr_date_time;
                     const dateObj = new Date(rawDate);
 
                     // 날짜 객체가 유효할 때만 변환
@@ -134,7 +127,7 @@ export const KakaoMap = () => {
                         pointer-events: auto;
                         ">
                         <div style="font-size:10px; font-weight:600; margin-bottom:4px;">
-                            ${matchedByOutbreakOccurId.accInfo}
+                            ${item.acc_info}
                         </div>
                         <div style="font-size:12px;">종료일자 : ${formattedDate || "정보 없음"}</div>
                     </div>
