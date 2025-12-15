@@ -91,7 +91,7 @@ def fetch_trafficinfo(link_id):
         print(f"[ERROR] TrafficInfo 호출 실패 ({link_id}): {e}")
         return None
 
-def save_link_and_traffic_to_mysql():
+def run_linkinfo_worker():
     """Redis link_queue 데이터를 MySQL로 옮기고 종료"""
     try:
         conn = mysql.connector.connect(
@@ -163,4 +163,4 @@ def save_link_and_traffic_to_mysql():
         conn.close()
 
 if __name__ == "__main__":
-    save_link_and_traffic_to_mysql()
+    run_linkinfo_worker()
