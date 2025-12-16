@@ -82,7 +82,7 @@ services:
     working_dir: /app/preprocessing
     env_file:
       - ./dataflow/.env
-    command: bash -c "pip install --no-cache-dir pyspark==3.5.5 redis mysql-connector-python && python outbreak_preprocessing.py"
+    command: bash -c "pip install --no-cache-dir pyspark==3.5.5 redis mysql-connector-python && python outbreak_streaming.py"
     restart: unless-stopped
 
   linkinfo:
