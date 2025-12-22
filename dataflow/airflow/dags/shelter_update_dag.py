@@ -3,8 +3,12 @@ from airflow.operators.bash import BashOperator
 from datetime import datetime, timedelta
 import os 
 import sys, os
+from airflow.operators.python import PythonOperator
+sys.path.append("/opt/airflow/plugins")
+from airflow_utils.shelter_worker import run_shelter_worker
+
 #sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'plugins'))
-#sys.path.append("/opt/airflow/plugins")
+
 default_args = {
     'owner': 'data_engineer',
     'depends_on_past': False,
@@ -24,15 +28,19 @@ with DAG(
     tags=['shelter', 'seoul', 'api', 'mysql'],
 ) as dag:
 
-    update_shelter_data = BashOperator(
-        task_id='run_shelter_worker',
-        bash_command='python /opt/airflow/plugins/airflow_utils/shelter_worker.py',
-        env={
-            'EARTHQUAKE_SHELTER_API_KEY': os.getenv('EARTHQUAKE_SHELTER_API_KEY'),
-            'EARTHQUAKE_OUTDOOR_API_KEY': os.getenv('EARTHQUAKE_OUTDOOR_API_KEY'),
-            'SUMMER_SHELTER_API_KEY': os.getenv('SUMMER_SHELTER_API_KEY'),
-            'FINE_DUST_SHELTER_API_KEY': os.getenv('FINE_DUST_SHELTER_API_KEY'),
-        }
-    )
+    update_shelter_data = PythonOperator(
+    task_id="run_shelter_worker",
+    python_callable=run_shelter_worker
+)
+    # update_shelter_data = BashOperator(
+    #     task_id='run_shelter_worker',
+    #     bash_command='python /opt/airflow/plugins/airflow_utils/shelter_worker.py',
+    #     env={
+    #         'EARTHQUAKE_SHELTER_API_KEY': os.getenv('EARTHQUAKE_SHELTER_API_KEY'),
+    #         'EARTHQUAKE_OUTDOOR_API_KEY': os.getenv('EARTHQUAKE_OUTDOOR_API_KEY'),
+    #         'SUMMER_SHELTER_API_KEY': os.getenv('SUMMER_SHELTER_API_KEY'),
+    #         'FINE_DUST_SHELTER_API_KEY': os.getenv('FINE_DUST_SHELTER_API_KEY'),
+    #     }
+    # )
 
     update_shelter_data

@@ -3,14 +3,9 @@ import mysql.connector
 import xml.etree.ElementTree as ET
 import os
 ## airflow를 사용해서 일정 주기만다 api 호출하기.
+from airflow.providers.mysql.hooks.mysql import MySqlHook
 
 OUTBREAK_Detail_CODE = os.getenv('OUTBREAK_Detail_CODE')
-MYSQL_CONFIG = {
-    "host": "mysql",
-    "user": "user",
-    "password": "userpass",
-    "database": "toy_project"
-}
 
 # XML 파싱 함수
 def parse_detail_code_info(xml_str):
@@ -37,18 +32,20 @@ def fetch_detail_code_info():
 
 # MySQL 저장
 def save_detail_code_info_to_mysql(detail_code):
-    conn = mysql.connector.connect(**MYSQL_CONFIG)
+    mysql_hook = MySqlHook(mysql_conn_id="navisafe_mysql")
+    conn = mysql_hook.get_conn()
     cursor = conn.cursor()
-    for detail_code_info in detail_code:
-        cursor.execute("""
+    sql ="""
             INSERT INTO OUTBREAK_DETAIL_CODE_NAME (ACC_DTYPE, ACC_DTYPE_NM)
             VALUES (%(acc_dtype)s, %(acc_dtype_nm)s)
             ON DUPLICATE KEY UPDATE
                 ACC_DTYPE_NM = VALUES(ACC_DTYPE_NM)
-        """, detail_code_info)
+        """
+    cursor.executemany(sql, detail_code)
     conn.commit()
     cursor.close()
     conn.close()
+
     print(f"[INFO] {len(detail_code)}개의 돌발 세부 유형 코드 저장 완료")
 
 # Airflow에서 호출할 함수

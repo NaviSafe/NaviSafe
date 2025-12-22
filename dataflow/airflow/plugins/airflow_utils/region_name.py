@@ -3,15 +3,9 @@ import mysql.connector
 import xml.etree.ElementTree as ET
 import os
 ## airflow를 사용해서 일정 주기만다 api 호출하기.
+from airflow.providers.mysql.hooks.mysql import MySqlHook
 
 REG_CODE = os.getenv('REG_CODE')
-MYSQL_CONFIG = {
-    "host": "mysql",
-    "user": "user",
-    "password": "userpass",
-    "database": "toy_project"
-}
-
 # XML 파싱 함수
 def parse_regioninfo(xml_str):
     try:
@@ -38,22 +32,24 @@ def fetch_regioninfo():
 
 # MySQL 저장
 def save_regioninfo_to_mysql(region_list):
-    conn = mysql.connector.connect(**MYSQL_CONFIG)
+    mysql_hook = MySqlHook(mysql_conn_id="navisafe_mysql")
+    conn = mysql_hook.get_conn()
     cursor = conn.cursor()
-    try: 
-        for region in region_list:
-            cursor.execute("""
+    try:
+        sql="""
                 INSERT INTO REG_CD (REG_CD, REG_NAME)
                 VALUES (%(reg_cd)s, %(reg_name)s)
                 ON DUPLICATE KEY UPDATE
                     REG_NAME = VALUES(REG_NAME)
-            """, region)
+            """
+        cursor.executemany(sql, region_list)
         conn.commit()
         print(f"[INFO] {len(region_list)}개의 지역 코드 저장 완료")
     except Exception as e:
         print(f"[ERROR] MySQL 저장 실패: {e}")
         raise
     finally:
+
         cursor.close()
         conn.close()
 
