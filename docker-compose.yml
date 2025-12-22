@@ -85,24 +85,24 @@ services:
     command: bash -c "pip install --no-cache-dir pyspark==3.5.5 redis mysql-connector-python && python outbreak_streaming.py"
     restart: unless-stopped
 
-  linkinfo:
-    build:
-      context: ./dataflow
-    container_name: linkinfo
-    depends_on:
-      - redis
-      - mysql
-      #- preprocessing
-    volumes:
-      - ./dataflow/preprocessing:/app/preprocessing
-      - ./dataflow/utils:/app/utils
-    working_dir: /app/preprocessing
-    environment:
-      - PYTHONPATH=/app
-    env_file:
-      - ./dataflow/.env
-    command: bash -c "pip install --no-cache-dir redis mysql-connector-python && python linkinfo_worker.py && tail -f /dev/null"
-    restart: unless-stopped
+  # linkinfo:
+  #   build:
+  #     context: ./dataflow
+  #   container_name: linkinfo
+  #   depends_on:
+  #     - redis
+  #     - mysql
+  #     #- preprocessing
+  #   volumes:
+  #     - ./dataflow/preprocessing:/app/preprocessing
+  #     - ./dataflow/utils:/app/utils
+  #   working_dir: /app/preprocessing
+  #   environment:
+  #     - PYTHONPATH=/app
+  #   env_file:
+  #     - ./dataflow/.env
+  #   command: bash -c "pip install --no-cache-dir redis mysql-connector-python && python linkinfo_worker.py && tail -f /dev/null"
+  #   restart: unless-stopped
 
   spark-master:
     image: bitnami/spark:3.5.5
@@ -162,11 +162,13 @@ services:
     container_name: mysql
     ports:
       - "3307:3306"          # 로컬 3306 → 컨테이너 3306
-    environment:
-      MYSQL_ROOT_PASSWORD: rootpass
-      #MYSQL_DATABASE: toy_project
-      MYSQL_USER: user
-      MYSQL_PASSWORD: userpass
+    env_file:
+      - ./dataflow/.env
+    # environment:
+    #   MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    #   MYSQL_DATABASE: ${MYSQL_DATABASE}
+    #   MYSQL_USER: ${MYSQL_USER}
+    #   MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     volumes:
       - ./dataflow/init.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
