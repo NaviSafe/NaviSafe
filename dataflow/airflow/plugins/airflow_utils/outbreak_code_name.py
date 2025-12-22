@@ -3,15 +3,9 @@ import mysql.connector
 import xml.etree.ElementTree as ET
 import os
 ## airflow를 사용해서 일정 주기만다 api 호출하기.
+from airflow.providers.mysql.hooks.mysql import MySqlHook
 
 OUTBREAK_CODE_NAME = os.getenv('OUTBREAK_CODE_NAME')
-MYSQL_CONFIG = {
-    "host": "mysql",
-    "user": "user",
-    "password": "userpass",
-    "database": "toy_project"
-}
-
 # XML 파싱 함수
 def parse_outbreak_code_info(xml_str):
     try:
@@ -37,18 +31,22 @@ def fetch_outbreak_code_info():
 
 # MySQL 저장
 def save_outbreak_code_info_to_mysql(outbreak_code_list):
-    conn = mysql.connector.connect(**MYSQL_CONFIG)
+    mysql_hook = MySqlHook(mysql_conn_id="navisafe_mysql")
+    conn = mysql_hook.get_conn()
     cursor = conn.cursor()
-    for outbreak_code in outbreak_code_list:
-        cursor.execute("""
-            INSERT INTO OUTBREAK_NAME (ACC_TYPE, ACC_TYPE_NM)
-            VALUES (%(acc_type)s, %(acc_type_nm)s)
-            ON DUPLICATE KEY UPDATE
-                ACC_TYPE_NM = VALUES(ACC_TYPE_NM)
-        """, outbreak_code)
+
+    sql="""
+                INSERT INTO OUTBREAK_NAME (ACC_TYPE, ACC_TYPE_NM)
+                VALUES (%(acc_type)s, %(acc_type_nm)s)
+                ON DUPLICATE KEY UPDATE
+                    ACC_TYPE_NM = VALUES(ACC_TYPE_NM)
+            """
+
+    cursor.executemany(sql, outbreak_code_list)
     conn.commit()
     cursor.close()
     conn.close()
+
     print(f"[INFO] {len(outbreak_code_list)}개의 돌발유형 코드 저장 완료")
 
 # Airflow DAG에서 실행할 함수

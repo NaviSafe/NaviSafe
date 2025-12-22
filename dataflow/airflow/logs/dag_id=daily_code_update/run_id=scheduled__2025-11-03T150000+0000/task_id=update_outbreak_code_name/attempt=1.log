@@ -1,0 +1,33 @@
+[2025-12-16T11:04:57.624+0000] {taskinstance.py:1979} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: daily_code_update.update_outbreak_code_name scheduled__2025-11-03T15:00:00+00:00 [queued]>
+[2025-12-16T11:04:57.636+0000] {taskinstance.py:1979} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: daily_code_update.update_outbreak_code_name scheduled__2025-11-03T15:00:00+00:00 [queued]>
+[2025-12-16T11:04:57.637+0000] {taskinstance.py:2193} INFO - Starting attempt 1 of 2
+[2025-12-16T11:04:57.705+0000] {taskinstance.py:2217} INFO - Executing <Task(PythonOperator): update_outbreak_code_name> on 2025-11-03 15:00:00+00:00
+[2025-12-16T11:04:57.713+0000] {standard_task_runner.py:60} INFO - Started process 396 to run task
+[2025-12-16T11:04:57.716+0000] {standard_task_runner.py:87} INFO - Running: ['airflow', 'tasks', 'run', 'daily_code_update', 'update_outbreak_code_name', 'scheduled__2025-11-03T15:00:00+00:00', '--job-id', '70', '--raw', '--subdir', 'DAGS_FOLDER/code_update_dag.py', '--cfg-path', '/tmp/tmpv8tnln_f']
+[2025-12-16T11:04:57.718+0000] {standard_task_runner.py:88} INFO - Job 70: Subtask update_outbreak_code_name
+[2025-12-16T11:04:57.838+0000] {task_command.py:423} INFO - Running <TaskInstance: daily_code_update.update_outbreak_code_name scheduled__2025-11-03T15:00:00+00:00 [running]> on host d011923f8fa9
+[2025-12-16T11:04:57.982+0000] {taskinstance.py:2513} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='navisafe' AIRFLOW_CTX_DAG_ID='daily_code_update' AIRFLOW_CTX_TASK_ID='update_outbreak_code_name' AIRFLOW_CTX_EXECUTION_DATE='2025-11-03T15:00:00+00:00' AIRFLOW_CTX_TRY_NUMBER='1' AIRFLOW_CTX_DAG_RUN_ID='scheduled__2025-11-03T15:00:00+00:00'
+[2025-12-16T11:04:57.988+0000] {logging_mixin.py:188} INFO - [INFO] update_outbreak_code_name 실행 시작
+[2025-12-16T11:04:58.239+0000] {logging_mixin.py:188} INFO - [INFO] 13개의 돌발유형 코드 저장 완료
+[2025-12-16T11:04:58.243+0000] {logging_mixin.py:188} INFO - [INFO] update_outbreak_code_name 완료
+[2025-12-16T11:04:58.246+0000] {python.py:202} INFO - Done. Returned value was: None
+[2025-12-16T11:04:58.256+0000] {taskinstance.py:1149} INFO - Marking task as SUCCESS. dag_id=daily_code_update, task_id=update_outbreak_code_name, execution_date=20251103T150000, start_date=20251216T110457, end_date=20251216T110458
+[2025-12-16T11:04:58.371+0000] {local_task_job_runner.py:234} INFO - Task exited with return code 0
+[2025-12-16T11:04:58.399+0000] {taskinstance.py:3312} INFO - 0 downstream tasks scheduled from follow-on schedule check
+[2025-12-22T12:00:34.864+0000] {taskinstance.py:1979} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: daily_code_update.update_outbreak_code_name scheduled__2025-11-03T15:00:00+00:00 [queued]>
+[2025-12-22T12:00:34.909+0000] {taskinstance.py:1979} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: daily_code_update.update_outbreak_code_name scheduled__2025-11-03T15:00:00+00:00 [queued]>
+[2025-12-22T12:00:34.912+0000] {taskinstance.py:2193} INFO - Starting attempt 1 of 2
+[2025-12-22T12:00:35.166+0000] {taskinstance.py:2217} INFO - Executing <Task(PythonOperator): update_outbreak_code_name> on 2025-11-03 15:00:00+00:00
+[2025-12-22T12:00:35.185+0000] {standard_task_runner.py:60} INFO - Started process 463 to run task
+[2025-12-22T12:00:35.192+0000] {standard_task_runner.py:87} INFO - Running: ['airflow', 'tasks', 'run', 'daily_code_update', 'update_outbreak_code_name', 'scheduled__2025-11-03T15:00:00+00:00', '--job-id', '76', '--raw', '--subdir', 'DAGS_FOLDER/code_update_dag.py', '--cfg-path', '/tmp/tmpw4odb_xy']
+[2025-12-22T12:00:35.195+0000] {standard_task_runner.py:88} INFO - Job 76: Subtask update_outbreak_code_name
+[2025-12-22T12:00:35.358+0000] {task_command.py:423} INFO - Running <TaskInstance: daily_code_update.update_outbreak_code_name scheduled__2025-11-03T15:00:00+00:00 [running]> on host a5c0974290b2
+[2025-12-22T12:00:35.591+0000] {taskinstance.py:2513} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='navisafe' AIRFLOW_CTX_DAG_ID='daily_code_update' AIRFLOW_CTX_TASK_ID='update_outbreak_code_name' AIRFLOW_CTX_EXECUTION_DATE='2025-11-03T15:00:00+00:00' AIRFLOW_CTX_TRY_NUMBER='1' AIRFLOW_CTX_DAG_RUN_ID='scheduled__2025-11-03T15:00:00+00:00'
+[2025-12-22T12:00:35.594+0000] {logging_mixin.py:188} INFO - [INFO] update_outbreak_code_name 실행 시작
+[2025-12-22T12:00:36.079+0000] {base.py:83} INFO - Using connection ID 'navisafe_mysql' for task execution.
+[2025-12-22T12:00:36.090+0000] {logging_mixin.py:188} INFO - [INFO] 13개의 돌발유형 코드 저장 완료
+[2025-12-22T12:00:36.095+0000] {logging_mixin.py:188} INFO - [INFO] update_outbreak_code_name 완료
+[2025-12-22T12:00:36.096+0000] {python.py:202} INFO - Done. Returned value was: None
+[2025-12-22T12:00:36.110+0000] {taskinstance.py:1149} INFO - Marking task as SUCCESS. dag_id=daily_code_update, task_id=update_outbreak_code_name, execution_date=20251103T150000, start_date=20251222T120034, end_date=20251222T120036
+[2025-12-22T12:00:36.216+0000] {local_task_job_runner.py:234} INFO - Task exited with return code 0
+[2025-12-22T12:00:36.359+0000] {taskinstance.py:3312} INFO - 0 downstream tasks scheduled from follow-on schedule check

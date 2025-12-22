@@ -1,0 +1,14 @@
+[2025-12-16T11:09:08.007+0000] {taskinstance.py:1979} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: outbreak_batch_dag.save_batch_to_mysql manual__2025-12-16T11:09:06.802396+00:00 [queued]>
+[2025-12-16T11:09:08.015+0000] {taskinstance.py:1979} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: outbreak_batch_dag.save_batch_to_mysql manual__2025-12-16T11:09:06.802396+00:00 [queued]>
+[2025-12-16T11:09:08.016+0000] {taskinstance.py:2193} INFO - Starting attempt 1 of 1
+[2025-12-16T11:09:08.032+0000] {taskinstance.py:2217} INFO - Executing <Task(PythonOperator): save_batch_to_mysql> on 2025-12-16 11:09:06.802396+00:00
+[2025-12-16T11:09:08.037+0000] {standard_task_runner.py:60} INFO - Started process 921 to run task
+[2025-12-16T11:09:08.040+0000] {standard_task_runner.py:87} INFO - Running: ['airflow', 'tasks', 'run', 'outbreak_batch_dag', 'save_batch_to_mysql', 'manual__2025-12-16T11:09:06.802396+00:00', '--job-id', '226', '--raw', '--subdir', 'DAGS_FOLDER/outbreak_batch_dag.py', '--cfg-path', '/tmp/tmpy7qk1ppt']
+[2025-12-16T11:09:08.042+0000] {standard_task_runner.py:88} INFO - Job 226: Subtask save_batch_to_mysql
+[2025-12-16T11:09:08.091+0000] {task_command.py:423} INFO - Running <TaskInstance: outbreak_batch_dag.save_batch_to_mysql manual__2025-12-16T11:09:06.802396+00:00 [running]> on host d011923f8fa9
+[2025-12-16T11:09:08.151+0000] {taskinstance.py:2513} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='airflow' AIRFLOW_CTX_DAG_ID='outbreak_batch_dag' AIRFLOW_CTX_TASK_ID='save_batch_to_mysql' AIRFLOW_CTX_EXECUTION_DATE='2025-12-16T11:09:06.802396+00:00' AIRFLOW_CTX_TRY_NUMBER='1' AIRFLOW_CTX_DAG_RUN_ID='manual__2025-12-16T11:09:06.802396+00:00'
+[2025-12-16T11:09:08.153+0000] {outbreak_batch.py:28} INFO - [INFO] No data in Redis, sleeping 5s...
+[2025-12-16T11:09:13.154+0000] {python.py:202} INFO - Done. Returned value was: None
+[2025-12-16T11:09:13.208+0000] {taskinstance.py:1149} INFO - Marking task as SUCCESS. dag_id=outbreak_batch_dag, task_id=save_batch_to_mysql, execution_date=20251216T110906, start_date=20251216T110908, end_date=20251216T110913
+[2025-12-16T11:09:13.254+0000] {local_task_job_runner.py:234} INFO - Task exited with return code 0
+[2025-12-16T11:09:13.262+0000] {taskinstance.py:3312} INFO - 0 downstream tasks scheduled from follow-on schedule check

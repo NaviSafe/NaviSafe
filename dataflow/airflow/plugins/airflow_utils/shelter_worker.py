@@ -4,6 +4,7 @@ import requests
 import xml.etree.ElementTree as ET
 import mysql.connector
 from pyproj import Transformer
+from airflow.providers.mysql.hooks.mysql import MySqlHook
 
 # ------------------------------------------------------------------
 #  환경 변수(API KEY)
@@ -12,16 +13,6 @@ EARTHQUAKE_SHELTER_API_KEY = os.getenv('EARTHQUAKE_SHELTER_API_KEY')   # 서울�
 EARTHQUAKE_OUTDOOR_API_KEY = os.getenv('EARTHQUAKE_OUTDOOR_API_KEY')   # 서울시 옥외 지진대피소
 SUMMER_SHELTER_API_KEY = os.getenv('SUMMER_SHELTER_API_KEY')           # 무더위 쉼터
 FINE_DUST_SHELTER_API_KEY = os.getenv('FINE_DUST_SHELTER_API_KEY')     # 미세먼지 쉼터
-
-# ------------------------------------------------------------------
-# MySQL 설정
-# ------------------------------------------------------------------
-MYSQL_CONFIG = {
-    "host": "mysql",
-    "user": "user",
-    "password": "userpass",
-    "database": "toy_project"
-}
 
 # ------------------------------------------------------------------
 # 좌표 변환기 설정 (GRS80TM → WGS84)
@@ -119,24 +110,26 @@ def parse_shelter_data(xml_str, shelter_code):
 def save_to_db(shelter_list):
     if not shelter_list:
         return
-
-    conn = mysql.connector.connect(**MYSQL_CONFIG)
+    
+    mysql_hook = MySqlHook(mysql_conn_id="navisafe_mysql")
+    conn = mysql_hook.get_conn()
     cursor = conn.cursor()
-
-    cursor.executemany("""
+    sql = """
         INSERT INTO SHELTER_GPS (SHELTER_CODE, SHELTER_NAME, SHELTER_ADDRESS, LOT, LAT)
         VALUES (%(SHELTER_CODE)s, %(SHELTER_NAME)s, %(SHELTER_ADDRESS)s, %(LOT)s, %(LAT)s)
         ON DUPLICATE KEY UPDATE
             SHELTER_ADDRESS = VALUES(SHELTER_ADDRESS),
             LOT = VALUES(LOT),
             LAT = VALUES(LAT)
-    """, shelter_list)
+    """
 
+    cursor.executemany(sql, shelter_list)
     conn.commit()
+
     cursor.close()
     conn.close()
-    print(f"[INFO] {len(shelter_list)}개의 데이터 저장 완료")
 
+    print(f"[INFO] {len(shelter_list)}개의 데이터 저장 완료")
 
 # ------------------------------------------------------------------
 # 전체 실행 함수

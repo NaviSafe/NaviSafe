@@ -1,0 +1,93 @@
+[2025-12-22T10:49:48.570+0000] {taskinstance.py:1979} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: update_shelter_data_monthly.run_shelter_worker manual__2025-12-22T10:49:47.604653+00:00 [queued]>
+[2025-12-22T10:49:48.577+0000] {taskinstance.py:1979} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: update_shelter_data_monthly.run_shelter_worker manual__2025-12-22T10:49:47.604653+00:00 [queued]>
+[2025-12-22T10:49:48.578+0000] {taskinstance.py:2193} INFO - Starting attempt 1 of 2
+[2025-12-22T10:49:48.594+0000] {taskinstance.py:2217} INFO - Executing <Task(BashOperator): run_shelter_worker> on 2025-12-22 10:49:47.604653+00:00
+[2025-12-22T10:49:48.598+0000] {standard_task_runner.py:60} INFO - Started process 565 to run task
+[2025-12-22T10:49:48.601+0000] {standard_task_runner.py:87} INFO - Running: ['airflow', 'tasks', 'run', 'update_shelter_data_monthly', 'run_shelter_worker', 'manual__2025-12-22T10:49:47.604653+00:00', '--job-id', '512', '--raw', '--subdir', 'DAGS_FOLDER/shelter_update_dag.py', '--cfg-path', '/tmp/tmp3dstbbvf']
+[2025-12-22T10:49:48.602+0000] {standard_task_runner.py:88} INFO - Job 512: Subtask run_shelter_worker
+[2025-12-22T10:49:48.662+0000] {task_command.py:423} INFO - Running <TaskInstance: update_shelter_data_monthly.run_shelter_worker manual__2025-12-22T10:49:47.604653+00:00 [running]> on host 5d74948b19c1
+[2025-12-22T10:49:48.730+0000] {taskinstance.py:2513} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='data_engineer' AIRFLOW_CTX_DAG_ID='update_shelter_data_monthly' AIRFLOW_CTX_TASK_ID='run_shelter_worker' AIRFLOW_CTX_EXECUTION_DATE='2025-12-22T10:49:47.604653+00:00' AIRFLOW_CTX_TRY_NUMBER='1' AIRFLOW_CTX_DAG_RUN_ID='manual__2025-12-22T10:49:47.604653+00:00'
+[2025-12-22T10:49:48.731+0000] {subprocess.py:63} INFO - Tmp dir root location: /tmp
+[2025-12-22T10:49:48.732+0000] {subprocess.py:75} INFO - Running command: ['/usr/bin/bash', '-c', 'python /opt/airflow/plugins/airflow_utils/shelter_worker.py']
+[2025-12-22T10:49:48.740+0000] {subprocess.py:86} INFO - Output:
+[2025-12-22T10:49:50.614+0000] {subprocess.py:93} INFO - [INFO] API 호출 시작 → 코드 1
+[2025-12-22T10:49:50.615+0000] {subprocess.py:93} INFO - [[34m2025-12-22T10:49:50.608+0000[0m] {[34mconnection.py:[0m508} ERROR[0m - Unable to retrieve connection from secrets backend (MetastoreBackend). Checking subsequent secrets backend.[0m
+[2025-12-22T10:49:50.615+0000] {subprocess.py:93} INFO - Traceback (most recent call last):
+[2025-12-22T10:49:50.616+0000] {subprocess.py:93} INFO -   File "/home/airflow/.local/lib/python3.9/site-packages/sqlalchemy/engine/base.py", line 1910, in _execute_context
+[2025-12-22T10:49:50.616+0000] {subprocess.py:93} INFO -     self.dialect.do_execute(
+[2025-12-22T10:49:50.616+0000] {subprocess.py:93} INFO -   File "/home/airflow/.local/lib/python3.9/site-packages/sqlalchemy/engine/default.py", line 736, in do_execute
+[2025-12-22T10:49:50.616+0000] {subprocess.py:93} INFO -     cursor.execute(statement, parameters)
+[2025-12-22T10:49:50.617+0000] {subprocess.py:93} INFO - sqlite3.OperationalError: no such table: connection
+[2025-12-22T10:49:50.617+0000] {subprocess.py:93} INFO - 
+[2025-12-22T10:49:50.617+0000] {subprocess.py:93} INFO - The above exception was the direct cause of the following exception:
+[2025-12-22T10:49:50.617+0000] {subprocess.py:93} INFO - 
+[2025-12-22T10:49:50.617+0000] {subprocess.py:93} INFO - Traceback (most recent call last):
+[2025-12-22T10:49:50.618+0000] {subprocess.py:93} INFO -   File "/home/airflow/.local/lib/python3.9/site-packages/airflow/models/connection.py", line 503, in get_connection_from_secrets
+[2025-12-22T10:49:50.618+0000] {subprocess.py:93} INFO -     conn = secrets_backend.get_connection(conn_id=conn_id)
+[2025-12-22T10:49:50.618+0000] {subprocess.py:93} INFO -   File "/home/airflow/.local/lib/python3.9/site-packages/airflow/utils/session.py", line 79, in wrapper
+[2025-12-22T10:49:50.618+0000] {subprocess.py:93} INFO -     return func(*args, session=session, **kwargs)
+[2025-12-22T10:49:50.618+0000] {subprocess.py:93} INFO -   File "/home/airflow/.local/lib/python3.9/site-packages/airflow/secrets/metastore.py", line 42, in get_connection
+[2025-12-22T10:49:50.619+0000] {subprocess.py:93} INFO -     return MetastoreBackend._fetch_connection(conn_id, session=session)
+[2025-12-22T10:49:50.619+0000] {subprocess.py:93} INFO -   File "/home/airflow/.local/lib/python3.9/site-packages/airflow/api_internal/internal_api_call.py", line 114, in wrapper
+[2025-12-22T10:49:50.619+0000] {subprocess.py:93} INFO -     return func(*args, **kwargs)
+[2025-12-22T10:49:50.619+0000] {subprocess.py:93} INFO -   File "/home/airflow/.local/lib/python3.9/site-packages/airflow/utils/session.py", line 76, in wrapper
+[2025-12-22T10:49:50.620+0000] {subprocess.py:93} INFO -     return func(*args, **kwargs)
+[2025-12-22T10:49:50.620+0000] {subprocess.py:93} INFO -   File "/home/airflow/.local/lib/python3.9/site-packages/airflow/secrets/metastore.py", line 73, in _fetch_connection
+[2025-12-22T10:49:50.620+0000] {subprocess.py:93} INFO -     conn = session.scalar(select(Connection).where(Connection.conn_id == conn_id).limit(1))
+[2025-12-22T10:49:50.624+0000] {subprocess.py:93} INFO -   File "/home/airflow/.local/lib/python3.9/site-packages/sqlalchemy/orm/session.py", line 1747, in scalar
+[2025-12-22T10:49:50.625+0000] {subprocess.py:93} INFO -     return self.execute(
+[2025-12-22T10:49:50.625+0000] {subprocess.py:93} INFO -   File "/home/airflow/.local/lib/python3.9/site-packages/sqlalchemy/orm/session.py", line 1717, in execute
+[2025-12-22T10:49:50.625+0000] {subprocess.py:93} INFO -     result = conn._execute_20(statement, params or {}, execution_options)
+[2025-12-22T10:49:50.626+0000] {subprocess.py:93} INFO -   File "/home/airflow/.local/lib/python3.9/site-packages/sqlalchemy/engine/base.py", line 1710, in _execute_20
+[2025-12-22T10:49:50.626+0000] {subprocess.py:93} INFO -     return meth(self, args_10style, kwargs_10style, execution_options)
+[2025-12-22T10:49:50.626+0000] {subprocess.py:93} INFO -   File "/home/airflow/.local/lib/python3.9/site-packages/sqlalchemy/sql/elements.py", line 334, in _execute_on_connection
+[2025-12-22T10:49:50.627+0000] {subprocess.py:93} INFO -     return connection._execute_clauseelement(
+[2025-12-22T10:49:50.627+0000] {subprocess.py:93} INFO -   File "/home/airflow/.local/lib/python3.9/site-packages/sqlalchemy/engine/base.py", line 1577, in _execute_clauseelement
+[2025-12-22T10:49:50.627+0000] {subprocess.py:93} INFO -     ret = self._execute_context(
+[2025-12-22T10:49:50.627+0000] {subprocess.py:93} INFO -   File "/home/airflow/.local/lib/python3.9/site-packages/sqlalchemy/engine/base.py", line 1953, in _execute_context
+[2025-12-22T10:49:50.627+0000] {subprocess.py:93} INFO -     self._handle_dbapi_exception(
+[2025-12-22T10:49:50.628+0000] {subprocess.py:93} INFO -   File "/home/airflow/.local/lib/python3.9/site-packages/sqlalchemy/engine/base.py", line 2134, in _handle_dbapi_exception
+[2025-12-22T10:49:50.628+0000] {subprocess.py:93} INFO -     util.raise_(
+[2025-12-22T10:49:50.628+0000] {subprocess.py:93} INFO -   File "/home/airflow/.local/lib/python3.9/site-packages/sqlalchemy/util/compat.py", line 211, in raise_
+[2025-12-22T10:49:50.628+0000] {subprocess.py:93} INFO -     raise exception
+[2025-12-22T10:49:50.628+0000] {subprocess.py:93} INFO -   File "/home/airflow/.local/lib/python3.9/site-packages/sqlalchemy/engine/base.py", line 1910, in _execute_context
+[2025-12-22T10:49:50.629+0000] {subprocess.py:93} INFO -     self.dialect.do_execute(
+[2025-12-22T10:49:50.629+0000] {subprocess.py:93} INFO -   File "/home/airflow/.local/lib/python3.9/site-packages/sqlalchemy/engine/default.py", line 736, in do_execute
+[2025-12-22T10:49:50.629+0000] {subprocess.py:93} INFO -     cursor.execute(statement, parameters)
+[2025-12-22T10:49:50.629+0000] {subprocess.py:93} INFO - sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) no such table: connection
+[2025-12-22T10:49:50.629+0000] {subprocess.py:93} INFO - [SQL: SELECT connection.password, connection.extra, connection.id, connection.conn_id, connection.conn_type, connection.description, connection.host, connection.schema, connection.login, connection.port, connection.is_encrypted, connection.is_extra_encrypted
+[2025-12-22T10:49:50.630+0000] {subprocess.py:93} INFO - FROM connection
+[2025-12-22T10:49:50.630+0000] {subprocess.py:93} INFO - WHERE connection.conn_id = ?
+[2025-12-22T10:49:50.630+0000] {subprocess.py:93} INFO -  LIMIT ? OFFSET ?]
+[2025-12-22T10:49:50.630+0000] {subprocess.py:93} INFO - [parameters: ('navisafe_mysql', 1, 0)]
+[2025-12-22T10:49:50.631+0000] {subprocess.py:93} INFO - (Background on this error at: https://sqlalche.me/e/14/e3q8)
+[2025-12-22T10:49:50.631+0000] {subprocess.py:93} INFO - Traceback (most recent call last):
+[2025-12-22T10:49:50.631+0000] {subprocess.py:93} INFO -   File "/opt/airflow/plugins/airflow_utils/shelter_worker.py", line 179, in <module>
+[2025-12-22T10:49:50.631+0000] {subprocess.py:93} INFO -     run_shelter_worker()
+[2025-12-22T10:49:50.631+0000] {subprocess.py:93} INFO -   File "/opt/airflow/plugins/airflow_utils/shelter_worker.py", line 172, in run_shelter_worker
+[2025-12-22T10:49:50.631+0000] {subprocess.py:93} INFO -     save_to_db(shelter_data)
+[2025-12-22T10:49:50.631+0000] {subprocess.py:93} INFO -   File "/opt/airflow/plugins/airflow_utils/shelter_worker.py", line 150, in save_to_db
+[2025-12-22T10:49:50.632+0000] {subprocess.py:93} INFO -     mysql_hook.run(sql, parameters=shelter_list)
+[2025-12-22T10:49:50.632+0000] {subprocess.py:93} INFO -   File "/home/airflow/.local/lib/python3.9/site-packages/airflow/providers/common/sql/hooks/sql.py", line 397, in run
+[2025-12-22T10:49:50.632+0000] {subprocess.py:93} INFO -     with closing(self.get_conn()) as conn:
+[2025-12-22T10:49:50.632+0000] {subprocess.py:93} INFO -   File "/home/airflow/.local/lib/python3.9/site-packages/airflow/providers/mysql/hooks/mysql.py", line 187, in get_conn
+[2025-12-22T10:49:50.632+0000] {subprocess.py:93} INFO -     conn = self.connection or self.get_connection(getattr(self, self.conn_name_attr))
+[2025-12-22T10:49:50.632+0000] {subprocess.py:93} INFO -   File "/home/airflow/.local/lib/python3.9/site-packages/airflow/hooks/base.py", line 82, in get_connection
+[2025-12-22T10:49:50.633+0000] {subprocess.py:93} INFO -     conn = Connection.get_connection_from_secrets(conn_id)
+[2025-12-22T10:49:50.633+0000] {subprocess.py:93} INFO -   File "/home/airflow/.local/lib/python3.9/site-packages/airflow/models/connection.py", line 514, in get_connection_from_secrets
+[2025-12-22T10:49:50.633+0000] {subprocess.py:93} INFO -     raise AirflowNotFoundException(f"The conn_id `{conn_id}` isn't defined")
+[2025-12-22T10:49:50.633+0000] {subprocess.py:93} INFO - airflow.exceptions.AirflowNotFoundException: The conn_id `navisafe_mysql` isn't defined
+[2025-12-22T10:49:50.783+0000] {subprocess.py:97} INFO - Command exited with return code 1
+[2025-12-22T10:49:50.789+0000] {taskinstance.py:2731} ERROR - Task failed with exception
+Traceback (most recent call last):
+  File "/home/airflow/.local/lib/python3.9/site-packages/airflow/models/taskinstance.py", line 444, in _execute_task
+    result = _execute_callable(context=context, **execute_callable_kwargs)
+  File "/home/airflow/.local/lib/python3.9/site-packages/airflow/models/taskinstance.py", line 414, in _execute_callable
+    return execute_callable(context=context, **execute_callable_kwargs)
+  File "/home/airflow/.local/lib/python3.9/site-packages/airflow/operators/bash.py", line 212, in execute
+    raise AirflowException(
+airflow.exceptions.AirflowException: Bash command failed. The command returned a non-zero exit code 1.
+[2025-12-22T10:49:50.792+0000] {taskinstance.py:1149} INFO - Marking task as UP_FOR_RETRY. dag_id=update_shelter_data_monthly, task_id=run_shelter_worker, execution_date=20251222T104947, start_date=20251222T104948, end_date=20251222T104950
+[2025-12-22T10:49:50.806+0000] {standard_task_runner.py:107} ERROR - Failed to execute job 512 for task run_shelter_worker (Bash command failed. The command returned a non-zero exit code 1.; 565)
+[2025-12-22T10:49:50.819+0000] {local_task_job_runner.py:234} INFO - Task exited with return code 1
+[2025-12-22T10:49:50.829+0000] {taskinstance.py:3312} INFO - 0 downstream tasks scheduled from follow-on schedule check

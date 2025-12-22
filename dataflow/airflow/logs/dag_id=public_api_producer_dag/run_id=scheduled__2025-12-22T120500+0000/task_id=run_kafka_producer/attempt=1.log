@@ -1,0 +1,30 @@
+[2025-12-22T12:06:00.643+0000] {taskinstance.py:1979} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: public_api_producer_dag.run_kafka_producer scheduled__2025-12-22T12:05:00+00:00 [queued]>
+[2025-12-22T12:06:00.651+0000] {taskinstance.py:1979} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: public_api_producer_dag.run_kafka_producer scheduled__2025-12-22T12:05:00+00:00 [queued]>
+[2025-12-22T12:06:00.652+0000] {taskinstance.py:2193} INFO - Starting attempt 1 of 1
+[2025-12-22T12:06:00.670+0000] {taskinstance.py:2217} INFO - Executing <Task(PythonOperator): run_kafka_producer> on 2025-12-22 12:05:00+00:00
+[2025-12-22T12:06:00.674+0000] {standard_task_runner.py:60} INFO - Started process 1086 to run task
+[2025-12-22T12:06:00.676+0000] {standard_task_runner.py:87} INFO - Running: ['airflow', 'tasks', 'run', 'public_api_producer_dag', 'run_kafka_producer', 'scheduled__2025-12-22T12:05:00+00:00', '--job-id', '252', '--raw', '--subdir', 'DAGS_FOLDER/public_api_producer_dag.py', '--cfg-path', '/tmp/tmpcihzlt4w']
+[2025-12-22T12:06:00.678+0000] {standard_task_runner.py:88} INFO - Job 252: Subtask run_kafka_producer
+[2025-12-22T12:06:00.736+0000] {task_command.py:423} INFO - Running <TaskInstance: public_api_producer_dag.run_kafka_producer scheduled__2025-12-22T12:05:00+00:00 [running]> on host a5c0974290b2
+[2025-12-22T12:06:00.807+0000] {taskinstance.py:2513} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='airflow' AIRFLOW_CTX_DAG_ID='public_api_producer_dag' AIRFLOW_CTX_TASK_ID='run_kafka_producer' AIRFLOW_CTX_EXECUTION_DATE='2025-12-22T12:05:00+00:00' AIRFLOW_CTX_TRY_NUMBER='1' AIRFLOW_CTX_DAG_RUN_ID='scheduled__2025-12-22T12:05:00+00:00'
+[2025-12-22T12:06:00.808+0000] {producer.py:75} INFO - [SYSTEM] Kafka 연결 시도 중...
+[2025-12-22T12:06:00.810+0000] {conn.py:400} INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=bootstrap-0 host=kafka:9092 <connecting> [IPv4 ('172.19.0.5', 9092)]>: connecting to kafka:9092 [('172.19.0.5', 9092) IPv4]
+[2025-12-22T12:06:00.813+0000] {conn.py:622} INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=bootstrap-0 host=kafka:9092 <checking_api_versions_recv> [IPv4 ('172.19.0.5', 9092)]>: Broker version identified as 2.6
+[2025-12-22T12:06:00.814+0000] {conn.py:461} INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=bootstrap-0 host=kafka:9092 <connected> [IPv4 ('172.19.0.5', 9092)]>: Connection complete.
+[2025-12-22T12:06:00.816+0000] {producer.py:80} INFO - [SYSTEM] Kafka 연결 성공!
+[2025-12-22T12:06:02.044+0000] {conn.py:400} INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=1 host=kafka:9092 <connecting> [IPv4 ('172.19.0.5', 9092)]>: connecting to kafka:9092 [('172.19.0.5', 9092) IPv4]
+[2025-12-22T12:06:02.044+0000] {conn.py:461} INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=1 host=kafka:9092 <connected> [IPv4 ('172.19.0.5', 9092)]>: Connection complete.
+[2025-12-22T12:06:02.045+0000] {conn.py:951} INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=bootstrap-0 host=kafka:9092 <connected> [IPv4 ('172.19.0.5', 9092)]>: Closing connection. 
+[2025-12-22T12:06:02.049+0000] {producer.py:128} INFO - [Kafka] AccInfo 데이터 → outbreak_topic 전송 완료
+[2025-12-22T12:06:02.161+0000] {producer.py:128} INFO - [Kafka] RegionInfo 데이터 → realtime_trafficInfo 전송 완료
+[2025-12-22T12:06:02.429+0000] {producer.py:111} INFO - [Kafka] realtimePosition(1호선) → subway_position_topic 전송 완료
+[2025-12-22T12:06:02.561+0000] {producer.py:111} INFO - [Kafka] realtimePosition(2호선) → subway_position_topic 전송 완료
+[2025-12-22T12:06:02.667+0000] {producer.py:111} INFO - [Kafka] realtimePosition(3호선) → subway_position_topic 전송 완료
+[2025-12-22T12:06:02.800+0000] {producer.py:111} INFO - [Kafka] realtimePosition(4호선) → subway_position_topic 전송 완료
+[2025-12-22T12:06:02.805+0000] {producer.py:136} INFO - [SYSTEM] Kafka Producer 작업 완료 후 종료.
+[2025-12-22T12:06:02.806+0000] {kafka.py:633} INFO - <KafkaProducer client_id=kafka-python-producer-1 transactional_id=None>: Closing the Kafka producer with 9223372036.0 secs timeout.
+[2025-12-22T12:06:02.807+0000] {conn.py:951} INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=1 host=kafka:9092 <connected> [IPv4 ('172.19.0.5', 9092)]>: Closing connection. 
+[2025-12-22T12:06:02.814+0000] {python.py:202} INFO - Done. Returned value was: None
+[2025-12-22T12:06:02.821+0000] {taskinstance.py:1149} INFO - Marking task as SUCCESS. dag_id=public_api_producer_dag, task_id=run_kafka_producer, execution_date=20251222T120500, start_date=20251222T120600, end_date=20251222T120602
+[2025-12-22T12:06:02.855+0000] {local_task_job_runner.py:234} INFO - Task exited with return code 0
+[2025-12-22T12:06:02.869+0000] {taskinstance.py:3312} INFO - 1 downstream tasks scheduled from follow-on schedule check

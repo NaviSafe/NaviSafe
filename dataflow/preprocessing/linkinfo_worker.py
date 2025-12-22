@@ -5,7 +5,7 @@ import time
 import xml.etree.ElementTree as ET
 import sys, os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-
+from airflow.providers.mysql.hooks.mysql import MySqlHook
 from utils.redis_utils import RedisClient
 import os
 # Redis 연결
@@ -16,13 +16,6 @@ redis_client = RedisClient(host="redis", port=6379, db=0)
 LINK_ID = os.getenv("LINK_ID") 
 SEOUL_TRAFFIC_REALTIME_API_KEY = os.getenv("SEOUL_TRAFFIC_REALTIME_API_KEY") 
 DB_BATCH_SIZE = 50
-MYSQL_CONFIG = {
-    "host": "mysql",
-    "user": "user",
-    "password": "userpass",
-    "database": "toy_project"
-}
-
 # ------------------------------------------------------------------
 # XML 파싱 함수
 # ------------------------------------------------------------------
@@ -93,15 +86,11 @@ def fetch_trafficinfo(link_id):
 
 def run_linkinfo_worker():
     """Redis link_queue 데이터를 MySQL로 옮기고 종료"""
-    try:
-        conn = mysql.connector.connect(
-            host="mysql",
-            user="user",
-            password="userpass",
-            database="toy_project"
-        )
-        cursor = conn.cursor(dictionary=True)
+    mysql_hook = MySqlHook(mysql_conn_id="navisafe_mysql")
+    conn = mysql_hook.get_conn()
+    cursor = conn.cursor()
 
+    try:
         batch = []
         # Redis 큐에 데이터가 존재할 때만 꺼내 처리
         while True:
@@ -131,7 +120,7 @@ def run_linkinfo_worker():
             traffic_info = fetch_trafficinfo(link_id)
 
             if link_info:
-                cursor.execute("""
+                sql = """
                     INSERT INTO LINK_ID (LINK_ID, ROAD_NAME, ST_NODE_NM, ED_NODE_NM, MAP_DIST, REG_CD_REG_CD)
                     VALUES (%(link_id)s, %(road_name)s, %(st_node_nm)s, %(ed_node_nm)s, %(map_dist)s, %(reg_cd)s)
                     ON DUPLICATE KEY UPDATE
@@ -140,25 +129,28 @@ def run_linkinfo_worker():
                         ED_NODE_NM = VALUES(ED_NODE_NM),
                         MAP_DIST = VALUES(MAP_DIST),
                         REG_CD_REG_CD = VALUES(REG_CD_REG_CD)
-                """, link_info)
+                """
+                cursor.executemany(sql, [link_info])
                 print(f"link_info 데이터 삽입 완료")
 
             if traffic_info:
-                cursor.execute("""
+                sql = """
                     INSERT INTO ROAD_TRAFFIC (LINK_ID, PRCS_SPD, PRCS_TRV_TIME)
                     VALUES (%(link_id)s, %(prcs_spd)s, %(prcs_trv_time)s)
                     ON DUPLICATE KEY UPDATE
                         PRCS_SPD = VALUES(PRCS_SPD),
                         PRCS_TRV_TIME = VALUES(PRCS_TRV_TIME)
-                """, traffic_info)
+                """
+                cursor.executemany(sql, [traffic_info])
                 print(f"ROAD_TRAFFIC 데이터 삽입 완료")
 
-        conn.commit()
+        
         print(f"[INFO] {len(batch)}개의 LINK_ID 데이터 처리 완료")
 
     except Exception as e:
         print(f"[ERROR] 데이터 저장 중 오류 발생: {e}")
     finally:
+        conn.commit()
         cursor.close()
         conn.close()
 

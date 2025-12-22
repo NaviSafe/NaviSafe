@@ -1,0 +1,33 @@
+[2025-12-16T11:05:01.328+0000] {taskinstance.py:1979} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: daily_code_update.update_region_name scheduled__2025-11-08T15:00:00+00:00 [queued]>
+[2025-12-16T11:05:01.343+0000] {taskinstance.py:1979} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: daily_code_update.update_region_name scheduled__2025-11-08T15:00:00+00:00 [queued]>
+[2025-12-16T11:05:01.345+0000] {taskinstance.py:2193} INFO - Starting attempt 1 of 2
+[2025-12-16T11:05:01.472+0000] {taskinstance.py:2217} INFO - Executing <Task(PythonOperator): update_region_name> on 2025-11-08 15:00:00+00:00
+[2025-12-16T11:05:01.482+0000] {standard_task_runner.py:60} INFO - Started process 435 to run task
+[2025-12-16T11:05:01.486+0000] {standard_task_runner.py:87} INFO - Running: ['airflow', 'tasks', 'run', 'daily_code_update', 'update_region_name', 'scheduled__2025-11-08T15:00:00+00:00', '--job-id', '88', '--raw', '--subdir', 'DAGS_FOLDER/code_update_dag.py', '--cfg-path', '/tmp/tmpfeyzm3u5']
+[2025-12-16T11:05:01.493+0000] {standard_task_runner.py:88} INFO - Job 88: Subtask update_region_name
+[2025-12-16T11:05:01.615+0000] {task_command.py:423} INFO - Running <TaskInstance: daily_code_update.update_region_name scheduled__2025-11-08T15:00:00+00:00 [running]> on host d011923f8fa9
+[2025-12-16T11:05:01.925+0000] {taskinstance.py:2513} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='navisafe' AIRFLOW_CTX_DAG_ID='daily_code_update' AIRFLOW_CTX_TASK_ID='update_region_name' AIRFLOW_CTX_EXECUTION_DATE='2025-11-08T15:00:00+00:00' AIRFLOW_CTX_TRY_NUMBER='1' AIRFLOW_CTX_DAG_RUN_ID='scheduled__2025-11-08T15:00:00+00:00'
+[2025-12-16T11:05:01.931+0000] {logging_mixin.py:188} INFO - [INFO] update_region_code_name 실행 시작
+[2025-12-16T11:05:02.153+0000] {logging_mixin.py:188} INFO - [INFO] 25개의 지역 코드 저장 완료
+[2025-12-16T11:05:02.155+0000] {logging_mixin.py:188} INFO - [INFO] update_region_code_name 완료
+[2025-12-16T11:05:02.156+0000] {python.py:202} INFO - Done. Returned value was: None
+[2025-12-16T11:05:02.163+0000] {taskinstance.py:1149} INFO - Marking task as SUCCESS. dag_id=daily_code_update, task_id=update_region_name, execution_date=20251108T150000, start_date=20251216T110501, end_date=20251216T110502
+[2025-12-16T11:05:02.352+0000] {local_task_job_runner.py:234} INFO - Task exited with return code 0
+[2025-12-16T11:05:02.456+0000] {taskinstance.py:3312} INFO - 0 downstream tasks scheduled from follow-on schedule check
+[2025-12-22T12:00:37.072+0000] {taskinstance.py:1979} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: daily_code_update.update_region_name scheduled__2025-11-08T15:00:00+00:00 [queued]>
+[2025-12-22T12:00:37.088+0000] {taskinstance.py:1979} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: daily_code_update.update_region_name scheduled__2025-11-08T15:00:00+00:00 [queued]>
+[2025-12-22T12:00:37.092+0000] {taskinstance.py:2193} INFO - Starting attempt 1 of 2
+[2025-12-22T12:00:37.137+0000] {taskinstance.py:2217} INFO - Executing <Task(PythonOperator): update_region_name> on 2025-11-08 15:00:00+00:00
+[2025-12-22T12:00:37.145+0000] {standard_task_runner.py:60} INFO - Started process 478 to run task
+[2025-12-22T12:00:37.149+0000] {standard_task_runner.py:87} INFO - Running: ['airflow', 'tasks', 'run', 'daily_code_update', 'update_region_name', 'scheduled__2025-11-08T15:00:00+00:00', '--job-id', '86', '--raw', '--subdir', 'DAGS_FOLDER/code_update_dag.py', '--cfg-path', '/tmp/tmpv9wsau_i']
+[2025-12-22T12:00:37.152+0000] {standard_task_runner.py:88} INFO - Job 86: Subtask update_region_name
+[2025-12-22T12:00:37.244+0000] {task_command.py:423} INFO - Running <TaskInstance: daily_code_update.update_region_name scheduled__2025-11-08T15:00:00+00:00 [running]> on host a5c0974290b2
+[2025-12-22T12:00:37.411+0000] {taskinstance.py:2513} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='navisafe' AIRFLOW_CTX_DAG_ID='daily_code_update' AIRFLOW_CTX_TASK_ID='update_region_name' AIRFLOW_CTX_EXECUTION_DATE='2025-11-08T15:00:00+00:00' AIRFLOW_CTX_TRY_NUMBER='1' AIRFLOW_CTX_DAG_RUN_ID='scheduled__2025-11-08T15:00:00+00:00'
+[2025-12-22T12:00:37.419+0000] {logging_mixin.py:188} INFO - [INFO] update_region_code_name 실행 시작
+[2025-12-22T12:00:37.605+0000] {base.py:83} INFO - Using connection ID 'navisafe_mysql' for task execution.
+[2025-12-22T12:00:37.612+0000] {logging_mixin.py:188} INFO - [INFO] 25개의 지역 코드 저장 완료
+[2025-12-22T12:00:37.616+0000] {logging_mixin.py:188} INFO - [INFO] update_region_code_name 완료
+[2025-12-22T12:00:37.618+0000] {python.py:202} INFO - Done. Returned value was: None
+[2025-12-22T12:00:37.628+0000] {taskinstance.py:1149} INFO - Marking task as SUCCESS. dag_id=daily_code_update, task_id=update_region_name, execution_date=20251108T150000, start_date=20251222T120037, end_date=20251222T120037
+[2025-12-22T12:00:37.684+0000] {local_task_job_runner.py:234} INFO - Task exited with return code 0
+[2025-12-22T12:00:37.732+0000] {taskinstance.py:3312} INFO - 0 downstream tasks scheduled from follow-on schedule check
