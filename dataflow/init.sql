@@ -258,6 +258,19 @@ CREATE TABLE IF NOT EXISTS `toy_project`.`SHELTER_GPS` (
 ENGINE = InnoDB;
 
 
+CREATE TABLE IF NOT EXISTS `toy_project`.`EMERGENCY_ALERT` (
+    SN BIGINT NOT NULL COMMENT '일련번호',
+    CRT_DT VARCHAR(50) COMMENT '생성일시',
+    MSG_CN TEXT COMMENT '메시지 상세 내용',
+    RCPTN_RGN_NM VARCHAR(4000) COMMENT '수신지역명',
+    EMRG_STEP_NM VARCHAR(100) COMMENT '긴급단계',
+    DST_SE_NM VARCHAR(100) COMMENT '재해구분',
+    REG_YMD VARCHAR(50) COMMENT '등록일자',
+    MDFCN_YMD VARCHAR(50) COMMENT '수정일자',
+
+    PRIMARY KEY (SN)
+) ENGINE=InnoDB
+
 -- -----------------------------------------------------
 -- Table `toy_project`.`fcm_device_token`
 -- -----------------------------------------------------
