@@ -85,6 +85,28 @@ services:
     command: bash -c "pip install --no-cache-dir pyspark==3.5.5 redis mysql-connector-python && python outbreak_streaming.py"
     restart: unless-stopped
 
+  emergency-streaming:
+    image: jupyter/pyspark-notebook:latest
+    container_name: emergency-streaming
+    environment:
+      - PYTHONPATH=/app
+    depends_on:
+      - kafka
+      - redis
+      - mysql
+    volumes:
+      - ./dataflow/preprocessing:/app/preprocessing
+      - ./dataflow/utils:/app/utils
+    working_dir: /app/preprocessing
+    env_file:
+      - ./dataflow/.env
+    command: >
+      bash -c "
+      pip install --no-cache-dir pyspark==3.5.5 redis mysql-connector-python &&
+      python emergency_streaming.py
+      "
+    restart: unless-stopped
+
   # linkinfo:
   #   build:
   #     context: ./dataflow
