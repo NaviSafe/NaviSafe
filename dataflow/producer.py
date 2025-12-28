@@ -22,6 +22,7 @@ load_dotenv()
 OUTBREAK_KEY = os.getenv("OUTBREAK_KEY")
 REG_CODE = os.getenv("REG_CODE")
 SEOUL_SUBWAY_POSITION_API_KEY = os.getenv("SEOUL_SUBWAY_POSITION_API_KEY")
+EMERGENCY_ALERT_API_KEY = os.getenv("EMERGENCY_ALERT_API_KEY")
 
 # -----------------------------
 # API 목록 정의
@@ -30,6 +31,7 @@ api_list = [
     {'name': 'AccInfo', 'key': OUTBREAK_KEY, 'response_type': 'xml'},
     {'name': 'RegionInfo', 'key': REG_CODE, 'response_type': 'xml'},
     {'name': 'realtimePosition', 'key': SEOUL_SUBWAY_POSITION_API_KEY, 'response_type': 'xml'},
+    {'name': 'emergencyAlert', 'key': EMERGENCY_ALERT_API_KEY, 'response_type': 'json'}
 ]
 
 lines = [
@@ -44,7 +46,8 @@ lines = [
 topic_mapping = {
     'AccInfo': 'outbreak_topic',
     'RegionInfo': 'realtime_trafficInfo',
-    'realtimePosition': 'subway_position_topic'
+    'realtimePosition': 'subway_position_topic',
+    'emergencyAlert': 'emergency_alert_topic'
 }
 
 # -----------------------------
@@ -111,7 +114,25 @@ def run_kafka_producer():
                     log.info(f"[Kafka] {api_name}({line}) → {topic} 전송 완료")
 
                     line_index += 1
+            
+            elif api_name == 'emergencyAlert':
+                url = "https://www.safetydata.go.kr/v2/api/DSSP-IF-00247"
+                params = {
+                    "serviceKey": api['key'],
+                    "returnType": "json",
+                    "numOfRows": 100,
+                    "pageNo": 1
+                }
 
+                response = requests.get(url, params=params, timeout=10)
+                response.raise_for_status()
+                data_dict = response.json()
+
+                producer.send(topic, data_dict)
+                producer.flush()
+
+                log.info(f"[Kafka] 긴급재난문자 → {topic} 전송 완료")
+                
             # 일반 공공데이터 API (AccInfo, RegionInfo)
             else:
                 url = f"http://openapi.seoul.go.kr:8088/{api['key']}/{response_type}/{api_name}/1/500/"
