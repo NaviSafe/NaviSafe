@@ -4,7 +4,7 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-COPY producer.py .
+COPY producer ./producer
 COPY ./consumers ./consumers
 
 COPY ./preprocessing /app/preprocessing
@@ -24,6 +24,7 @@ RUN pip install --no-cache-dir pyspark==3.5.5 pymysql sqlalchemy
 
 
 ENV SPARK_PACKAGES="org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.5,mysql:mysql-connector-java:8.0.33"
+ENV PYTHONPATH=/app
 
 #docker run -it --rm openjdk:17-jdk bash
 #ls /usr/lib/jvm
