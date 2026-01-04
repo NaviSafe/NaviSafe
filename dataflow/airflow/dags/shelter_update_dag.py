@@ -22,7 +22,7 @@ with DAG(
     dag_id='update_shelter_data_monthly',
     default_args=default_args,
     description='서울시 대피소/쉼터/침수예상도 데이터를 매월 갱신',
-    schedule_interval='@monthly',  # 한 달에 한 번 실행
+    schedule='@monthly',  # 한 달에 한 번 실행
     start_date=datetime(2025, 1, 1),
     catchup=False,
     tags=['shelter', 'seoul', 'api', 'mysql'],

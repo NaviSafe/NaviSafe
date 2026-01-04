@@ -10,7 +10,7 @@ from preprocessing.outbreak_batch import save_from_redis_to_mysql
 with DAG(
     dag_id="outbreak_batch_dag",
     # start_date=days_ago(1),
-    schedule_interval=None,
+    schedule=None,
     catchup=False,
 ) as dag:
 

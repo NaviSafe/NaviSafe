@@ -11,7 +11,7 @@ from preprocessing.linkinfo_worker import run_linkinfo_worker
 with DAG(
     dag_id="linkinfo_dag",
     # start_date=days_ago(1),
-    schedule_interval=None,
+    schedule=None,
     catchup=False,
 ) as dag:
 

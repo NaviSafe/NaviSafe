@@ -12,7 +12,7 @@ with DAG(
     dag_id="public_api_producer_dag",
     start_date=datetime(2025, 11, 3),
     catchup=False,
-    schedule_interval="*/1 * * * *",  # 1분마다 실행
+    schedule="*/1 * * * *",  # 1분마다 실행
     tags=["producer", "kafka", "api"],
 ) as dag:
 
