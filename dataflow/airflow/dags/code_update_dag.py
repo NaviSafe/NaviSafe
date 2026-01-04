@@ -22,7 +22,7 @@ with DAG(
     dag_id='daily_code_update',
     default_args=default_args,
     description='매일 코드명 테이블 갱신',
-    schedule_interval='@daily',  # 매일 00시
+    schedule='@daily',  # 매일 00시
     start_date=datetime(2025, 10, 14, tzinfo=timezone("Asia/Seoul")),
     catchup=True,
     tags=['update', 'daily', 'code']
