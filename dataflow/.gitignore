@@ -7,6 +7,8 @@ airflow/.logs/
 airflow/__pycache__/
 airflow/dags/__pycache__/
 
-# Python
+# Python cache
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
