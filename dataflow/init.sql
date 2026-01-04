@@ -258,7 +258,12 @@ CREATE TABLE IF NOT EXISTS `toy_project`.`SHELTER_GPS` (
 ENGINE = InnoDB;
 
 
-CREATE TABLE IF NOT EXISTS `toy_project`.`EMERGENCY_ALERT` (
+USE toy_project;
+
+-- =====================================================
+-- EMERGENCY_ALERT
+-- =====================================================
+CREATE TABLE IF NOT EXISTS EMERGENCY_ALERT (
     SN BIGINT NOT NULL COMMENT '일련번호',
     CRT_DT VARCHAR(50) COMMENT '생성일시',
     MSG_CN TEXT COMMENT '메시지 상세 내용',
@@ -267,19 +272,18 @@ CREATE TABLE IF NOT EXISTS `toy_project`.`EMERGENCY_ALERT` (
     DST_SE_NM VARCHAR(100) COMMENT '재해구분',
     REG_YMD VARCHAR(50) COMMENT '등록일자',
     MDFCN_YMD VARCHAR(50) COMMENT '수정일자',
-
     PRIMARY KEY (SN)
-) ENGINE=InnoDB
+) ENGINE=InnoDB;
 
--- -----------------------------------------------------
--- Table `toy_project`.`fcm_device_token`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `toy_project`.`fcm_device_token` (
-  `ID` INT AUTO_INCREMENT NOT NULL,
-  `device_token` MEDIUMTEXT NULL,
-  `created_at` DATETIME NULL,
-  PRIMARY KEY (`ID`))
-ENGINE = InnoDB;
+-- =====================================================
+-- FCM DEVICE TOKEN
+-- =====================================================
+CREATE TABLE IF NOT EXISTS fcm_device_token (
+    ID INT AUTO_INCREMENT PRIMARY KEY,
+    device_token MEDIUMTEXT,
+    created_at DATETIME
+) ENGINE=InnoDB;
+
 
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
