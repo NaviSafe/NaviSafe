@@ -3,10 +3,13 @@ from airflow.operators.python import PythonOperator
 from airflow.operators.trigger_dagrun import TriggerDagRunOperator
 from airflow.utils.dates import days_ago
 import sys
-sys.path.append("/opt/airflow/dataflow")
+# sys.path.append("/opt/airflow/dataflow")
 
-from preprocessing.linkinfo_worker import run_linkinfo_worker
+# from preprocessing.linkinfo_worker import run_linkinfo_worker
 
+def run_linkinfo_worker_wrapper(**context):
+    from preprocessing.linkinfo_worker import run_linkinfo_worker
+    return run_linkinfo_worker(**context)
 
 with DAG(
     dag_id="linkinfo_dag",
@@ -17,7 +20,7 @@ with DAG(
 
     process_linkinfo = PythonOperator(
         task_id="process_linkinfo",
-        python_callable=run_linkinfo_worker,
+        python_callable=run_linkinfo_worker_wrapper,
     )
 
     trigger_batch = TriggerDagRunOperator(

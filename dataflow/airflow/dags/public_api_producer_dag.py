@@ -3,10 +3,14 @@ from airflow.operators.python import PythonOperator
 from airflow.operators.trigger_dagrun import TriggerDagRunOperator
 from airflow.utils.dates import days_ago
 from datetime import datetime, timedelta
-import sys
-sys.path.append("/opt/airflow/dataflow")
+# import sys
+# sys.path.append("/opt/airflow/dataflow")
 
-from producer import run_kafka_producer   # producer.py 위치 기준
+# from producer import run_kafka_producer   # producer.py 위치 기준
+
+def run_kafka_producer_wrapper(**context):
+    from producer import run_kafka_producer
+    return run_kafka_producer(**context)
 
 with DAG(
     dag_id="public_api_producer_dag",
@@ -18,7 +22,7 @@ with DAG(
 
     run_producer = PythonOperator(
         task_id="run_kafka_producer",
-        python_callable=run_kafka_producer,
+        python_callable=run_kafka_producer_wrapper,
     )
 
     trigger_linkinfo = TriggerDagRunOperator(
