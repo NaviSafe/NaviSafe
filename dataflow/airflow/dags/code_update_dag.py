@@ -18,15 +18,15 @@ default_args = {
     'retry_delay': timedelta(minutes=10),
 }
 
-def update_outbreak_code_wrapper(**context):
+def update_outbreak_code_wrapper():
     from airflow_utils.outbreak_code_name import update_outbreak_code_name
     return update_outbreak_code_name()
 
-def update_outbreak_detail_wrapper(**context):
+def update_outbreak_detail_wrapper():
     from airflow_utils.outbreak_detail_code_name import update_outbreak_detail_code_name
     return update_outbreak_detail_code_name()
 
-def update_region_wrapper(**context):
+def update_region_wrapper():
     from airflow_utils.region_name import update_region_code_name
     return update_region_code_name()
 

@@ -7,9 +7,9 @@ import sys
 
 # from preprocessing.linkinfo_worker import run_linkinfo_worker
 
-def run_linkinfo_worker_wrapper(**context):
+def run_linkinfo_worker_wrapper():
     from preprocessing.linkinfo_worker import run_linkinfo_worker
-    return run_linkinfo_worker(**context)
+    return run_linkinfo_worker()
 
 with DAG(
     dag_id="linkinfo_dag",

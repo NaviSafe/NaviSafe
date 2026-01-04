@@ -12,9 +12,9 @@ default_args = {
     "retry_delay": timedelta(minutes=5),
 }
 
-def run_emergency_batch_wrapper(**context):
+def run_emergency_batch_wrapper():
     from preprocessing.emergency_batch import run_emergency_batch
-    return run_emergency_batch(**context)
+    return run_emergency_batch()
     
 with DAG(
     dag_id="emergency_alert_batch_dag",

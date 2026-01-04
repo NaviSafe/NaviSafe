@@ -6,9 +6,9 @@ import sys
 
 # from preprocessing.outbreak_batch import save_from_redis_to_mysql
 
-def save_from_redis_to_mysql_wrapper(**context):
+def save_from_redis_to_mysql_wrapper():
     from preprocessing.outbreak_batch import save_from_redis_to_mysql
-    return save_from_redis_to_mysql(**context)
+    return save_from_redis_to_mysql()
 
 with DAG(
     dag_id="outbreak_batch_dag",

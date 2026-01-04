@@ -17,9 +17,9 @@ default_args = {
     'retry_delay': timedelta(minutes=10),
 }
 
-def run_shelter_worker_wrapper(**context):
+def run_shelter_worker_wrapper():
     from airflow_utils.shelter_worker import run_shelter_worker
-    return run_shelter_worker(**context)
+    return run_shelter_worker()
 
 
 with DAG(

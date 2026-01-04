@@ -8,9 +8,9 @@ from datetime import datetime, timedelta
 
 # from producer import run_kafka_producer   # producer.py 위치 기준
 
-def run_kafka_producer_wrapper(**context):
-    from producer import run_kafka_producer
-    return run_kafka_producer(**context)
+def run_kafka_producer_wrapper():
+    from producer.kafka_producer import run_kafka_producer
+    return run_kafka_producer()
 
 with DAG(
     dag_id="public_api_producer_dag",
