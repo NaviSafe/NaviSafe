@@ -29,7 +29,9 @@ services:
     # environment:
     #   API_KEY: ${API_KEY}
     volumes:
-      - ./dataflow/producer.py:/app/preprocessing/producer.py
+      - ./dataflow:/app/dataflow
+    environment:
+      - PYTHONPATH=/app/dataflow
     working_dir: /app
     command: sleep infinity
 
@@ -215,6 +217,7 @@ services:
     environment:
       - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=mysql+pymysql://user:userpass@mysql:3306/airflow_db
       - AIRFLOW__CORE__EXECUTOR=LocalExecutor
+      - PYTHONPATH=/opt/airflow/dataflow
     command: >
           bash -c "airflow db migrate && airflow users create --username admin --firstname Admin --lastname User --role Admin --email admin@example.com --password admin && echo 'Airflow 초기화 완료!'"
     volumes:
@@ -236,6 +239,7 @@ services:
       AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
       #AIRFLOW__CORE__PLUGINS_FOLDER: /opt/airflow/plugins
       AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: 'mysql+pymysql://user:userpass@mysql:3306/airflow_db'
+      PYTHONPATH : /opt/airflow/dataflow
     volumes:
       - ./dataflow/airflow/dags:/opt/airflow/dags
       - ./dataflow/airflow/plugins:/opt/airflow/plugins
@@ -269,6 +273,7 @@ services:
       AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
       AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: 'mysql+pymysql://user:userpass@mysql:3306/airflow_db'
       AIRFLOW__WEBSERVER__RBAC: 'true'
+      PYTHONPATH : /opt/airflow/dataflow
     volumes:
       - ./dataflow/airflow/dags:/opt/airflow/dags
       - ./dataflow/airflow/plugins:/opt/airflow/plugins
