@@ -240,6 +240,7 @@ services:
       - ./dataflow/airflow/dags:/opt/airflow/dags
       - ./dataflow/airflow/plugins:/opt/airflow/plugins
       - ./dataflow/airflow/logs:/opt/airflow/logs
+      - ./dataflow/tests:/opt/airflow/tests
       - ./dataflow/preprocessing:/app/preprocessing
       - ./dataflow:/opt/airflow/dataflow
       - ./dataflow/utils:/app/utils
