@@ -44,7 +44,7 @@ def run_emergency_batch(batch_size=100):
 
     try:
         for _ in range(batch_size):
-            item = redis_client.lpop_list(REDIS_QUEUE_KEY)
+            item = redis_client.lpop(REDIS_QUEUE_KEY)
             if not item:
                 break
 
