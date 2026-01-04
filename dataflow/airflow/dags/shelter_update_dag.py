@@ -1,13 +1,12 @@
 from airflow import DAG
 from airflow.operators.bash import BashOperator
 from datetime import datetime, timedelta
-import os 
-import sys, os
 from airflow.operators.python import PythonOperator
-sys.path.append("/opt/airflow/plugins")
-from airflow_utils.shelter_worker import run_shelter_worker
+# import sys, os
+# sys.path.append("/opt/airflow/plugins")
+# from airflow_utils.shelter_worker import run_shelter_worker
 
-#sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'plugins'))
+# #sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'plugins'))
 
 default_args = {
     'owner': 'data_engineer',
@@ -17,6 +16,11 @@ default_args = {
     'retries': 1,
     'retry_delay': timedelta(minutes=10),
 }
+
+def run_shelter_worker_wrapper(**context):
+    from airflow_utils.shelter_worker import run_shelter_worker
+    return run_shelter_worker(**context)
+
 
 with DAG(
     dag_id='update_shelter_data_monthly',
@@ -30,7 +34,7 @@ with DAG(
 
     update_shelter_data = PythonOperator(
     task_id="run_shelter_worker",
-    python_callable=run_shelter_worker
+    python_callable=run_shelter_worker_wrapper
 )
     # update_shelter_data = BashOperator(
     #     task_id='run_shelter_worker',
