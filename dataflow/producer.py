@@ -6,6 +6,7 @@ import xml.etree.ElementTree as ET
 from kafka import KafkaProducer
 from dotenv import load_dotenv
 import logging
+import math
 
 '''
 지하철호선ID(1001:1호선, 1002:2호선, 1003:3호선, 1004:4호선,
@@ -115,23 +116,57 @@ def run_kafka_producer():
 
                     line_index += 1
             
+                
+
             elif api_name == 'emergencyAlert':
-                url = "https://www.safetydata.go.kr/v2/api/DSSP-IF-00247"
+                url = "https://www.safetydata.go.kr/V2/api/DSSP-IF-00247"
+
+                # 1️ totalCount 조회
+                meta_params = {
+                    "serviceKey": api['key'],
+                    "returnType": "json",
+                    "numOfRows": 1,
+                    "pageNo": 1
+                }
+
+                meta_resp = requests.get(url, params=meta_params, timeout=10)
+                meta_resp.raise_for_status()
+                total_count = meta_resp.json().get("totalCount", 0)
+
+                if total_count == 0:
+                    log.info("[SKIP] emergencyAlert totalCount = 0")
+                    return
+
+                # 2️ 최신 페이지 계산
+                NUM_OF_ROWS = 100
+                last_page = math.ceil(total_count / NUM_OF_ROWS)
+
+                # 3️ 최신 데이터 요청
                 params = {
                     "serviceKey": api['key'],
                     "returnType": "json",
-                    "numOfRows": 100,
-                    "pageNo": 1
+                    "numOfRows": NUM_OF_ROWS,
+                    "pageNo": last_page
                 }
 
                 response = requests.get(url, params=params, timeout=10)
                 response.raise_for_status()
+
                 data_dict = response.json()
+                body = data_dict.get("body")
 
-                producer.send(topic, data_dict)
+                # 4️ body null 방어
+                if not body:
+                    log.info("[SKIP] emergencyAlert body is null")
+                    return
+
+                # 5️ Kafka 전송
+                producer.send(topic, body)
                 producer.flush()
+                #log.info(body)
+                log.info(f"[Kafka] 긴급재난문자 최신 {len(body)}건 → {topic}")
 
-                log.info(f"[Kafka] 긴급재난문자 → {topic} 전송 완료")
+
                 
             # 일반 공공데이터 API (AccInfo, RegionInfo)
             else:
