@@ -3,6 +3,8 @@ import { useOutbreakOccur } from "../hooks/useOutbreakOccur";
 import type { ShelterInfo } from "../type/Shelter";
 import { useShelter } from "../hooks/useShelter";
 import { BottomBar } from "../components/BottomBar";
+import { BottomPathFindingBar } from "../components/BottomPathFindingBar";
+
 
 export const Home = () => {
   useOutbreakOccur();
@@ -34,8 +36,8 @@ export const Home = () => {
         ))}
       </div>
       <KakaoMap />
-
       <BottomBar />
+      <BottomPathFindingBar />
     </div>
   );
 }
