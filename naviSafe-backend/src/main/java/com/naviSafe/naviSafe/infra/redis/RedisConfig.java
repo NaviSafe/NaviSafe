@@ -62,7 +62,9 @@ public class RedisConfig {
     public RedisMessageListenerContainer redisMessageListenerContainer(
             RedisConnectionFactory connectionFactory,
             RedisGpsSubscriber redisGpsSubscriber,
-            RedisAlertSubscriber redisAlertSubscriber) {
+            RedisAlertSubscriber redisAlertSubscriber,
+            RedisEmergencyAlertSubscriber redisEmergencyAlertSubscriber
+    ) {
 
         RedisMessageListenerContainer container = new RedisMessageListenerContainer();
         container.setConnectionFactory(connectionFactory);
@@ -72,6 +74,9 @@ public class RedisConfig {
 
         // "ACC_ALERTS" 체널 구독
         container.addMessageListener(redisAlertSubscriber, new ChannelTopic("ACC_ALERTS"));
+
+        // "EMERGENCY_ALERT_CHANNEL" 체넗 구독
+        container.addMessageListener(redisEmergencyAlertSubscriber, new ChannelTopic("EMERGENCY_ALERT_CHANNEL"));
 
         return container;
     }
