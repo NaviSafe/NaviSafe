@@ -11,7 +11,7 @@ export const Home = () => {
 
   const shelterMap: ShelterInfo[] = [
     { code: 1, name: "지진대피소" },
-    { code: 2, name: "옥외 지진대피소" },
+    { code: 2, name: "한파대피소" },
     { code: 3, name: "무더위 쉼터" },
     { code: 4, name: "미세먼지 대피소" },
   ];
