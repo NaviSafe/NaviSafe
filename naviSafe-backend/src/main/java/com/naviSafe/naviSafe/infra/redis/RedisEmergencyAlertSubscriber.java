@@ -8,20 +8,17 @@ import org.springframework.data.redis.connection.Message;
 import org.springframework.data.redis.connection.MessageListener;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.Map;
-import java.util.concurrent.*;
 
 @Component
 public class RedisEmergencyAlertSubscriber implements MessageListener {
 
     Logger log = LoggerFactory.getLogger(RedisEmergencyAlertSubscriber.class);
     private final ObjectMapper objectMapper;
-    private final List<Map<String, Object>> alertBuffer = new CopyOnWriteArrayList<>();
-
-    private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-    private ScheduledFuture<?> flushTask;
-
     private final FcmPushNotificationService fcmPushNotificationService;
 
     public RedisEmergencyAlertSubscriber(FcmPushNotificationService fcmPushNotificationService) {
@@ -45,11 +42,16 @@ public class RedisEmergencyAlertSubscriber implements MessageListener {
             log.info("[Redis 구독] EMERGENCY_ALERT_CHANNEL - 데이터 수신: {}", emergencyAlertData);
 
             // 260110 기준: 서울 대상으로 서비스를 진행하므로 해당지역 메시지만 포함
-            if(emergencyAlertData.containsKey("RCPTN_RGN_NM") && emergencyAlertData.get("RCPTN_RGN_NM").toString().contains("서울")) {
-                alertBuffer.add(emergencyAlertData);
+            String crt = emergencyAlertData.get("CRT_DT").toString().split("\\.")[0];
+            if (
+                    emergencyAlertData.get("RCPTN_RGN_NM").toString().contains("서울")
+                            && LocalDateTime.parse(crt,
+                                    DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss")
+                            ).toLocalTime().truncatedTo(ChronoUnit.MINUTES)
+                            .equals(LocalTime.now().truncatedTo(ChronoUnit.MINUTES))
+            ) {
+                sendNotification(emergencyAlertData);
             }
-            resetFlushTimer();
-
 
         } catch (Exception e) {
             log.error("EmergencyAlertSubscriber 처리 중 오류 발생", e);
@@ -57,45 +59,16 @@ public class RedisEmergencyAlertSubscriber implements MessageListener {
     }
 
     /**
-     * 5초 동안 새로운 데이터가 없으면 자동으로 전송
+     * 재난알람 전송
      */
-    private synchronized void resetFlushTimer() {
-        // 기존 타이머가 있으면 취소
-        if (flushTask != null && !flushTask.isDone()) {
-            flushTask.cancel(false);
-        }
-
-        // 새 타이머 설정 (5초 후 실행)
-        flushTask = scheduler.schedule(this::flushAlertBatch, 5, TimeUnit.SECONDS);
-    }
-
-    /**
-     * 버퍼에 쌓인 데이터 전송 후 비우기
-     */
-    private synchronized void flushAlertBatch() {
-        if (!alertBuffer.isEmpty()) {
-            log.info("5초간 입력 없음, Emergency Alert 배치 전송 ({})", alertBuffer.size());
-
-            try {
-                // alertBuffer 내용을 하나로 합쳐서 title/body 구성 가능
+    private void sendNotification(Map<String, Object> emergencyAlertData) {
+         try {
                 String title = "긴급재난 알림";
-                StringBuilder bodyBuilder = new StringBuilder();
-
-                for (Map<String, Object> alert : alertBuffer) {
-                    bodyBuilder
-                            .append(alert.get("MSG_CN"))
-                            .append("\n");
-                }
-
-                String body = bodyBuilder.toString();
-
+                String body = String.valueOf(emergencyAlertData.get("MSG_CN"));
                 fcmPushNotificationService.sendPushNotification(title, body);
 
             } catch (Exception e) {
                 log.error("FCM 전송 실패", e);
-            } finally {
-                alertBuffer.clear();
             }
-        }
     }
 }
