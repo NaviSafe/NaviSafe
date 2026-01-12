@@ -42,9 +42,9 @@ public class RedisEmergencyAlertSubscriber implements MessageListener {
             log.info("[Redis 구독] EMERGENCY_ALERT_CHANNEL - 데이터 수신: {}", emergencyAlertData);
 
             // 260110 기준: 서울 대상으로 서비스를 진행하므로 해당지역 메시지만 포함
-            String crt = emergencyAlertData.get("CRT_DT").toString().split("\\.")[0];
+            String crt = emergencyAlertData.get("created_at").toString().split("\\.")[0];
             if (
-                    emergencyAlertData.get("RCPTN_RGN_NM").toString().contains("서울")
+                    emergencyAlertData.get("region").toString().contains("서울")
                             && LocalDateTime.parse(crt,
                                     DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss")
                             ).toLocalTime().truncatedTo(ChronoUnit.MINUTES)
@@ -64,7 +64,7 @@ public class RedisEmergencyAlertSubscriber implements MessageListener {
     private void sendNotification(Map<String, Object> emergencyAlertData) {
          try {
                 String title = "긴급재난 알림";
-                String body = String.valueOf(emergencyAlertData.get("MSG_CN"));
+                String body = String.valueOf(emergencyAlertData.get("message"));
                 fcmPushNotificationService.sendPushNotification(title, body);
 
             } catch (Exception e) {
