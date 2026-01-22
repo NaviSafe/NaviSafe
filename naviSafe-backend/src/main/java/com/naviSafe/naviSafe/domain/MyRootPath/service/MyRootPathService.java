@@ -1,6 +1,5 @@
 package com.naviSafe.naviSafe.domain.MyRootPath.service;
 
-import com.naviSafe.naviSafe.domain.MyRootPath.Utils.AvoidPointGenerator;
 import com.naviSafe.naviSafe.domain.MyRootPath.Utils.TmapRequestUtil;
 import com.naviSafe.naviSafe.domain.MyRootPath.Utils.TmapRouteExtractor;
 import com.naviSafe.naviSafe.domain.MyRootPath.external.tmap.TmapApiClient;
@@ -26,24 +25,10 @@ public class MyRootPathService {
     private final TmapApiClient tmapApiClient;
     private final Logger logger = LoggerFactory.getLogger(MyRootPathService.class);
 
-    public final static int EPS = 1000;
-
     public List<Point> generateDangerCenters(List<Point> points) {
         List<OutbreakOccur> occurs = outbreakService.findAll();
 
         if (occurs.isEmpty()) return List.of();
-
-        if(occurs.size() == 1){
-            OutbreakOccur danger = occurs.get(0);
-            Point singledDangerPoint = converter.convert(
-                    danger.getOutbreakMapGps().getGrs80tmX(),
-                    danger.getOutbreakMapGps().getGrs80tmY()
-            );
-
-            return List.of(
-                    AvoidPointGenerator.generate(singledDangerPoint, points, EPS)
-            );
-        }
 
         List<Point> dangerPoints = occurs.stream()
                 .map(o -> converter.convert(
@@ -51,8 +36,10 @@ public class MyRootPathService {
                         o.getOutbreakMapGps().getGrs80tmY()  // GRS80TM Y
                 ))
                 .toList();
-        return dangerZoneSelector.selectCenters(dangerPoints);
+        return dangerZoneSelector.selectAvoidPoints(dangerPoints, points);
     }
+
+
 
     public List<Point> getMyRootPath(double fromLongitude, double fromLatitude, double toLongitude, double toLatitude) {
         TmapRouteRequest routeRequest = TmapRouteRequest.builder()
@@ -67,21 +54,11 @@ public class MyRootPathService {
         List<Point> dangerCenters = generateDangerCenters(polyLinesPoints);
 
         for (Point dangerCenter : dangerCenters) {
-            logger.debug("생성된 경유지: {}", dangerCenter);
+            logger.info("생성된 경유지: {}", dangerCenter);
         }
 
-        List<Point> relevantViaPoints = dangerCenters.stream()
-                .filter(center -> polyLinesPoints.stream()
-                        .anyMatch(p -> GeoCalculator.distance(p, center) <= EPS))
-                .toList();
-
-        for (Point relevantViaPoint : relevantViaPoints) {
-            logger.debug("relevantViaPoint {}", relevantViaPoint);
-        }
-
-
-
-        if (relevantViaPoints.isEmpty()) {
+        if (dangerCenters.isEmpty()) {
+            logger.info("생성된 경유지가 없으므로 기존 경로를 반환합니다.");
             return polyLinesPoints;
         }
 
@@ -90,7 +67,60 @@ public class MyRootPathService {
                 .startY(fromLatitude)
                 .endX(toLongitude)
                 .endY(toLatitude)
-                .passList(TmapRequestUtil.buildPassListString(relevantViaPoints))
+                .passList(TmapRequestUtil.buildPassListString(dangerCenters))
+                .build();
+
+        TmapRouteResponse newTmapRoute = tmapApiClient.getTmapRoute(newRouteRequest);
+        return TmapRouteExtractor.extractPolyline(newTmapRoute);
+    }
+
+    public List<Point> getMyOriginalPath(double fromLongitude, double fromLatitude, double toLongitude, double toLatitude) {
+        TmapRouteRequest routeRequest = TmapRouteRequest.builder()
+                .startX(fromLongitude)
+                .startY(fromLatitude)
+                .endX(toLongitude)
+                .endY(toLatitude)
+                .build();
+
+        TmapRouteResponse tmapRoute = tmapApiClient.getTmapRoute(routeRequest);
+        return TmapRouteExtractor.extractPolyline(tmapRoute);
+    }
+
+    public List<Point> getMyRootPathTest(double fromLongitude, double fromLatitude, double toLongitude, double toLatitude, List<Point> originalPolyLinesPoints) {
+        List<Point> polyLinesPoints;
+
+        if(originalPolyLinesPoints.isEmpty()){
+            TmapRouteRequest routeRequest = TmapRouteRequest.builder()
+                    .startX(fromLongitude)
+                    .startY(fromLatitude)
+                    .endX(toLongitude)
+                    .endY(toLatitude)
+                    .build();
+
+            TmapRouteResponse tmapRoute = tmapApiClient.getTmapRoute(routeRequest);
+            polyLinesPoints = TmapRouteExtractor.extractPolyline(tmapRoute);
+        }else{
+            polyLinesPoints = originalPolyLinesPoints;
+        }
+
+
+        List<Point> dangerCenters = generateDangerCenters(polyLinesPoints);
+
+        for (Point dangerCenter : dangerCenters) {
+            logger.info("생성된 경유지: {}", dangerCenter);
+        }
+
+        if (dangerCenters.isEmpty()) {
+            logger.info("생성된 경유지가 없으므로 기존 경로를 반환합니다.");
+            return polyLinesPoints;
+        }
+
+        TmapRouteRequest newRouteRequest = TmapRouteRequest.builder()
+                .startX(fromLongitude)
+                .startY(fromLatitude)
+                .endX(toLongitude)
+                .endY(toLatitude)
+                .passList(TmapRequestUtil.buildPassListString(dangerCenters))
                 .build();
 
         TmapRouteResponse newTmapRoute = tmapApiClient.getTmapRoute(newRouteRequest);
