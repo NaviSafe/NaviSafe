@@ -10,9 +10,16 @@ from airflow.providers.mysql.hooks.mysql import MySqlHook
 #  환경 변수(API KEY)
 # ------------------------------------------------------------------
 EARTHQUAKE_SHELTER_API_KEY = os.getenv('EARTHQUAKE_SHELTER_API_KEY')   # 서울시 지진대피소
-EARTHQUAKE_OUTDOOR_API_KEY = os.getenv('EARTHQUAKE_OUTDOOR_API_KEY')   # 서울시 옥외 지진대피소
+COLD_WAVE_SHELTER_API_KEY = os.getenv('COLD_WAVE_SHELTER_API_KEY')   # 서울시 한파쉼터
 SUMMER_SHELTER_API_KEY = os.getenv('SUMMER_SHELTER_API_KEY')           # 무더위 쉼터
 FINE_DUST_SHELTER_API_KEY = os.getenv('FINE_DUST_SHELTER_API_KEY')     # 미세먼지 쉼터
+
+SHELTER_CODE_NAME = {
+    1: "지진대피소",
+    2: "한파쉼터",
+    3: "무더위쉼터",
+    4: "미세먼지쉼터"
+}
 
 # ------------------------------------------------------------------
 # 좌표 변환기 설정 (GRS80TM → WGS84)
@@ -60,10 +67,10 @@ def parse_shelter_data(xml_str, shelter_code):
                 lot = row.findtext("LOT")
                 lat = row.findtext("LAT")
 
-            # 서울시 옥외 지진대피소
+            # 서울시 한파쉼터
             elif shelter_code == 2:
-                name = row.findtext("ACTC_FCLT_NM")
-                address = row.findtext("DADDR")
+                name = row.findtext("RESTAREA_NM")
+                address = row.findtext("LOTNO_ADDR")
                 lot = row.findtext("LOT")
                 lat = row.findtext("LAT")
                 #lot, lat = convert_to_gps(x, y)
@@ -81,14 +88,14 @@ def parse_shelter_data(xml_str, shelter_code):
                 address = row.findtext("ADDR")
                 x = row.findtext("XCRD")
                 y = row.findtext("YCRD")
-                lot, lat = convert_to_gps(x, y)
+                lot, lat = convert_to_gps(x, y)              
 
             # 필수 값 확인
             if not (name and lot and lat):
                 continue
             
             #옥외 지진대피소를 1번으로 병합
-            save_code = 1 if shelter_code == 2 else shelter_code
+            save_code = 1 if shelter_code == 5 else shelter_code
             
             shelters.append({
                 "SHELTER_CODE": save_code,
@@ -137,22 +144,36 @@ def save_to_db(shelter_list):
 def run_shelter_worker():
     api_targets = [
         (1, f"http://openapi.seoul.go.kr:8088/{EARTHQUAKE_SHELTER_API_KEY}/xml/TbEqkShelter/1/1000/"),
-        (2, f"http://openapi.seoul.go.kr:8088/{EARTHQUAKE_OUTDOOR_API_KEY}/xml/TlEtqkP/1/1000/"),
+        (2, f"http://openapi.seoul.go.kr:8088/{COLD_WAVE_SHELTER_API_KEY}/xml/TbGtnCwP/1/1000/"),
         (3, f"http://openapi.seoul.go.kr:8088/{SUMMER_SHELTER_API_KEY}/xml/TbGtnHwcwP/1/1000/"),
         (4, f"http://openapi.seoul.go.kr:8088/{FINE_DUST_SHELTER_API_KEY}/xml/shuntPlace/1/1000/")
     ]
 
+    total_count = 0
+
     for shelter_code, url in api_targets:
-        print(f"[INFO] API 호출 시작 → 코드 {shelter_code}")
+        shelter_name = SHELTER_CODE_NAME.get(shelter_code, f"CODE_{shelter_code}")
+        print(f"[INFO] API 호출 시작 → {shelter_name} (code={shelter_code})")
+
         xml_data = fetch_api(url)
         if not xml_data:
+            print(f"[WARN] {shelter_name} API 응답 없음")
             continue
 
         shelter_data = parse_shelter_data(xml_data, shelter_code)
-        save_to_db(shelter_data)
+        count = len(shelter_data)
+        total_count += count
+
+        print(f"[INFO] {shelter_name} 수집 건수: {count}건")
+
+        if count > 0:
+            save_to_db(shelter_data)
+        else:
+            print(f"[WARN] {shelter_name} 저장할 데이터 없음")
+
         time.sleep(1)  # API rate limit 방지
 
-    print("[SYSTEM] 모든 Shelter 데이터 수집 완료 ")
+    print(f"[SYSTEM] 모든 Shelter 데이터 수집 완료 (총 {total_count}건)")
 
 
 if __name__ == "__main__":

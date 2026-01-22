@@ -239,6 +239,10 @@ services:
       AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
       #AIRFLOW__CORE__PLUGINS_FOLDER: /opt/airflow/plugins
       AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: 'mysql+pymysql://user:userpass@mysql:3306/airflow_db'
+      AIRFLOW__METRICS__STATSD_ON: "True"
+      AIRFLOW__METRICS__STATSD_HOST: "statsd-exporter"  
+      AIRFLOW__METRICS__STATSD_PORT: "9125"
+      AIRFLOW__METRICS__STATSD_PREFIX: "airflow"
       PYTHONPATH : /opt/airflow/dataflow
     volumes:
       - ./dataflow/airflow/dags:/opt/airflow/dags
@@ -272,6 +276,10 @@ services:
       AIRFLOW__CORE__FERNET_KEY: '5ozw1xClhNUKElcA31BOLTCr3f8de2whokz13dLXQ1w='
       AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
       AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: 'mysql+pymysql://user:userpass@mysql:3306/airflow_db'
+      AIRFLOW__METRICS__STATSD_ON: "True"
+      AIRFLOW__METRICS__STATSD_HOST: "statsd-exporter"
+      AIRFLOW__METRICS__STATSD_PORT: "9125"
+      AIRFLOW__METRICS__STATSD_PREFIX: "airflow"
       AIRFLOW__WEBSERVER__RBAC: 'true'
       PYTHONPATH : /opt/airflow/dataflow
     volumes:
@@ -338,21 +346,83 @@ services:
       mysql:
         condition: service_healthy
 
-  subway-streaming:
-    build:
-      context: ./dataflow
-      dockerfile: Dockerfile.subway
-    container_name: subway-streaming
-    working_dir: /app
+  # subway-streaming:
+  #   build:
+  #     context: ./dataflow
+  #     dockerfile: Dockerfile.subway
+  #   container_name: subway-streaming
+  #   working_dir: /app
+  #   depends_on:
+  #     - kafka
+  #     - redis
+  #     - spark-master
+  #     - spark-worker
+  #     - airflow-webserver
+  #   environment:
+  #     - PYTHONPATH=/app
+  #   restart: unless-stopped
+  
+    prometheus:
+      image: prom/prometheus:latest
+      container_name: prometheus
+      volumes:
+        - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      command:
+        - "--config.file=/etc/prometheus/prometheus.yml"
+      ports:
+        - "9090:9090"
+      depends_on:
+        - kafka
+        - redis
+        - mysql
+        - airflow-webserver
+      restart: unless-stopped
+
+    grafana:
+      image: grafana/grafana:latest
+      container_name: grafana
+      ports:
+        - "3000:3000"
+      volumes:
+        - grafana_data:/var/lib/grafana
+      depends_on:
+        - prometheus
+      restart: unless-stopped
+
+  redis-exporter:
+    image: oliver006/redis_exporter
+    container_name: redis-exporter
+    command:
+      - "--redis.addr=redis://redis:6379"
+    ports:
+      - "9121:9121"
     depends_on:
-      - kafka
       - redis
-      - spark-master
-      - spark-worker
-      - airflow-webserver
-    environment:
-      - PYTHONPATH=/app
     restart: unless-stopped
+
+  mysql-exporter:
+    image: prom/mysqld-exporter:latest
+    container_name: mysql-exporter
+    command:
+      - "--mysqld.username=exporter:userpass"
+      - "--mysqld.address=mysql:3306"
+    ports:
+      - "9104:9104"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    restart: always
+
+  statsd-exporter:
+    image: prom/statsd-exporter
+    container_name: statsd-exporter
+    ports:
+      - "9125:9125/udp"
+      - "9102:9102"
+
+
+volumes:
+  grafana_data:
 
 
 networks:
