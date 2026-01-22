@@ -57,7 +57,7 @@ class MyRootPathServiceTest {
 
         given(outbreakService.findAll())
                 .willReturn(List.of(occur1, occur2, occur3, occur4, occur5, occur6, occur7, occur8, occur9, occur10, occur11, occur12, occur13, occur14));
-
+//                .willReturn(List.of(occur1));
     }
 
     @Test
@@ -136,15 +136,24 @@ class MyRootPathServiceTest {
     @Test
     @DisplayName("돌발상황 우휘 최단경로 생성")
     void getRootPath() throws Exception {
-    // 1. 기본 좌표
-        double fromLon = 127.012581; // 서초동 명인제약
-        double fromLat = 37.485124;
-        double toLon = 126.993; // 이태원로 16길
-        double toLat = 37.535;
+//        1. 기본 좌표
+//        단일 돌발상황 tc
+//        double fromLon = 126.913606817; // 근로복지공단 서울남부지사
+//        double fromLat = 37.520394201;
+//        double toLon = 126.908472738; // 한국산업인력공단 서울남부지사
+//        double toLat = 37.528002405;
 
+//        여러 돌발상황 tc
+        double fromLon = 126.985834394; // 해정병원
+        double fromLat = 37.575570097;
+        double toLon = 126.957262441; // 아현감리교회
+        double toLat = 37.560940645;
 
-        // 2. 기존 경로 polyline 추출
-        List<Point> myRootPath = myRootPathService.getMyRootPath(fromLon, fromLat, toLon, toLat);
+        // 기존 경로 polyline 추출
+        List<Point> myOriginalPath = myRootPathService.getMyOriginalPath(fromLon, fromLat, toLon, toLat);
+
+        // 새로운 경로 polyline 추출
+        List<Point> myRootPath = myRootPathService.getMyRootPathTest(fromLon, fromLat, toLon, toLat, myOriginalPath);
 
         // 3. 돌발상황 및 경유지 생성
         List<OutbreakOccur> occurs = outbreakService.findAll();
@@ -155,7 +164,7 @@ class MyRootPathServiceTest {
                 ))
                 .toList();
 
-        List<Point> viaPoints = myRootPathService.generateDangerCenters(myRootPath);
+        List<Point> viaPoints = myRootPathService.generateDangerCenters(myOriginalPath);
 
         logger.info("viaPoints : {}", viaPoints);
 
@@ -190,7 +199,15 @@ class MyRootPathServiceTest {
                     .append("]).addTo(map);\n");
         }
 
-        // 🟢 최종 경로 polyline
+        // 초기 경로 polyline
+        html.append("const latlng_origins = [\n");
+        for (Point p : myOriginalPath) {
+            html.append("[").append(p.lat()).append(", ").append(p.lon()).append("],\n");
+        }
+        html.append("];\n");
+        html.append("L.polyline(latlng_origins, {color: 'green'}).addTo(map);\n");
+
+        // 최종 경로 polyline
         html.append("const latlngs = [\n");
         for (Point p : myRootPath) {
             html.append("[").append(p.lat()).append(", ").append(p.lon()).append("],\n");
