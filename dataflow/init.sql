@@ -235,6 +235,7 @@ ENGINE = InnoDB;
 INSERT INTO toy_project.SHELTER_TYPE (SHELTER_CODE, SHELTER_CODE_NAME)
 VALUES 
 (1, '지진대피소'),
+(2, '한파쉼터'),
 (3, '무더위 쉼터'),
 (4, '미세먼지 대피소')
 ON DUPLICATE KEY UPDATE

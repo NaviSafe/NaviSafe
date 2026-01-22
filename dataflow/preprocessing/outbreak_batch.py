@@ -47,6 +47,7 @@ def save_from_redis_to_mysql():
         if d.get("acc_id")
         and d.get("acc_type")
         and d.get("acc_dtype")
+        and d.get("link_id")
     ]
 
     skipped = len(unique_batch) - len(filtered_batch)
@@ -67,13 +68,31 @@ def save_from_redis_to_mysql():
         database="toy_project"
     )
     cursor = conn.cursor()
-
     try:
+        # -----------------------------------
+        # 5. LINK_ID 기준 최종 필터링 (DB 기준)
+        # -----------------------------------
+        cursor.execute("SELECT LINK_ID FROM LINK_ID")
+        valid_links = {r[0] for r in cursor.fetchall()}
+
+        final_batch = [
+            d for d in filtered_batch
+            if d["link_id"] in valid_links
+        ]
+
+        skipped_link = len(filtered_batch) - len(final_batch)
+        if skipped_link > 0:
+            log.warning(f"[SKIP] LINK_ID 유효성 불일치로 제외된 데이터: {skipped_link}건")
+
+        if not final_batch:
+            log.info("[INFO] LINK_ID 기준 유효 데이터 없음. DB 작업 종료")
+            return
+
         # -----------------------------------
         # OUTBREAK_OCCURRENCE
         # -----------------------------------
         cursor.executemany("""
-            INSERT IGNORE INTO OUTBREAK_OCCURRENCE
+            INSERT INTO OUTBREAK_OCCURRENCE
                 (ACC_ID, occr_date_time, exp_clr_date_time)
             VALUES (%s, %s, %s)
             ON DUPLICATE KEY UPDATE
@@ -81,9 +100,9 @@ def save_from_redis_to_mysql():
                 exp_clr_date_time = VALUES(exp_clr_date_time)
         """, [
             (d["acc_id"], d.get("occr_date_time"), d.get("exp_clr_date_time"))
-            for d in filtered_batch
+            for d in final_batch
         ])
-        log.info(f"[DB] OUTBREAK_OCCURRENCE 삽입 ({len(filtered_batch)}건)")
+        log.info(f"[DB] OUTBREAK_OCCURRENCE 삽입 ({len(final_batch)}건)")
 
         # -----------------------------------
         # OUTBREAK_DETAIL_CODE
@@ -92,13 +111,13 @@ def save_from_redis_to_mysql():
         valid_dtypes = {r[0] for r in cursor.fetchall()}
 
         batch_detail = [
-            d for d in filtered_batch
+            d for d in final_batch
             if d["acc_dtype"] in valid_dtypes
         ]
 
         if batch_detail:
             cursor.executemany("""
-                INSERT IGNORE INTO OUTBREAK_DETAIL_CODE
+                INSERT INTO OUTBREAK_DETAIL_CODE
                     (OUTBREAK_ACC_ID, ACC_DTYPE)
                 VALUES (%s, %s)
                 ON DUPLICATE KEY UPDATE
@@ -113,46 +132,37 @@ def save_from_redis_to_mysql():
         # OUTBREAK_CODE
         # -----------------------------------
         cursor.executemany("""
-            INSERT IGNORE INTO OUTBREAK_CODE
+            INSERT INTO OUTBREAK_CODE
                 (OUTBREAK_ACC_ID, ACC_TYPE)
             VALUES (%s, %s)
             ON DUPLICATE KEY UPDATE
                 ACC_TYPE = VALUES(ACC_TYPE)
         """, [
             (d["acc_id"], d["acc_type"])
-            for d in filtered_batch
+            for d in final_batch
         ])
-        log.info(f"[DB] OUTBREAK_CODE 삽입 ({len(filtered_batch)}건)")
+        log.info(f"[DB] OUTBREAK_CODE 삽입 ({len(final_batch)}건)")
 
         # -----------------------------------
         # OUTBREAK_LINK
         # -----------------------------------
-        cursor.execute("SELECT LINK_ID FROM LINK_ID")
-        valid_links = {r[0] for r in cursor.fetchall()}
-
-        batch_link = [
-            d for d in filtered_batch
-            if d.get("link_id") in valid_links
-        ]
-
-        if batch_link:
-            cursor.executemany("""
-                INSERT IGNORE INTO OUTBREAK_LINK
-                    (OUTBREAK_ACC_ID, LINK_ID)
-                VALUES (%s, %s)
-                ON DUPLICATE KEY UPDATE
-                    LINK_ID = VALUES(LINK_ID)
-            """, [
-                (d["acc_id"], d["link_id"])
-                for d in batch_link
-            ])
-            log.info(f"[DB] OUTBREAK_LINK 삽입 ({len(batch_link)}건)")
+        cursor.executemany("""
+            INSERT INTO OUTBREAK_LINK
+                (OUTBREAK_ACC_ID, LINK_ID)
+            VALUES (%s, %s)
+            ON DUPLICATE KEY UPDATE
+                LINK_ID = VALUES(LINK_ID)
+        """, [
+            (d["acc_id"], d["link_id"])
+            for d in final_batch
+        ])
+        log.info(f"[DB] OUTBREAK_LINK 삽입 ({len(final_batch)}건)")
 
         # -----------------------------------
         # MAP_GPS
         # -----------------------------------
         cursor.executemany("""
-            INSERT IGNORE INTO MAP_GPS
+            INSERT INTO MAP_GPS
                 (OUTBREAK_ACC_ID, GRS80TM_X, GRS80TM_Y)
             VALUES (%s, %s, %s)
             ON DUPLICATE KEY UPDATE
@@ -160,7 +170,7 @@ def save_from_redis_to_mysql():
                 GRS80TM_Y = VALUES(GRS80TM_Y)
         """, [
             (d["acc_id"], d["grs80tm_x"], d["grs80tm_y"])
-            for d in filtered_batch
+            for d in final_batch
             if d.get("grs80tm_x") and d.get("grs80tm_y")
         ])
 
@@ -168,14 +178,14 @@ def save_from_redis_to_mysql():
         # ACC_ALERTS
         # -----------------------------------
         cursor.executemany("""
-            INSERT IGNORE INTO ACC_ALERTS
+            INSERT INTO ACC_ALERTS
                 (OUTBREAK_ACC_ID, ACC_INFO)
             VALUES (%s, %s)
             ON DUPLICATE KEY UPDATE
                 ACC_INFO = VALUES(ACC_INFO)
         """, [
             (d["acc_id"], d["acc_info"])
-            for d in filtered_batch
+            for d in final_batch
             if d.get("acc_info")
         ])
 
@@ -190,5 +200,4 @@ def save_from_redis_to_mysql():
     finally:
         cursor.close()
         conn.close()
-
-    log.info("[SYSTEM] MySQL 연결 종료")
+        log.info("[SYSTEM] MySQL 연결 종료")
