@@ -25,7 +25,7 @@ public class FcmPushNotificationService {
         this.fcmDeviceTokenRepository = fcmDeviceTokenRepository;
     }
 
-    public void sendPushNotification(String title, String body) throws Exception {
+    public void sendPushNotification(String title, String body, String channel, String type) throws Exception {
         // 전체 디바이스 토큰 조회
         List<String> tokens = fcmDeviceTokenRepository.findAll()
                 .stream()
@@ -38,6 +38,8 @@ public class FcmPushNotificationService {
         MulticastMessage message = MulticastMessage.builder()
                 .putData("title", title)
                 .putData("body", body)
+                .putData("channel", channel)
+                .putData("type", type)
                 .addAllTokens(tokens)
                 .build();
 
