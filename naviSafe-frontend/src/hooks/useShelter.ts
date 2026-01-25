@@ -45,6 +45,19 @@ export const useShelter = (initialId: number = 1) => {
         console.error("Shelter 데이터 로드 실패:", err);
         }
     };
+    
+    // 즉시 반환전용
+    const fetchShelterById = async (id: number): Promise<ShelterType | null> => {
+        try {
+            const res = await axios.get<ShelterType>(
+                `${import.meta.env.VITE_API_BASE_URL}/api/naviSafe/shelter/${id}`
+            );
+            return res.data;
+        } catch (err) {
+            console.error("Shelter 데이터 로드 실패:", err);
+            return null;
+        }
+    };
 
-    return { shelterType, handleShelterClick };
+    return { shelterType, handleShelterClick, fetchShelterById };
 };
