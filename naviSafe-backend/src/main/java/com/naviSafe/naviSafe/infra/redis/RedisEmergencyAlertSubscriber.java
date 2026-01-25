@@ -65,7 +65,8 @@ public class RedisEmergencyAlertSubscriber implements MessageListener {
          try {
                 String title = "긴급재난 알림";
                 String body = String.valueOf(emergencyAlertData.get("message"));
-                fcmPushNotificationService.sendPushNotification(title, body);
+                String type = String.valueOf(emergencyAlertData.get("type")); // 강수, 지진 등
+                fcmPushNotificationService.sendPushNotification(title, body, "EMERGENCY_ALERT", type);
 
             } catch (Exception e) {
                 log.error("FCM 전송 실패", e);
