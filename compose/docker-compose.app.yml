@@ -1,0 +1,40 @@
+services:
+  # subway-api:
+  #   build:
+  #     context: ../dataflow
+  #   container_name: transit
+  #   environment:
+  #     SEOUL_SUBWAY_ARRIVAL_API_KEY: ${SEOUL_SUBWAY_ARRIVAL_API_KEY}
+  #     SEOUL_TRANSIT_API_KEY: ${SEOUL_TRANSIT_API_KEY}
+  #   volumes:
+  #     - ../dataflow/app.py:/app/app.py       # 로컬 app.py → 컨테이너 /app/app.py
+  #   working_dir: /app
+  #   ports:
+  #     - "5000:5000"               # Flask API 외부 노출
+  #   command: python3 app.py
+  #   restart: unless-stopped
+
+  frontend:
+    build:
+      context: ../naviSafe-frontend
+      dockerfile: Dockerfile
+    container_name: frontend
+    ports:
+      - "5173:5173"
+    environment:
+      - NODE_ENV=development
+    volumes:
+      - ../naviSafe-frontend:/app
+      - /app/node_modules
+    command: npm run dev
+    depends_on:
+      - backend
+
+  backend:
+    build:
+      context: ../naviSafe-backend
+      dockerfile: Dockerfile
+    container_name: backend
+    ports:
+      - "8080:8080"
+    command: java -jar app.jar

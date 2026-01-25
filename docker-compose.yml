@@ -150,16 +150,16 @@ services:
     depends_on:
       - spark-master
 
-  jupyter:
-    image: jupyter/pyspark-notebook
-    container_name: spark-jupyter
-    ports:
-      - "8888:8888"
-    volumes:
-      - ./dataflow/notebooks:/home/jovyan/work
-    depends_on:
-      - spark-master
-      - spark-worker
+  # jupyter:
+  #   image: jupyter/pyspark-notebook
+  #   container_name: spark-jupyter
+  #   ports:
+  #     - "8888:8888"
+  #   volumes:
+  #     - ./dataflow/notebooks:/home/jovyan/work
+  #   depends_on:
+  #     - spark-master
+  #     - spark-worker
 
   redis:
     image: redis:7.2.0
@@ -171,15 +171,15 @@ services:
     #command: python3 redis.py
     restart: unless-stopped
 
-  redis-client:
-    image: python:3.11-slim
-    container_name: redis-client
-    depends_on:
-      - redis
-    volumes:
-      - ./dataflow/utils:/app/utils
-    working_dir: /app/utils
-    command: bash -c "pip install --no-cache-dir redis && python check_redis.py"
+  # redis-client:
+  #   image: python:3.11-slim
+  #   container_name: redis-client
+  #   depends_on:
+  #     - redis
+  #   volumes:
+  #     - ./dataflow/utils:/app/utils
+  #   working_dir: /app/utils
+  #   command: bash -c "pip install --no-cache-dir redis && python check_redis.py"
 
   mysql:
     image: mysql:8.0
@@ -362,32 +362,32 @@ services:
   #     - PYTHONPATH=/app
   #   restart: unless-stopped
   
-    prometheus:
-      image: prom/prometheus:latest
-      container_name: prometheus
-      volumes:
-        - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
-      command:
-        - "--config.file=/etc/prometheus/prometheus.yml"
-      ports:
-        - "9090:9090"
-      depends_on:
-        - kafka
-        - redis
-        - mysql
-        - airflow-webserver
-      restart: unless-stopped
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml # Prometheus 설정 파일 매핑
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+    ports:
+      - "9090:9090"
+    depends_on:
+      - kafka
+      - redis
+      - mysql
+      - airflow-webserver
+    restart: unless-stopped
 
-    grafana:
-      image: grafana/grafana:latest
-      container_name: grafana
-      ports:
-        - "3000:3000"
-      volumes:
-        - grafana_data:/var/lib/grafana
-      depends_on:
-        - prometheus
-      restart: unless-stopped
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana # Grafana 데이터 영속화
+    depends_on:
+      - prometheus
+    restart: unless-stopped
 
   redis-exporter:
     image: oliver006/redis_exporter
@@ -415,10 +415,10 @@ services:
 
   statsd-exporter:
     image: prom/statsd-exporter
-    container_name: statsd-exporter
+    container_name: statsd-exporter 
     ports:
-      - "9125:9125/udp"
-      - "9102:9102"
+      - "9125:9125/udp" # StatsD 수신 포트
+      - "9102:9102"   # Prometheus 메트릭 노출 포트
 
 
 volumes:
