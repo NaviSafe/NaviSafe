@@ -80,7 +80,7 @@ public class RedisAlertSubscriber implements MessageListener {
 
                 String body = bodyBuilder.toString();
 
-                fcmPushNotificationService.sendPushNotification(title, body);
+                fcmPushNotificationService.sendPushNotification(title, body, "OUTBREAK_OCCUR_ALERT", "");
 
             } catch (Exception e) {
                 log.error("FCM 전송 실패", e);
