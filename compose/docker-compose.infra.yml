@@ -1,0 +1,131 @@
+services:
+  zookeeper:
+    image: wurstmeister/zookeeper:latest
+    container_name: zookeeper
+    ports:
+      - "2181:2181"
+
+  kafka:
+    image: wurstmeister/kafka:latest
+    container_name: kafka
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      - zookeeper
+  
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    ports:
+      - "3307:3306"          # 로컬 3307 → 컨테이너 3306
+    env_file:
+      - ../dataflow/.env
+    # environment:
+    #   MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    #   MYSQL_DATABASE: ${MYSQL_DATABASE}
+    #   MYSQL_USER: ${MYSQL_USER}
+    #   MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    volumes:
+      - ../dataflow/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      retries: 5
+    #depends_on:
+      # - weather-consumer
+      # - traffic-consumer
+      # - subway-consumer
+    # volumes:
+    #   - ./mysql-data:/var/lib/mysql
+
+  redis:
+    image: redis:7.2.0
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - ../dataflow/utils:/app/utils
+    #command: python3 redis.py
+    restart: unless-stopped
+
+  redis-client:
+    image: python:3.11-slim
+    container_name: redis-client
+    depends_on:
+      - redis
+    volumes:
+      - ../dataflow/utils:/app/utils
+    working_dir: /app/utils
+    command: bash -c "pip install --no-cache-dir redis && python check_redis.py"
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    volumes:
+      - ../monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml # Prometheus 설정 파일 매핑
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+    ports:
+      - "9090:9090"
+    depends_on:
+      - kafka
+      - redis
+      - mysql
+      #- airflow-webserver
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana # Grafana 데이터 영속화
+    depends_on:
+      - prometheus
+    restart: unless-stopped
+
+  redis-exporter:
+    image: oliver006/redis_exporter
+    container_name: redis-exporter
+    command:
+      - "--redis.addr=redis://redis:6379"
+    ports:
+      - "9121:9121"
+    depends_on:
+      - redis
+    restart: unless-stopped
+
+  mysql-exporter:
+    image: prom/mysqld-exporter:latest
+    container_name: mysql-exporter
+    command:
+      - "--mysqld.username=exporter:userpass"
+      - "--mysqld.address=mysql:3306"
+    ports:
+      - "9104:9104"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    restart: always
+
+  statsd-exporter:
+    image: prom/statsd-exporter
+    container_name: statsd-exporter 
+    ports:
+      - "9125:9125/udp" # StatsD 수신 포트
+      - "9102:9102"   # Prometheus 메트릭 노출 포트
+
+volumes:
+  grafana_data:
+
+networks:
+  data-platform:
+    external: true

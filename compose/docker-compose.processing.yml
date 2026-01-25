@@ -1,0 +1,98 @@
+services:
+  producer:
+    build:
+      context: ../dataflow
+    container_name: producer
+    # environment:
+    #   API_KEY: ${API_KEY}
+    volumes:
+      - ../dataflow:/app/dataflow
+    environment:
+      - PYTHONPATH=/app/dataflow
+    working_dir: /app
+    command: sleep infinity
+
+  spark-master:
+    image: bitnami/spark:3.5.5
+    container_name: spark-master
+    environment:
+      - SPARK_MODE=master
+      - SPARK_RPC_AUTHENTICATION_ENABLED=no
+      - SPARK_RPC_ENCRYPTION_ENABLED=no
+      - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
+      - SPARK_SSL_ENABLED=no
+    ports:
+      - "8082:8080"   # Spark Web UI
+      - "7077:7077"   # Spark Master
+
+  spark-worker:
+    image: bitnami/spark:3.5.5
+    container_name: spark-worker
+    environment:
+      - SPARK_MODE=worker
+      - SPARK_MASTER_URL=spark://spark-master:7077
+    depends_on:
+      - spark-master
+
+  emergency-streaming:
+    image: jupyter/pyspark-notebook:latest
+    container_name: emergency-streaming
+    environment:
+      - PYTHONPATH=/app
+    volumes:
+      - ../dataflow/preprocessing:/app/preprocessing
+      - ../dataflow/utils:/app/utils
+    working_dir: /app/preprocessing
+    env_file:
+      - ../dataflow/.env
+    command: >
+      bash -c "
+      pip install --no-cache-dir pyspark==3.5.5 redis mysql-connector-python &&
+      python emergency_streaming.py
+      "
+    restart: unless-stopped
+
+  preprocessing:
+    image: jupyter/pyspark-notebook:latest
+    container_name: preprocessing
+    environment:
+      - PYTHONPATH=/app
+    volumes:
+      - ../dataflow/preprocessing:/app/preprocessing
+      - ../dataflow/utils:/app/utils
+    working_dir: /app/preprocessing
+    env_file:
+      - ../dataflow/.env
+    command: bash -c "pip install --no-cache-dir pyspark==3.5.5 redis mysql-connector-python && python outbreak_streaming.py"
+    restart: unless-stopped
+
+  weather-consumer:
+    build:
+      context: ../dataflow
+    container_name: weather-consumer
+    volumes:
+      - ../dataflow/consumers:/app/consumers
+    working_dir: /app/consumers
+    command: python3 weather_consumer.py
+
+  traffic-consumer:
+    build:
+      context: ../dataflow
+    container_name: traffic-consumer
+    volumes:
+      - ../dataflow/consumers:/app/consumers
+    working_dir: /app/consumers
+    command: python3 traffic_consumer.py
+
+  subway-consumer:
+    build:
+      context: ../dataflow
+    container_name: subway-consumer
+    volumes:
+      - ../dataflow/consumers:/app/consumers
+    working_dir: /app/consumers
+    command: python3 subway_consumer.py
+
+networks:
+  data-platform:
+    external: true
