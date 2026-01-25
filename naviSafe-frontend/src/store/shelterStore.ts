@@ -6,7 +6,7 @@ export type ShelterType = {
     shelterGpsList: ShelterGps[];
 }
 
-type ShelterGps = {
+export type ShelterGps = {
     shelterName: String;
     shelterAddress: String;
     lot: number;
