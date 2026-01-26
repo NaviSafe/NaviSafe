@@ -45,11 +45,8 @@ self.addEventListener("notificationclick", (event) => {
                 return client.focus();
             }
 
-            // 아예 열려 있는 페이지가 없으면 → 메인 페이지 오픈
-            const newClient = await self.clients.openWindow("/");
-            if (newClient) {
-                newClient.postMessage({ channel, pushType: type });
-            }
+            const url = `/?channel=${channel}&pushType=${type}`;
+            await self.clients.openWindow(url);
         })
     );
 });
