@@ -4,7 +4,9 @@ services:
     container_name: zookeeper
     ports:
       - "2181:2181"
-
+    networks:
+      - data-platform
+      
   kafka:
     image: wurstmeister/kafka:latest
     container_name: kafka
@@ -19,7 +21,9 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     depends_on:
       - zookeeper
-  
+    networks:
+      - data-platform
+
   mysql:
     image: mysql:8.0
     container_name: mysql
@@ -38,6 +42,8 @@ services:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 5s
       retries: 5
+    networks:
+      - data-platform
     #depends_on:
       # - weather-consumer
       # - traffic-consumer
@@ -54,6 +60,8 @@ services:
       - ../dataflow/utils:/app/utils
     #command: python3 redis.py
     restart: unless-stopped
+    networks:
+      - data-platform
 
   redis-client:
     image: python:3.11-slim
@@ -64,6 +72,8 @@ services:
       - ../dataflow/utils:/app/utils
     working_dir: /app/utils
     command: bash -c "pip install --no-cache-dir redis && python check_redis.py"
+    networks:
+      - data-platform
 
   prometheus:
     image: prom/prometheus:latest
@@ -80,6 +90,8 @@ services:
       - mysql
       #- airflow-webserver
     restart: unless-stopped
+    networks:
+      - data-platform
 
   grafana:
     image: grafana/grafana:latest
@@ -91,6 +103,8 @@ services:
     depends_on:
       - prometheus
     restart: unless-stopped
+    networks:
+      - data-platform
 
   redis-exporter:
     image: oliver006/redis_exporter
@@ -102,12 +116,14 @@ services:
     depends_on:
       - redis
     restart: unless-stopped
+    networks:
+      - data-platform
 
   mysql-exporter:
     image: prom/mysqld-exporter:latest
     container_name: mysql-exporter
     command:
-      - "--mysqld.username=exporter:userpass"
+      - "--mysqld.username=exporter:exporterpass"
       - "--mysqld.address=mysql:3306"
     ports:
       - "9104:9104"
@@ -115,14 +131,20 @@ services:
       mysql:
         condition: service_healthy
     restart: always
+    networks:
+      - data-platform
 
   statsd-exporter:
     image: prom/statsd-exporter
     container_name: statsd-exporter 
     ports:
-      - "9125:9125/udp" # StatsD 수신 포트
+      - "8125:8125/udp" # StatsD 수신 포트
       - "9102:9102"   # Prometheus 메트릭 노출 포트
-
+    command:
+      - "--statsd.listen-udp=:8125"
+    networks:
+      - data-platform
+      
 volumes:
   grafana_data:
 

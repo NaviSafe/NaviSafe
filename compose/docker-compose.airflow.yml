@@ -16,7 +16,9 @@ services:
       - ../dataflow/airflow/plugins:/opt/airflow/plugins
       - ../dataflow:/opt/airflow/dataflow
       - ../dataflow/preprocessing:/app/preprocessing
-
+    networks:
+      - data-platform
+      
   airflow-scheduler:
     build:
       context: ../dataflow
@@ -31,7 +33,7 @@ services:
       AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: 'mysql+pymysql://user:userpass@mysql:3306/airflow_db'
       AIRFLOW__METRICS__STATSD_ON: "True"
       AIRFLOW__METRICS__STATSD_HOST: "statsd-exporter"  
-      AIRFLOW__METRICS__STATSD_PORT: "9125"
+      AIRFLOW__METRICS__STATSD_PORT: "8125"
       AIRFLOW__METRICS__STATSD_PREFIX: "airflow"
       PYTHONPATH : /opt/airflow/dataflow
     volumes:
@@ -52,6 +54,8 @@ services:
     #entrypoint: ["/wait-for-it.sh", "mysql", "3306", "--"]
     command: >
       bash -c "airflow scheduler"
+    networks:
+      - data-platform
   
   airflow-webserver:
     build:
@@ -66,7 +70,7 @@ services:
       AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: 'mysql+pymysql://user:userpass@mysql:3306/airflow_db'
       AIRFLOW__METRICS__STATSD_ON: "True"
       AIRFLOW__METRICS__STATSD_HOST: "statsd-exporter"
-      AIRFLOW__METRICS__STATSD_PORT: "9125"
+      AIRFLOW__METRICS__STATSD_PORT: "8125"
       AIRFLOW__METRICS__STATSD_PREFIX: "airflow"
       AIRFLOW__WEBSERVER__RBAC: 'true'
       PYTHONPATH : /opt/airflow/dataflow
@@ -86,7 +90,9 @@ services:
     #entrypoint: ["/wait-for-it.sh", "mysql", "3306", "--"]
     command: >
       bash -c "airflow webserver"
-
+    networks:
+      - data-platform
+      
 networks:
   data-platform:
     external: true

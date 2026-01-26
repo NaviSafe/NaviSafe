@@ -11,7 +11,9 @@ services:
       - PYTHONPATH=/app/dataflow
     working_dir: /app
     command: sleep infinity
-
+    networks:
+      - data-platform
+      
   spark-master:
     image: bitnami/spark:3.5.5
     container_name: spark-master
@@ -24,6 +26,8 @@ services:
     ports:
       - "8082:8080"   # Spark Web UI
       - "7077:7077"   # Spark Master
+    networks:
+      - data-platform
 
   spark-worker:
     image: bitnami/spark:3.5.5
@@ -33,6 +37,8 @@ services:
       - SPARK_MASTER_URL=spark://spark-master:7077
     depends_on:
       - spark-master
+    networks:
+      - data-platform
 
   emergency-streaming:
     image: jupyter/pyspark-notebook:latest
@@ -51,6 +57,8 @@ services:
       python emergency_streaming.py
       "
     restart: unless-stopped
+    networks:
+      - data-platform
 
   preprocessing:
     image: jupyter/pyspark-notebook:latest
@@ -65,6 +73,8 @@ services:
       - ../dataflow/.env
     command: bash -c "pip install --no-cache-dir pyspark==3.5.5 redis mysql-connector-python && python outbreak_streaming.py"
     restart: unless-stopped
+    networks:
+      - data-platform
 
   weather-consumer:
     build:
@@ -74,6 +84,8 @@ services:
       - ../dataflow/consumers:/app/consumers
     working_dir: /app/consumers
     command: python3 weather_consumer.py
+    networks:
+      - data-platform
 
   traffic-consumer:
     build:
@@ -83,6 +95,8 @@ services:
       - ../dataflow/consumers:/app/consumers
     working_dir: /app/consumers
     command: python3 traffic_consumer.py
+    networks:
+      - data-platform
 
   subway-consumer:
     build:
@@ -92,6 +106,8 @@ services:
       - ../dataflow/consumers:/app/consumers
     working_dir: /app/consumers
     command: python3 subway_consumer.py
+    networks:
+      - data-platform
 
 networks:
   data-platform:
