@@ -15,7 +15,7 @@ services:
       - data-platform
       
   spark-master:
-    image: bitnami/spark:3.5.5
+    image: spark:latest
     container_name: spark-master
     environment:
       - SPARK_MODE=master
@@ -30,7 +30,7 @@ services:
       - data-platform
 
   spark-worker:
-    image: bitnami/spark:3.5.5
+    image: spark:latest
     container_name: spark-worker
     environment:
       - SPARK_MODE=worker
