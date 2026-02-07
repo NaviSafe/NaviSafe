@@ -45,49 +45,27 @@ services:
   #   networks:
   #     - data-platform
 
-  frontend-1:
+  frontend:
     build:
       context: ../naviSafe-frontend
       dockerfile: Dockerfile
-    container_name: frontend-1
-    expose:
-      - "80"
-    networks:
-      - data-platform
+    container_name: frontend
+    ports:
+      - "5173:5173"
+    environment:
+      - NODE_ENV=development
+    volumes:
+      - ../naviSafe-frontend:/app
+      - /app/node_modules
+    command: npm run dev
+    depends_on:
+      - backend
 
-  frontend-2:
-    build:
-      context: ../naviSafe-frontend
-      dockerfile: Dockerfile
-    container_name: frontend-2
-    expose:
-      - "80"
-    networks:
-      - data-platform
-        
-  backend-1:
+  backend:
     build:
       context: ../naviSafe-backend
       dockerfile: Dockerfile
-    container_name: backend-1
-    expose:
-      - "8080"
+    container_name: backend
+    ports:
+      - "8080:8080"
     command: java -jar app.jar
-    networks:
-      - data-platform
-
-  backend-2:
-    build:
-      context: ../naviSafe-backend
-      dockerfile: Dockerfile
-    container_name: backend-2
-    expose:
-      - "8080"
-    command: java -jar app.jar
-    networks:
-      - data-platform
-
-
-networks:
-  data-platform:
-    external: true
