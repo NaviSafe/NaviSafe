@@ -1,1 +1,3 @@
 naviSafe-backend/src/main/resources/application.properties
+__pycache__/
+*.pyc
