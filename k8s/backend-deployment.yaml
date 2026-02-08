@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: navisafe-backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: navisafe-backend
+  template:
+    metadata:
+      labels:
+        app: navisafe-backend
+    spec:
+      containers:
+        - name: backend
+          image: navisafe-backend:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8080
