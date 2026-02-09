@@ -42,8 +42,6 @@ services:
   #   command: npm run dev
   #   depends_on:
   #     - nginx
-  #   networks:
-  #     - data-platform
 
   frontend:
     build:
@@ -60,6 +58,8 @@ services:
     command: npm run dev
     depends_on:
       - backend
+    networks:
+      - data-platform
 
   backend:
     build:
@@ -69,3 +69,9 @@ services:
     ports:
       - "8080:8080"
     command: java -jar app.jar
+    networks:
+      - data-platform
+
+networks:
+  data-platform:
+    external: true
