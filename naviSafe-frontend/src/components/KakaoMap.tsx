@@ -81,8 +81,8 @@ export const KakaoMap = () => {
         }
 
         const imageSize = new window.kakao.maps.Size(35,35);
-        const outboundOccurMarkerSrc = 'public/outboundOccur.png';
-        const shelterMarkerSrc = 'public/shelterIcon.png';
+        const outboundOccurMarkerSrc = '/outboundOccur.png';
+        const shelterMarkerSrc = '/shelterIcon.png';
 
         const outboundOccurMarkerImage = new window.kakao.maps.MarkerImage(outboundOccurMarkerSrc , imageSize);
         const shelterMarkerImage = new window.kakao.maps.MarkerImage(shelterMarkerSrc , imageSize);
@@ -269,7 +269,7 @@ export const KakaoMap = () => {
         }
 
         // 내 위치 마커 이미지
-        const imageSrc = "public/myLocation.png";
+        const imageSrc = "/myLocation.png";
         const imageSize = new window.kakao.maps.Size(25, 25);
 
         const markerImage = new window.kakao.maps.MarkerImage(imageSrc, imageSize);
