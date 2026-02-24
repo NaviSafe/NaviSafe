@@ -1,0 +1,39 @@
+apiVersion: sparkoperator.k8s.io/v1beta2
+kind: SparkApplication
+metadata:
+  name: emergency-alert-streaming
+  namespace: default
+
+spec:
+  type: Python
+  pythonVersion: "3"
+  mode: cluster
+  sparkVersion: 3.5.1
+
+  image: navisafe-streaming:v13
+  imagePullPolicy: Never
+
+  mainApplicationFile: local:///app/emergency_streaming.py
+
+  deps:
+    packages:
+      - org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.1
+
+  sparkConf:
+    spark.pyspark.python: python3
+    spark.pyspark.driver.python: python3
+    spark.sql.shuffle.partitions: "2"
+    spark.jars.ivy: /tmp/.ivy
+
+  restartPolicy:
+    type: Never
+
+  driver:
+    cores: 1
+    memory: 1g
+    serviceAccount: spark
+
+  executor:
+    instances: 2
+    cores: 2
+    memory: 1g

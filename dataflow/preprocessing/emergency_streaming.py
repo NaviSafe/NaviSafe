@@ -71,7 +71,7 @@ def run_emergency_alert_streaming():
     df_stream = (
         spark.readStream
         .format("kafka")
-        .option("kafka.bootstrap.servers", "kafka:9092")
+        .option("kafka.bootstrap.servers", "kafka-svc:9092")
         .option("subscribe", "emergency_alert_topic")
         .option("startingOffsets", "latest")
         .load()

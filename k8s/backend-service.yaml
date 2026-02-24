@@ -1,10 +1,10 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: navisafe-backend-svc
+  name: backend
 spec:
   selector:
-    app: navisafe-backend
+    app: backend
   ports:
     - port: 8080
       targetPort: 8080

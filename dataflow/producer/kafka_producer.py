@@ -15,7 +15,7 @@ import math
 1077:신분당선, 1092:우이신설선, 1032:GTX-A)
 '''
 
-load_dotenv()
+#load_dotenv()
 
 # -----------------------------
 # 환경 변수 로드
@@ -31,7 +31,7 @@ EMERGENCY_ALERT_API_KEY = os.getenv("EMERGENCY_ALERT_API_KEY")
 api_list = [
     {'name': 'AccInfo', 'key': OUTBREAK_KEY, 'response_type': 'xml'},
     {'name': 'RegionInfo', 'key': REG_CODE, 'response_type': 'xml'},
-    {'name': 'realtimePosition', 'key': SEOUL_SUBWAY_POSITION_API_KEY, 'response_type': 'xml'},
+    #{'name': 'realtimePosition', 'key': SEOUL_SUBWAY_POSITION_API_KEY, 'response_type': 'xml'},
     {'name': 'emergencyAlert', 'key': EMERGENCY_ALERT_API_KEY, 'response_type': 'json'}
 ]
 
@@ -47,7 +47,7 @@ lines = [
 topic_mapping = {
     'AccInfo': 'outbreak_topic',
     'RegionInfo': 'realtime_trafficInfo',
-    'realtimePosition': 'subway_position_topic',
+    # 'realtimePosition': 'subway_position_topic',
     'emergencyAlert': 'emergency_alert_topic'
 }
 
@@ -78,7 +78,7 @@ def run_kafka_producer():
     try:
         log.info("[SYSTEM] Kafka 연결 시도 중...")
         producer = KafkaProducer(
-            bootstrap_servers='kafka:9092',
+            bootstrap_servers='kafka-svc:9092',
             value_serializer=lambda v: json.dumps(v).encode('utf-8')
         )
         log.info("[SYSTEM] Kafka 연결 성공!")
@@ -191,3 +191,10 @@ def run_kafka_producer():
     # -----------------------------
     log.info("[SYSTEM] Kafka Producer 작업 완료 후 종료.")
     producer.close()
+
+
+##airflow에서 직접 실행할 때는 아래 코드를 사용하지 않음 (Airflow PythonOperator에서 run_kafka_producer() 호출)
+if __name__ == "__main__":
+    while True:
+        run_kafka_producer()
+        time.sleep(3)
