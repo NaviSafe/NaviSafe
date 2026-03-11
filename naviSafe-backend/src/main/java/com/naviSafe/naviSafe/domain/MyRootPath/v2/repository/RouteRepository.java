@@ -1,6 +1,6 @@
 package com.naviSafe.naviSafe.domain.MyRootPath.v2.repository;
 
-import com.naviSafe.naviSafe.domain.MyRootPath.v1.service.Point;
+import com.naviSafe.naviSafe.domain.MyRootPath.v2.dto.Point;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
