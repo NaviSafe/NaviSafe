@@ -1,4 +1,4 @@
-package com.naviSafe.naviSafe.domain.MyRootPath.external.tmap;
+package com.naviSafe.naviSafe.domain.MyRootPath.v1.external.tmap;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;

@@ -1,10 +1,10 @@
-package com.naviSafe.naviSafe.domain.MyRootPath.service;
+package com.naviSafe.naviSafe.domain.MyRootPath.v1.service;
 
-import com.naviSafe.naviSafe.domain.MyRootPath.Utils.TmapRequestUtil;
-import com.naviSafe.naviSafe.domain.MyRootPath.Utils.TmapRouteExtractor;
-import com.naviSafe.naviSafe.domain.MyRootPath.external.tmap.TmapApiClient;
-import com.naviSafe.naviSafe.domain.MyRootPath.external.tmap.dto.TmapRouteRequest;
-import com.naviSafe.naviSafe.domain.MyRootPath.external.tmap.dto.TmapRouteResponse;
+import com.naviSafe.naviSafe.domain.MyRootPath.v1.Utils.TmapRequestUtil;
+import com.naviSafe.naviSafe.domain.MyRootPath.v1.Utils.TmapRouteExtractor;
+import com.naviSafe.naviSafe.domain.MyRootPath.v1.external.tmap.TmapApiClient;
+import com.naviSafe.naviSafe.domain.MyRootPath.v1.external.tmap.dto.TmapRouteRequest;
+import com.naviSafe.naviSafe.domain.MyRootPath.v1.external.tmap.dto.TmapRouteResponse;
 import com.naviSafe.naviSafe.domain.outbreakOccur.entity.OutbreakOccur;
 import com.naviSafe.naviSafe.domain.outbreakOccur.service.OutbreakService;
 import lombok.RequiredArgsConstructor;

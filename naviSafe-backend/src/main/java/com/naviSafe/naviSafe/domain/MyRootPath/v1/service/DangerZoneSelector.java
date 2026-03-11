@@ -1,4 +1,4 @@
-package com.naviSafe.naviSafe.domain.MyRootPath.service;
+package com.naviSafe.naviSafe.domain.MyRootPath.v1.service;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import java.util.Comparator;
 import java.util.List;
 
-import static com.naviSafe.naviSafe.domain.MyRootPath.service.GeoCalculator.distance;
+import static com.naviSafe.naviSafe.domain.MyRootPath.v1.service.GeoCalculator.distance;
 
 
 @Component

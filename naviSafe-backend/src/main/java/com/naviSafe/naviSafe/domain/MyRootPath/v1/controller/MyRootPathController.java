@@ -1,8 +1,8 @@
-package com.naviSafe.naviSafe.domain.MyRootPath.controller;
+package com.naviSafe.naviSafe.domain.MyRootPath.v1.controller;
 
-import com.naviSafe.naviSafe.domain.MyRootPath.dto.StartEndCoordRequestDto;
-import com.naviSafe.naviSafe.domain.MyRootPath.service.MyRootPathService;
-import com.naviSafe.naviSafe.domain.MyRootPath.service.Point;
+import com.naviSafe.naviSafe.domain.MyRootPath.v1.dto.StartEndCoordRequestDto;
+import com.naviSafe.naviSafe.domain.MyRootPath.v1.service.MyRootPathService;
+import com.naviSafe.naviSafe.domain.MyRootPath.v1.service.Point;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

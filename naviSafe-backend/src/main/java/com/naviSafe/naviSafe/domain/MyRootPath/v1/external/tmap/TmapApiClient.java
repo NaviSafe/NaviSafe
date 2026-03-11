@@ -1,7 +1,7 @@
-package com.naviSafe.naviSafe.domain.MyRootPath.external.tmap;
+package com.naviSafe.naviSafe.domain.MyRootPath.v1.external.tmap;
 
-import com.naviSafe.naviSafe.domain.MyRootPath.external.tmap.dto.TmapRouteRequest;
-import com.naviSafe.naviSafe.domain.MyRootPath.external.tmap.dto.TmapRouteResponse;
+import com.naviSafe.naviSafe.domain.MyRootPath.v1.external.tmap.dto.TmapRouteRequest;
+import com.naviSafe.naviSafe.domain.MyRootPath.v1.external.tmap.dto.TmapRouteResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;

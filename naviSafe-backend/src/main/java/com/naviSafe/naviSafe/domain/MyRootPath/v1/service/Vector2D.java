@@ -1,4 +1,4 @@
-package com.naviSafe.naviSafe.domain.MyRootPath.service;
+package com.naviSafe.naviSafe.domain.MyRootPath.v1.service;
 
 public record Vector2D(double x, double y) {
 

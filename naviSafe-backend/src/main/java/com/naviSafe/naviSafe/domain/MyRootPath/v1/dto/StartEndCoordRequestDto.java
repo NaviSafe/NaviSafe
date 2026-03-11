@@ -1,4 +1,4 @@
-package com.naviSafe.naviSafe.domain.MyRootPath.dto;
+package com.naviSafe.naviSafe.domain.MyRootPath.v1.dto;
 
 import lombok.Getter;
 

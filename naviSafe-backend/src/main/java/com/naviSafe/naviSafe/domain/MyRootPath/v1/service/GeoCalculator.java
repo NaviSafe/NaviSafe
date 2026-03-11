@@ -1,4 +1,4 @@
-package com.naviSafe.naviSafe.domain.MyRootPath.service;
+package com.naviSafe.naviSafe.domain.MyRootPath.v1.service;
 
 public class GeoCalculator {
 
