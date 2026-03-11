@@ -2,14 +2,13 @@ package com.naviSafe.naviSafe.domain.MyRootPath.external.tmap;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.naviSafe.naviSafe.domain.MyRootPath.external.tmap.dto.TmapRouteRequest;
-import com.naviSafe.naviSafe.domain.MyRootPath.external.tmap.dto.TmapRouteResponse;
+import com.naviSafe.naviSafe.domain.MyRootPath.v1.external.tmap.TmapApiClient;
+import com.naviSafe.naviSafe.domain.MyRootPath.v1.external.tmap.dto.TmapRouteRequest;
+import com.naviSafe.naviSafe.domain.MyRootPath.v1.external.tmap.dto.TmapRouteResponse;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 

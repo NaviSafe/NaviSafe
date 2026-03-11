@@ -1,4 +1,4 @@
-package com.naviSafe.naviSafe.domain.MyRootPath.external.tmap.dto;
+package com.naviSafe.naviSafe.domain.MyRootPath.v1.external.tmap.dto;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

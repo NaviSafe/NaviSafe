@@ -1,4 +1,4 @@
-package com.naviSafe.naviSafe.domain.MyRootPath.external.tmap.dto.geometry;
+package com.naviSafe.naviSafe.domain.MyRootPath.v1.external.tmap.dto.geometry;
 
 import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;

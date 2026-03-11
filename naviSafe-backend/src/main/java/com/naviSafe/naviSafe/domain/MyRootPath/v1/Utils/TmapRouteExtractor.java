@@ -1,10 +1,10 @@
-package com.naviSafe.naviSafe.domain.MyRootPath.Utils;
+package com.naviSafe.naviSafe.domain.MyRootPath.v1.Utils;
 
-import com.naviSafe.naviSafe.domain.MyRootPath.external.tmap.dto.TmapFeature;
-import com.naviSafe.naviSafe.domain.MyRootPath.external.tmap.dto.TmapRouteResponse;
-import com.naviSafe.naviSafe.domain.MyRootPath.external.tmap.dto.geometry.TmapLineStringGeometry;
-import com.naviSafe.naviSafe.domain.MyRootPath.external.tmap.dto.geometry.TmapPointGeometry;
-import com.naviSafe.naviSafe.domain.MyRootPath.service.Point;
+import com.naviSafe.naviSafe.domain.MyRootPath.v1.external.tmap.dto.TmapFeature;
+import com.naviSafe.naviSafe.domain.MyRootPath.v1.external.tmap.dto.TmapRouteResponse;
+import com.naviSafe.naviSafe.domain.MyRootPath.v1.external.tmap.dto.geometry.TmapLineStringGeometry;
+import com.naviSafe.naviSafe.domain.MyRootPath.v1.external.tmap.dto.geometry.TmapPointGeometry;
+import com.naviSafe.naviSafe.domain.MyRootPath.v1.service.Point;
 
 import java.util.ArrayList;
 import java.util.List;

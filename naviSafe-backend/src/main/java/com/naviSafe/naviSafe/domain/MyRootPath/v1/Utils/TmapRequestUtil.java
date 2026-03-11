@@ -1,6 +1,6 @@
-package com.naviSafe.naviSafe.domain.MyRootPath.Utils;
+package com.naviSafe.naviSafe.domain.MyRootPath.v1.Utils;
 
-import com.naviSafe.naviSafe.domain.MyRootPath.service.Point;
+import com.naviSafe.naviSafe.domain.MyRootPath.v1.service.Point;
 
 import java.util.List;
 import java.util.stream.Collectors;

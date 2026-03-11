@@ -1,8 +1,8 @@
-package com.naviSafe.naviSafe.domain.MyRootPath.external.tmap.dto;
+package com.naviSafe.naviSafe.domain.MyRootPath.v1.external.tmap.dto;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.naviSafe.naviSafe.domain.MyRootPath.external.tmap.dto.geometry.TmapGeometry;
-import com.naviSafe.naviSafe.domain.MyRootPath.external.tmap.dto.geometry.TmapGeometryDeserializer;
+import com.naviSafe.naviSafe.domain.MyRootPath.v1.external.tmap.dto.geometry.TmapGeometry;
+import com.naviSafe.naviSafe.domain.MyRootPath.v1.external.tmap.dto.geometry.TmapGeometryDeserializer;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
