@@ -1,15 +1,23 @@
 package com.naviSafe.naviSafe.domain.MyRootPath.v2.repository;
 
 import com.naviSafe.naviSafe.domain.MyRootPath.v2.dto.Point;
+import com.naviSafe.naviSafe.domain.MyRootPath.v2.dto.RouteEdge;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
+import org.geolatte.geom.LineString;
+import org.geolatte.geom.MultiLineString;
+import org.geolatte.geom.Position;
+import org.geolatte.geom.PositionSequence;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.IntStream;
+import java.util.stream.StreamSupport;
 
 @Repository
 public class RouteRepository {
@@ -118,8 +126,11 @@ public class RouteRepository {
                 )
             )
             SELECT
-                ST_X(ST_StartPoint(e.geom)) AS lon,
-                ST_Y(ST_StartPoint(e.geom)) AS lat
+                ar.seq,
+                ar.edge,
+                e.geom,
+                ar.cost,
+                ar.agg_cost
             FROM astar_result ar
             JOIN edge e ON e.id = ar.edge
             WHERE ar.edge <> -1
@@ -133,13 +144,31 @@ public class RouteRepository {
 
         @SuppressWarnings("unchecked")
         List<Object[]> results = query.getResultList();
+
+        List<RouteEdge> routeEdges = results.stream()
+                .map(r -> new RouteEdge(
+                        ((Number) r[0]).intValue(),
+                        ((Number) r[1]).longValue(),
+                        (MultiLineString<Position>) r[2],
+                        ((Number) r[3]).doubleValue(),
+                        ((Number) r[4]).doubleValue()
+                ))
+                .toList();
+
         logger.info("A star 경로 조회 완료");
 
-        return results.stream()
-                .map(r -> new Point(
-                        ((Number) r[1]).doubleValue(), // lat
-                        ((Number) r[0]).doubleValue()  // lon
-                ))
+        // 3️⃣ 최종 반환
+        return routeEdges.stream()
+                .flatMap(edge -> {
+                    MultiLineString<Position> multi = edge.geom();
+                    return IntStream.range(0, multi.getNumGeometries())
+                            .mapToObj(i -> (LineString<Position>) multi.getGeometryN(i));
+                })
+                .flatMap(line -> {
+                    PositionSequence<Position> seq = line.getPositions();
+                    return StreamSupport.stream(seq.spliterator(), false);
+                })
+                .map(p -> new Point(p.getCoordinate(1), p.getCoordinate(0)))
                 .toList();
     }
 }
