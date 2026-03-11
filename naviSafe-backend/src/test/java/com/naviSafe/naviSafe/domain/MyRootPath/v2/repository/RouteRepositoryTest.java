@@ -1,10 +1,11 @@
 package com.naviSafe.naviSafe.domain.MyRootPath.v2.repository;
 
 import com.naviSafe.naviSafe.domain.MyRootPath.v1.service.DangerZoneSelector;
-import com.naviSafe.naviSafe.domain.MyRootPath.v1.service.Point;
+import com.naviSafe.naviSafe.domain.MyRootPath.v2.dto.Point;
+import com.naviSafe.naviSafe.domain.MyRootPath.v2.utils.GeoCoordinateConverter;
 import com.naviSafe.naviSafe.domain.outbreakOccur.entity.OutbreakOccur;
 import com.naviSafe.naviSafe.domain.outbreakOccur.service.OutbreakService;
-import com.naviSafe.naviSafe.domain.MyRootPath.v1.service.GeoCoordinateConverter;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
