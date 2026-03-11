@@ -4,6 +4,8 @@ import com.naviSafe.naviSafe.domain.MyRootPath.v1.service.Point;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,6 +17,8 @@ public class RouteRepository {
     @PersistenceContext(unitName = "postgresEntityManager")
     private EntityManager em;
 
+    Logger logger = LoggerFactory.getLogger(RouteRepository.class);
+
     @Transactional(transactionManager = "postgresTransactionManager")
     public List<Point> findRoute(
             double startLon,
@@ -24,19 +28,18 @@ public class RouteRepository {
             List<Point> accidentPoints
     ) {
 
-        System.out.println("=== findRoute 시작 ===");
-        System.out.println("사고 좌표 개수: " + accidentPoints.size());
+        logger.info("실시간 돌발상황 갯수:  {}", accidentPoints.size());
 
-        // 1️⃣ 임시 테이블 생성
+        // 임시 테이블 생성
         String createAccidentTable = """
             CREATE TEMP TABLE accident_points (
                 geom geometry(POINT, 4326)
             ) ON COMMIT DROP
         """;
         em.createNativeQuery(createAccidentTable).executeUpdate();
-        System.out.println("임시 사고 테이블 생성 완료");
+        logger.info("임시 사고 테이블 생성 완료");
 
-        // 2️⃣ 배치 insert
+        // 배치 insert
         for (Point p : accidentPoints) {
             String insertSql = "INSERT INTO accident_points (geom) VALUES (ST_SetSRID(ST_MakePoint(:lon, :lat), 4326))";
             em.createNativeQuery(insertSql)
@@ -44,12 +47,12 @@ public class RouteRepository {
                     .setParameter("lat", p.lat())
                     .executeUpdate();
         }
-        System.out.println("사고 좌표 insert 완료");
+        logger.info("사고 좌표 insert 완료");
 
         String createIndex = "CREATE INDEX idx_accident_geom ON accident_points USING GIST(geom)";
         em.createNativeQuery(createIndex).executeUpdate();
 
-        // 3️⃣ edge 임시 테이블 생성
+        // edge 임시 테이블 생성
         String createTempEdge = """
             CREATE TEMP TABLE edge
             ON COMMIT DROP
@@ -58,7 +61,7 @@ public class RouteRepository {
             FROM edge_base
         """;
         em.createNativeQuery(createTempEdge).executeUpdate();
-        System.out.println("Edge 임시 테이블 생성 완료");
+        logger.info("Edge 임시 테이블 생성 완료");
 
         // edge 업데이트 (BBOX + 정확 거리)
         String updateAccidentCost = """
@@ -69,9 +72,9 @@ public class RouteRepository {
               AND ST_DWithin(e.geom, ap.geom, 0.0005)   -- 실제 거리 계산
         """;
         em.createNativeQuery(updateAccidentCost).executeUpdate();
-        System.out.println("사고 비용 업데이트 완료");
+        logger.info("BBOX 기반 돌발상황 발생 노드 cost 업데이트 완료");
 
-        // 5️⃣ 회전 제한 업데이트
+        // 회전 제한 업데이트
         String updateTurnRestriction = """
             UPDATE edge e
             SET cost = -1
@@ -83,9 +86,9 @@ public class RouteRepository {
               AND ti.turn_type = '011'
         """;
         em.createNativeQuery(updateTurnRestriction).executeUpdate();
-        System.out.println("회전 제한 업데이트 완료");
+        logger.info("U-TURN 노드 cost 업데이트 완료");
 
-        // 6️⃣ A* 경로 조회
+        // A* 경로 조회
         String routeSql = """
             WITH start_node AS (
                 SELECT node_id AS id
@@ -130,6 +133,7 @@ public class RouteRepository {
 
         @SuppressWarnings("unchecked")
         List<Object[]> results = query.getResultList();
+        logger.info("A star 경로 조회 완료");
 
         return results.stream()
                 .map(r -> new Point(
