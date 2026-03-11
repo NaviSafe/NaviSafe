@@ -129,7 +129,7 @@ export const SrcAndDestination = () => {
 
         try {
             const res = await axios.post(
-            `${import.meta.env.VITE_API_BASE_URL}/api/naviSafe/myRootPath`,
+            `${import.meta.env.VITE_API_BASE_URL}/api/naviSafe/myRootPath_v2`,
             {
                 fromLongitude: sourceAddress.longitude,
                 fromLatitude: sourceAddress.latitude,
