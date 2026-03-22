@@ -33,6 +33,9 @@ spec:
           ports:
             - containerPort: 9092
           env:
+            - name: KAFKA_BROKER_ID
+              value: "0"
+              
             - name: KAFKA_ZOOKEEPER_CONNECT
               value: "zookeeper:2181"
 
@@ -40,10 +43,10 @@ spec:
               value: PLAINTEXT://:9092
 
             - name: KAFKA_ADVERTISED_LISTENERS
-              value: PLAINTEXT://kafka-0.kafka-svc:9092
+              value: PLAINTEXT://kafka-svc:9092
 
             - name: KAFKA_ADVERTISED_HOST_NAME
-              value: kafka-0.kafka-svc
+              value: kafka-svc
 
             - name: KAFKA_LISTENER_SECURITY_PROTOCOL_MAP
               value: PLAINTEXT:PLAINTEXT

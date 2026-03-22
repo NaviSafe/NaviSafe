@@ -1,0 +1,31 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: airflow-init
+  namespace: airflow
+spec:
+  template:
+    spec:
+      serviceAccountName: airflow
+      restartPolicy: Never
+      containers:
+        - name: airflow-init
+          image: navisafe-airflow:latest
+          imagePullPolicy: Never
+          env:
+            - name: AIRFLOW__CORE__EXECUTOR
+              value: KubernetesExecutor
+            - name: AIRFLOW__DATABASE__SQL_ALCHEMY_CONN
+              value: mysql+pymysql://user:userpass@mysql.default:3306/airflow_db
+          command:
+            - bash
+            - -c
+            - >
+              airflow db migrate &&
+              airflow users create
+              --username admin
+              --firstname Admin
+              --lastname User
+              --role Admin
+              --email dndjeh12@naver.com
+              --password admin

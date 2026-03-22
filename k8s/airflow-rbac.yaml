@@ -1,0 +1,78 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: airflow
+  namespace: airflow
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: airflow-role
+rules:
+
+# pod lifecycle
+- apiGroups: [""]
+  resources:
+    - pods
+    - pods/log
+    - pods/status
+  verbs:
+    - get
+    - list
+    - watch
+    - create
+    - delete
+    - patch
+
+# services 조회
+- apiGroups: [""]
+  resources:
+    - services
+  verbs:
+    - get
+    - list
+
+# configmap 접근 (airflow executor가 사용)
+- apiGroups: [""]
+  resources:
+    - configmaps
+  verbs:
+    - get
+    - list
+    - watch
+
+# event 기록
+- apiGroups: [""]
+  resources:
+    - events
+  verbs:
+    - create
+    - patch
+
+# batch job
+- apiGroups: ["batch"]
+  resources:
+    - jobs
+  verbs:
+    - get
+    - list
+    - watch
+    - create
+    - delete
+    - patch
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: airflow-rolebinding
+subjects:
+- kind: ServiceAccount
+  name: airflow
+  namespace: airflow
+
+roleRef:
+  kind: ClusterRole
+  name: airflow-role
+  apiGroup: rbac.authorization.k8s.io
