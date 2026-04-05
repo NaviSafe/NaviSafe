@@ -14,8 +14,17 @@ export const SrcAndDestination = () => {
 
     const [activeType, setActiveType] = useState<ActiveType>(null);
     const [inputText, setInputText] = useState("");
+    const [debouncedText, setDebouncedText] = useState("");
     const [addressList, setAddressList] = useState<any[]>([]);
     const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setDebouncedText(inputText);
+        }, 400); // 400ms 후 실행
+    
+        return () => clearTimeout(timer); // 이전 타이머 취소
+    }, [inputText]);
 
     useEffect(() => {
         if (inputText.length < 2) {
@@ -27,16 +36,10 @@ export const SrcAndDestination = () => {
         try {
             setLoading(true);
             const res = await axios.get(
-            `https://business.juso.go.kr/addrlink/addrLinkApi.do`,
-            {
-                params: {
-                currentPage: 1,
-                countPerPage: 10,
-                keyword: inputText,
-                resultType: "json",
-                confmKey: `${import.meta.env.VITE_SEARCH_ADDRESS_API_KEY}`,
-                },
-            }
+                `${import.meta.env.VITE_API_BASE_URL}/api/address/search-juso`,
+                {
+                    params: { keyword : inputText },
+                }
             );
 
             setAddressList(res.data?.results?.juso ?? []);
@@ -49,7 +52,7 @@ export const SrcAndDestination = () => {
         };
 
         fetchAddress();
-    }, [inputText]);
+    }, [debouncedText]);
 
     const getCoordByAddress = (address: string) => {
         return new Promise<{ lat: number; lng: number }>((resolve, reject) => {
