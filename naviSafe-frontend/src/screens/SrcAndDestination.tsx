@@ -3,6 +3,8 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useLocationStore } from "../store/locationStore";
 import { useRouteStore } from "../store/routeStore";
+import type { SearchResult } from "../type/Search";
+import { useCurrentLocation } from "../hooks/useCurrentLocation";
 
 type ActiveType = "source" | "dest" | null;
 
@@ -11,11 +13,12 @@ export const SrcAndDestination = () => {
     const { sourceAddress, destAddress, setSourceAddress, setDestAddress } =
         useLocationStore();
     const {setRouteCoords} = useRouteStore();
+    const { getLocation } = useCurrentLocation();
 
     const [activeType, setActiveType] = useState<ActiveType>(null);
     const [inputText, setInputText] = useState("");
     const [debouncedText, setDebouncedText] = useState("");
-    const [addressList, setAddressList] = useState<any[]>([]);
+    const [searchList, setSearchList] = useState<SearchResult[]>([]);
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
@@ -28,24 +31,53 @@ export const SrcAndDestination = () => {
 
     useEffect(() => {
         if (inputText.length < 2) {
-        setAddressList([]);
+        setSearchList([]);
         return;
         }
 
         const fetchAddress = async () => {
         try {
             setLoading(true);
-            const res = await axios.get(
+
+            const currentLocation = await getLocation();
+            const placeRes = await axios.post(
+                `${import.meta.env.VITE_API_BASE_URL}/api/address/search-place`,
+                {
+                    lon : currentLocation.lon,
+                    lat : currentLocation.lat,
+                    keyword : inputText
+                },
+            )
+
+            if (placeRes.data?.documents?.length > 0) {
+                setSearchList(
+                    placeRes.data.documents.map((item: any) => ({
+                        type: "place",
+                        name: item.place_name,
+                        address: item.road_address_name || item.address_name,
+                        lat: Number(item.y),
+                        lng: Number(item.x),
+                    }))
+                );
+                return;
+            }
+
+            const addrRes = await axios.get(
                 `${import.meta.env.VITE_API_BASE_URL}/api/address/search-juso`,
                 {
                     params: { keyword : inputText },
                 }
             );
-
-            setAddressList(res.data?.results?.juso ?? []);
+            const jusoList = addrRes.data?.results?.juso ?? [];
+            setSearchList(
+                jusoList.map((item: any) => ({
+                    type: "address",
+                    address: item.roadAddr,
+                }))
+            );
         } catch (e) {
             console.error("주소 검색 실패", e);
-            setAddressList([]);
+            setSearchList([]);
         } finally {
             setLoading(false);
         }
@@ -104,26 +136,36 @@ export const SrcAndDestination = () => {
     
 
 
-    const handleSelect = async (address: string) => {
+    const handleSelect = async (item: SearchResult) => {
+        let data;
+    
+        if (item.type === "place") {
+            // 카카오는 좌표 이미 있음
+            data = {
+                address: item.address,
+                latitude: item.lat!,
+                longitude: item.lng!,
+            };
+        } else {
+            // 주소는 좌표 변환 필요
+            const res = await getCoordByAddress(item.address);
+            data = {
+                address: item.address,
+                latitude: res.lat,
+                longitude: res.lng,
+            };
+        }
+    
         if (activeType === "source") {
-            const res = await getCoordByAddress(address);
-            setSourceAddress({
-                address : address,
-                latitude : res.lat,
-                longitude : res.lng
-            });
+            setSourceAddress(data);
         }
+    
         if (activeType === "dest") {
-            const res = await getCoordByAddress(address);
-            setDestAddress({
-                address : address,
-                latitude : res.lat,
-                longitude : res.lng
-            });
+            setDestAddress(data);
         }
-        
+    
         setInputText("");
-        setAddressList([]);
+        setSearchList([]);
         setActiveType(null);
     };
 
@@ -189,18 +231,27 @@ export const SrcAndDestination = () => {
                     <div className="p-4 text-sm text-gray-500">검색 중...</div>
                 )}
         
-                {!loading && addressList.length === 0 && (
+                {!loading && searchList.length === 0 && (
                     <div className="p-4 text-sm text-gray-400">검색 결과 없음</div>
                 )}
         
-                {addressList.map((item, idx) => (
+                {searchList.map((item, idx) => (
                     <div
-                    key={idx}
-                    className="px-4 py-4 border-b cursor-pointer hover:bg-gray-100"
-                    onClick={() => handleSelect(item.roadAddr)}
+                        key={idx}
+                        className="px-4 py-4 border-b cursor-pointer hover:bg-gray-100"
+                        onClick={() => handleSelect(item)}
                     >
-                    {item.roadAddr}
-                    </div>
+                    {/* 장소 검색 */}
+                    {item.type === "place" ? (
+                    <>
+                        <div className="font-medium">{item.name}</div>
+                        <div className="text-sm text-gray-500">{item.address}</div>
+                    </>
+                    ) : (
+                    /* 주소 검색 */
+                    <div className="font-medium">{item.address}</div>
+                    )}
+                </div>
                 ))}
                 </div>
             )}
