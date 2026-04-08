@@ -25,7 +25,7 @@ export const Home = () => {
           <button
             key={map.code}
             onClick={() => handleShelterClick(map.code)}
-            className={`flex-1 px-2 py-2 rounded-xl font-medium text-[12px] transition shadow-md ${
+            className={`flex-1 px-2 py-2 rounded-xl font-medium text-[12px] transition shadow-md whitespace-normal break-keep ${
               shelterType.shelterCode === map.code
                 ? "bg-blue-500 text-white"
                 : "bg-[#fff] text-gray-70"
