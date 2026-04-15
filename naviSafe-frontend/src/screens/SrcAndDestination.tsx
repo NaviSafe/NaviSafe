@@ -1,8 +1,12 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import useSWRMutation from "swr/mutation";
+
 import { useNavigate } from "react-router-dom";
 import { useLocationStore } from "../store/locationStore";
 import { useRouteStore } from "../store/routeStore";
+import type { SearchResult } from "../type/Search";
+import { useCurrentLocation } from "../hooks/useCurrentLocation";
 
 type ActiveType = "source" | "dest" | null;
 
@@ -11,45 +15,78 @@ export const SrcAndDestination = () => {
     const { sourceAddress, destAddress, setSourceAddress, setDestAddress } =
         useLocationStore();
     const {setRouteCoords} = useRouteStore();
+    const { getLocation } = useCurrentLocation();
 
     const [activeType, setActiveType] = useState<ActiveType>(null);
     const [inputText, setInputText] = useState("");
-    const [addressList, setAddressList] = useState<any[]>([]);
+    const [debouncedText, setDebouncedText] = useState("");
+    const [searchList, setSearchList] = useState<SearchResult[]>([]);
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
+        const timer = setTimeout(() => {
+            setDebouncedText(inputText);
+        }, 400); // 400ms 후 실행
+    
+        return () => clearTimeout(timer); // 이전 타이머 취소
+    }, [inputText]);
+
+    useEffect(() => {
         if (inputText.length < 2) {
-        setAddressList([]);
+        setSearchList([]);
         return;
         }
 
         const fetchAddress = async () => {
         try {
             setLoading(true);
-            const res = await axios.get(
-            `https://business.juso.go.kr/addrlink/addrLinkApi.do`,
-            {
-                params: {
-                currentPage: 1,
-                countPerPage: 10,
-                keyword: inputText,
-                resultType: "json",
-                confmKey: `${import.meta.env.VITE_SEARCH_ADDRESS_API_KEY}`,
-                },
-            }
-            );
 
-            setAddressList(res.data?.results?.juso ?? []);
+            const currentLocation = await getLocation();
+            const placeRes = await axios.post(
+                `${import.meta.env.VITE_API_BASE_URL}/api/address/search-place`,
+                {
+                    lon : currentLocation.lon,
+                    lat : currentLocation.lat,
+                    keyword : inputText
+                },
+            )
+
+            if (placeRes.data?.documents?.length > 0) {
+                setSearchList(
+                    placeRes.data.documents.map((item: any) => ({
+                        type: "place",
+                        name: item.place_name,
+                        address: item.road_address_name || item.address_name,
+                        lat: Number(item.y),
+                        lng: Number(item.x),
+                    }))
+                );
+                return;
+            }
+
+            const addrRes = await axios.get(
+                `${import.meta.env.VITE_API_BASE_URL}/api/address/search-juso`,
+                {
+                    params: { keyword : inputText },
+                }
+            );
+            const jusoList = addrRes.data?.results?.juso ?? [];
+            setSearchList(
+                jusoList.map((item: any) => ({
+                    type: "address",
+                    address: item.roadAddr,
+                }))
+            );
         } catch (e) {
             console.error("주소 검색 실패", e);
-            setAddressList([]);
+            setSearchList([]);
         } finally {
             setLoading(false);
         }
         };
 
         fetchAddress();
-    }, [inputText]);
+    }, [debouncedText]);
 
     const getCoordByAddress = (address: string) => {
         return new Promise<{ lat: number; lng: number }>((resolve, reject) => {
@@ -101,44 +138,61 @@ export const SrcAndDestination = () => {
     
 
 
-    const handleSelect = async (address: string) => {
+    const handleSelect = async (item: SearchResult) => {
+        let data;
+    
+        if (item.type === "place") {
+            // 카카오는 좌표 이미 있음
+            data = {
+                address: item.address,
+                latitude: item.lat!,
+                longitude: item.lng!,
+            };
+        } else {
+            // 주소는 좌표 변환 필요
+            const res = await getCoordByAddress(item.address);
+            data = {
+                address: item.address,
+                latitude: res.lat,
+                longitude: res.lng,
+            };
+        }
+    
         if (activeType === "source") {
-            const res = await getCoordByAddress(address);
-            setSourceAddress({
-                address : address,
-                latitude : res.lat,
-                longitude : res.lng
-            });
+            setSourceAddress(data);
         }
+    
         if (activeType === "dest") {
-            const res = await getCoordByAddress(address);
-            setDestAddress({
-                address : address,
-                latitude : res.lat,
-                longitude : res.lng
-            });
+            setDestAddress(data);
         }
-        
+    
         setInputText("");
-        setAddressList([]);
+        setSearchList([]);
         setActiveType(null);
     };
+
+    const fetchRoute = async (url: string, { arg }: { arg: any }) => {
+        const res = await axios.post(url, arg);
+        return res.data;
+    };
+
+    const { trigger, isMutating } = useSWRMutation(
+        `${import.meta.env.VITE_API_BASE_URL}/api/naviSafe/myRootPath_v2`,
+        fetchRoute
+    );
 
     const selectSrcDest = async () => {
         if (!sourceAddress || !destAddress) return;
 
         try {
-            const res = await axios.post(
-            `${import.meta.env.VITE_API_BASE_URL}/api/naviSafe/myRootPath`,
-            {
+            const data = await trigger({
                 fromLongitude: sourceAddress.longitude,
                 fromLatitude: sourceAddress.latitude,
                 toLongitude: destAddress.longitude,
                 toLatitude: destAddress.latitude,
-            }
-            );
+            });
 
-            setRouteCoords(res.data);
+            setRouteCoords(data);
             navigate("/");
         } catch (e) {
             console.error("경로 조회 실패", e);
@@ -147,6 +201,19 @@ export const SrcAndDestination = () => {
 
     return (
         <div className="relative w-full h-screen flex flex-col gap-3 px-4 pt-4 pb-24">
+            {/* 경로 탐색 로딩 창 */}
+            {isMutating && (
+                <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
+                    <div className="bg-white px-6 py-5 rounded-2xl shadow-md flex flex-col items-center gap-3">
+                    {/* 🔥 스피너 */}
+                    <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                    <div className="text-sm text-gray-600">
+                        경로 탐색 중...
+                    </div>
+                    </div>
+                </div>
+            )}
+
             {/* 출발지 */}
             <div className="bg-white rounded-lg px-4 py-3 shadow-sm">
                 <div className="text-sm font-medium mb-1">출발지</div>
@@ -186,18 +253,27 @@ export const SrcAndDestination = () => {
                     <div className="p-4 text-sm text-gray-500">검색 중...</div>
                 )}
         
-                {!loading && addressList.length === 0 && (
+                {!loading && searchList.length === 0 && (
                     <div className="p-4 text-sm text-gray-400">검색 결과 없음</div>
                 )}
         
-                {addressList.map((item, idx) => (
+                {searchList.map((item, idx) => (
                     <div
-                    key={idx}
-                    className="px-4 py-4 border-b cursor-pointer hover:bg-gray-100"
-                    onClick={() => handleSelect(item.roadAddr)}
+                        key={idx}
+                        className="px-4 py-4 border-b cursor-pointer hover:bg-gray-100"
+                        onClick={() => handleSelect(item)}
                     >
-                    {item.roadAddr}
-                    </div>
+                    {/* 장소 검색 */}
+                    {item.type === "place" ? (
+                    <>
+                        <div className="font-medium">{item.name}</div>
+                        <div className="text-sm text-gray-500">{item.address}</div>
+                    </>
+                    ) : (
+                    /* 주소 검색 */
+                    <div className="font-medium">{item.address}</div>
+                    )}
+                </div>
                 ))}
                 </div>
             )}
