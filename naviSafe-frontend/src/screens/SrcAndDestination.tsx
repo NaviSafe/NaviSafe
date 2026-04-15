@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import useSWRMutation from "swr/mutation";
+
 import { useNavigate } from "react-router-dom";
 import { useLocationStore } from "../store/locationStore";
 import { useRouteStore } from "../store/routeStore";
@@ -169,21 +171,28 @@ export const SrcAndDestination = () => {
         setActiveType(null);
     };
 
+    const fetchRoute = async (url: string, { arg }: { arg: any }) => {
+        const res = await axios.post(url, arg);
+        return res.data;
+    };
+
+    const { trigger, isMutating } = useSWRMutation(
+        `${import.meta.env.VITE_API_BASE_URL}/api/naviSafe/myRootPath_v2`,
+        fetchRoute
+    );
+
     const selectSrcDest = async () => {
         if (!sourceAddress || !destAddress) return;
 
         try {
-            const res = await axios.post(
-            `${import.meta.env.VITE_API_BASE_URL}/api/naviSafe/myRootPath_v2`,
-            {
+            const data = await trigger({
                 fromLongitude: sourceAddress.longitude,
                 fromLatitude: sourceAddress.latitude,
                 toLongitude: destAddress.longitude,
                 toLatitude: destAddress.latitude,
-            }
-            );
+            });
 
-            setRouteCoords(res.data);
+            setRouteCoords(data);
             navigate("/");
         } catch (e) {
             console.error("경로 조회 실패", e);
@@ -192,6 +201,19 @@ export const SrcAndDestination = () => {
 
     return (
         <div className="relative w-full h-screen flex flex-col gap-3 px-4 pt-4 pb-24">
+            {/* 경로 탐색 로딩 창 */}
+            {isMutating && (
+                <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
+                    <div className="bg-white px-6 py-5 rounded-2xl shadow-md flex flex-col items-center gap-3">
+                    {/* 🔥 스피너 */}
+                    <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                    <div className="text-sm text-gray-600">
+                        경로 탐색 중...
+                    </div>
+                    </div>
+                </div>
+            )}
+
             {/* 출발지 */}
             <div className="bg-white rounded-lg px-4 py-3 shadow-sm">
                 <div className="text-sm font-medium mb-1">출발지</div>
