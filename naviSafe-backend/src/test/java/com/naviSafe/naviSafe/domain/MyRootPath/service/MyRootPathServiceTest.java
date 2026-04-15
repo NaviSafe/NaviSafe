@@ -1,6 +1,9 @@
 package com.naviSafe.naviSafe.domain.MyRootPath.service;
 
-import com.naviSafe.naviSafe.domain.MyRootPath.external.tmap.dto.TmapRouteResponse;
+import com.naviSafe.naviSafe.domain.MyRootPath.v1.service.DangerZoneSelector;
+import com.naviSafe.naviSafe.domain.MyRootPath.v1.service.GeoCoordinateConverter;
+import com.naviSafe.naviSafe.domain.MyRootPath.v1.service.MyRootPathService;
+import com.naviSafe.naviSafe.domain.MyRootPath.v1.service.Point;
 import com.naviSafe.naviSafe.domain.outbreakOccur.entity.OutbreakOccur;
 import com.naviSafe.naviSafe.domain.outbreakOccur.service.OutbreakService;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,7 +20,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.given;
 
 @SpringBootTest
@@ -54,10 +56,11 @@ class MyRootPathServiceTest {
         OutbreakOccur occur12 = TestOutbreakOccur.create("12", 211218.631847, 441693.488156);
         OutbreakOccur occur13 = TestOutbreakOccur.create("13", 200917.631847, 443024.488156);
         OutbreakOccur occur14 = TestOutbreakOccur.create("14", 202707.881847, 456418.488156);
+        OutbreakOccur occur15 = TestOutbreakOccur.create("14", 197317, 451390);
 
         given(outbreakService.findAll())
-                .willReturn(List.of(occur1, occur2, occur3, occur4, occur5, occur6, occur7, occur8, occur9, occur10, occur11, occur12, occur13, occur14));
-//                .willReturn(List.of(occur1));
+//                .willReturn(List.of(occur1, occur2, occur3, occur4, occur5, occur6, occur7, occur8, occur9, occur10, occur11, occur12, occur13, occur14));
+                .willReturn(List.of(occur15));
     }
 
     @Test
@@ -144,10 +147,10 @@ class MyRootPathServiceTest {
 //        double toLat = 37.528002405;
 
 //        여러 돌발상황 tc
-        double fromLon = 126.985834394; // 해정병원
-        double fromLat = 37.575570097;
-        double toLon = 126.957262441; // 아현감리교회
-        double toLat = 37.560940645;
+        double fromLon = 126.963826124; // 해정병원
+        double fromLat = 37.559915864;
+        double toLon = 126.972668997; // 아현감리교회
+        double toLat = 37.550635339;
 
         // 기존 경로 polyline 추출
         List<Point> myOriginalPath = myRootPathService.getMyOriginalPath(fromLon, fromLat, toLon, toLat);
@@ -205,7 +208,7 @@ class MyRootPathServiceTest {
             html.append("[").append(p.lat()).append(", ").append(p.lon()).append("],\n");
         }
         html.append("];\n");
-        html.append("L.polyline(latlng_origins, {color: 'green'}).addTo(map);\n");
+        html.append("L.polyline(latlng_origins, {color: 'green', weight: 8}).addTo(map);\n");
 
         // 최종 경로 polyline
         html.append("const latlngs = [\n");
