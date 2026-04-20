@@ -9,7 +9,7 @@ from utils.redis_utils import RedisClient
 
 log = logging.getLogger("airflow.task")
 
-redis_client = RedisClient(host="redis", port=6379, db=0)
+redis_client = RedisClient(host="redis.default", port=6379, db=0)
 
 
 # -----------------------------------
@@ -102,7 +102,7 @@ def run_subway_streaming():
 
     # Kafka에서 데이터 읽기
     df_stream = spark.readStream.format("kafka") \
-        .option("kafka.bootstrap.servers", "kafka:9092") \
+        .option("kafka.bootstrap.servers", "kafka-svc:9092") \
         .option("subscribe", "subway_position_topic") \
         .option("startingOffsets", "latest") \
         .load()

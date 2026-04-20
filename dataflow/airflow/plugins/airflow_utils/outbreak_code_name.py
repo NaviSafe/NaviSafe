@@ -4,7 +4,8 @@ import xml.etree.ElementTree as ET
 import os
 ## airflow를 사용해서 일정 주기만다 api 호출하기.
 from airflow.providers.mysql.hooks.mysql import MySqlHook
-
+from dotenv import load_dotenv
+load_dotenv("/opt/airflow/.env")
 OUTBREAK_CODE_NAME = os.getenv('OUTBREAK_CODE_NAME')
 # XML 파싱 함수
 def parse_outbreak_code_info(xml_str):

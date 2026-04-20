@@ -7,9 +7,9 @@ from datetime import datetime, timedelta
 # sys.path.append("/opt/airflow/dataflow")
 
 # from producer import run_kafka_producer   # producer.py 위치 기준
-
 def run_kafka_producer_wrapper():
     from producer.kafka_producer import run_kafka_producer
+   
     return run_kafka_producer()
 
 with DAG(

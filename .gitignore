@@ -1,3 +1,5 @@
 naviSafe-backend/src/main/resources/application.properties
 __pycache__/
 *.pyc
+postgres_data/
+shp_data/
