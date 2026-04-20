@@ -31,11 +31,6 @@ services:
       - "3307:3306"          # 로컬 3307 → 컨테이너 3306
     env_file:
       - ../dataflow/.env
-    # environment:
-    #   MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-    #   MYSQL_DATABASE: ${MYSQL_DATABASE}
-    #   MYSQL_USER: ${MYSQL_USER}
-    #   MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     volumes:
       - ../dataflow/init.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
@@ -44,13 +39,25 @@ services:
       retries: 5
     networks:
       - data-platform
-    #depends_on:
-      # - weather-consumer
-      # - traffic-consumer
-      # - subway-consumer
-    # volumes:
-    #   - ./mysql-data:/var/lib/mysql
 
+  navisafe-postgres:
+    build: 
+      context: ../dataflow
+      dockerfile: Dockerfile.postgres
+    container_name: navisafe-postgres
+    environment:
+      POSTGRES_USER: navisafe
+      POSTGRES_PASSWORD: 1234
+      POSTGRES_DB: navigation
+    ports:
+      - "5432:5432"
+    volumes:
+      - ../postgres_data:/var/lib/postgresql/data
+      - ../shp_data:/tmp
+      - ../SQL:/sql
+    networks:
+      - data-platform
+      
   redis:
     image: redis:7.2.0
     container_name: redis
@@ -58,7 +65,6 @@ services:
       - "6379:6379"
     volumes:
       - ../dataflow/utils:/app/utils
-    #command: python3 redis.py
     restart: unless-stopped
     networks:
       - data-platform

@@ -4,7 +4,8 @@ import xml.etree.ElementTree as ET
 import os
 ## airflow를 사용해서 일정 주기만다 api 호출하기.
 from airflow.providers.mysql.hooks.mysql import MySqlHook
-
+from dotenv import load_dotenv
+load_dotenv("/opt/airflow/.env")
 REG_CODE = os.getenv('REG_CODE')
 # XML 파싱 함수
 def parse_regioninfo(xml_str):
