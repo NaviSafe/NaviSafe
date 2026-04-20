@@ -21,6 +21,7 @@ spec:
 
       volumes:
         - name: airflow-logs
+          #emptyDir: {}
           persistentVolumeClaim:
             claimName: airflow-logs-pvc
 
@@ -30,8 +31,8 @@ spec:
 
       containers:
         - name: scheduler
-          image: navisafe-airflow:latest
-          imagePullPolicy: Never
+          image: navisafe-airflow:v10
+          imagePullPolicy: IfNotPresent
 
           volumeMounts:
             - name: airflow-logs

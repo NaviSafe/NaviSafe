@@ -2,7 +2,7 @@ import redis
 import json
 
 # Redis 연결
-r = redis.Redis(host="redis", port=6379, db=0, decode_responses=True)
+r = redis.Redis(host="redis.default", port=6379, db=0, decode_responses=True)
 
 # Redis ping 확인
 try:

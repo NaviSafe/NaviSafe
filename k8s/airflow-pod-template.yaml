@@ -13,7 +13,7 @@ spec:
 
   containers:
     - name: base
-      image: navisafe-airflow:latest
+      image: navisafe-airflow:v10
       imagePullPolicy: IfNotPresent
 
       env:
@@ -21,9 +21,15 @@ spec:
           value: KubernetesExecutor
         - name: AIRFLOW__DATABASE__SQL_ALCHEMY_CONN
           value: mysql+pymysql://user:userpass@mysql.default:3306/airflow_db
+        - name: AIRFLOW__CORE__FERNET_KEY
+          value: 5ozw1xClhNUKElcA31BOLTCr3f8de2whokz13dLXQ1w=
+        - name: PYTHONPATH
+          value: /opt/airflow
+
       volumeMounts:
         - name: airflow-logs
           mountPath: /opt/airflow/logs
+
 
   volumes:
     - name: airflow-logs

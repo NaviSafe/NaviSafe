@@ -8,10 +8,12 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from airflow.providers.mysql.hooks.mysql import MySqlHook
 from utils.redis_utils import RedisClient
 import os
-# Redis 연결
-redis_client = RedisClient(host="redis", port=6379, db=0)
+from dotenv import load_dotenv
+load_dotenv("/opt/airflow/.env")
 
 # Redis 연결
+redis_client = RedisClient(host="redis.default", port=6379, db=0)
+
 
 LINK_ID = os.getenv("LINK_ID") 
 SEOUL_TRAFFIC_REALTIME_API_KEY = os.getenv("SEOUL_TRAFFIC_REALTIME_API_KEY") 

@@ -8,7 +8,7 @@ import logging
 import math
 from dotenv import load_dotenv
 
-load_dotenv("/app/.env")
+load_dotenv("/opt/airflow/.env")
 # -----------------------------
 # 환경 변수 로드
 # -----------------------------
@@ -62,7 +62,7 @@ def run_kafka_producer():
         format="%(asctime)s | %(levelname)s | %(message)s",
     )
     log = logging.getLogger(__name__)
-
+    log.info("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!수정코드!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
     log.info("Producer 실행 시작")
 
     # -----------------------------
@@ -71,13 +71,13 @@ def run_kafka_producer():
     try:
         log.info("Kafka 연결 시도")
         producer = KafkaProducer(
-            bootstrap_servers="kafka-svc:9092",
+            bootstrap_servers="kafka-svc.default:9092",
             value_serializer=lambda v: json.dumps(v).encode("utf-8"),
         )
         log.info("Kafka 연결 성공")
     except Exception:
         log.exception("Kafka 연결 실패")
-        return
+        raise
 
     # -----------------------------
     # API 호출 및 전송

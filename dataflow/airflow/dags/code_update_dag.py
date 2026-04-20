@@ -36,8 +36,8 @@ with DAG(
     default_args=default_args,
     description='매일 코드명 테이블 갱신',
     schedule='@daily',  # 매일 00시
-    start_date=datetime(2025, 10, 14, tzinfo=timezone("Asia/Seoul")),
-    catchup=True,
+    start_date=datetime(2026, 4, 15, tzinfo=timezone("Asia/Seoul")),
+    catchup=False,
     tags=['update', 'daily', 'code']
 ) as dag:
 

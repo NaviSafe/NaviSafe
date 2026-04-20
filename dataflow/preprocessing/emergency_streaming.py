@@ -9,7 +9,7 @@ log = logging.getLogger("airflow.task")
 # -------------------------------------------------
 # Redis 설정
 # -------------------------------------------------
-redis_client = RedisClient(host="redis", port=6379, db=0)
+redis_client = RedisClient(host="redis.default", port=6379, db=0)
 
 REDIS_QUEUE_KEY = "emergency_alert_queue"   # MySQL 적재용
 REDIS_PUB_CHANNEL = "EMERGENCY_ALERT_CHANNEL" # Redis Pub/Sub

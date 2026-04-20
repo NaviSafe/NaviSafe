@@ -17,7 +17,7 @@ def run_emergency_batch(batch_size=100):
 
     log.info("[SYSTEM] Emergency Batch 시작")
 
-    redis_client = RedisClient(host="redis", port=6379, db=0)
+    redis_client = RedisClient(host="redis.default", port=6379, db=0)
     mysql_hook = MySqlHook(mysql_conn_id=MYSQL_CONN_ID)
 
     conn = mysql_hook.get_conn()

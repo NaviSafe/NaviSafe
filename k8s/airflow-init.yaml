@@ -10,8 +10,8 @@ spec:
       restartPolicy: Never
       containers:
         - name: airflow-init
-          image: navisafe-airflow:latest
-          imagePullPolicy: Never
+          image: dndjeh/navisafe-airflow:v6
+          imagePullPolicy: IfNotPresent
           env:
             - name: AIRFLOW__CORE__EXECUTOR
               value: KubernetesExecutor

@@ -10,7 +10,7 @@ spec:
   mode: cluster
   sparkVersion: 3.5.1
 
-  image: navisafe-streaming:v13
+  image: dndjeh/outbreak-streaming:v4 #navisafe-streaming:v13
   imagePullPolicy: Never
 
   mainApplicationFile: local:///app/emergency_streaming.py
@@ -30,10 +30,10 @@ spec:
 
   driver:
     cores: 1
-    memory: 1g
+    memory: 512m
     serviceAccount: spark
 
   executor:
-    instances: 2
-    cores: 2
-    memory: 1g
+    instances: 1
+    cores: 1
+    memory: 512m

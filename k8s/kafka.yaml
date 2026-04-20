@@ -43,10 +43,10 @@ spec:
               value: PLAINTEXT://:9092
 
             - name: KAFKA_ADVERTISED_LISTENERS
-              value: PLAINTEXT://kafka-svc:9092
+              value: PLAINTEXT://kafka-svc.default:9092
 
-            - name: KAFKA_ADVERTISED_HOST_NAME
-              value: kafka-svc
+            # - name: KAFKA_ADVERTISED_HOST_NAME
+            #   value: kafka-svc
 
             - name: KAFKA_LISTENER_SECURITY_PROTOCOL_MAP
               value: PLAINTEXT:PLAINTEXT

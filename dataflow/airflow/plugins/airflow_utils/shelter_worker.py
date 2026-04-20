@@ -5,7 +5,8 @@ import xml.etree.ElementTree as ET
 import mysql.connector
 from pyproj import Transformer
 from airflow.providers.mysql.hooks.mysql import MySqlHook
-
+from dotenv import load_dotenv
+load_dotenv("/opt/airflow/.env")
 # ------------------------------------------------------------------
 #  환경 변수(API KEY)
 # ------------------------------------------------------------------

@@ -3,13 +3,15 @@ import time
 import logging
 import mysql.connector
 from utils.redis_utils import RedisClient
+from airflow.providers.mysql.hooks.mysql import MySqlHook
 
 # -----------------------------------
 # 로깅 / Redis 설정
 # -----------------------------------
 log = logging.getLogger("airflow.task")
 
-redis_client = RedisClient(host="redis", port=6379, db=0)
+#redis_client = RedisClient(host="redis.default", port=6379, db=0)
+redis_client = RedisClient(host="redis.default", port=6379, db=0)
 DB_BATCH_SIZE = 100  # Redis → MySQL 배치 크기
 
 
@@ -61,12 +63,15 @@ def save_from_redis_to_mysql():
     # -----------------------------------
     # 4. MySQL 연결
     # -----------------------------------
-    conn = mysql.connector.connect(
-        host="mysql",
-        user="user",
-        password="userpass",
-        database="toy_project"
-    )
+    # conn = mysql.connector.connect(
+    #     host="mysql-0.mysql",
+    #     user="user",
+    #     password="userpass",
+    #     database="toy_project"
+    # )
+    # cursor = conn.cursor()
+    mysql_hook = MySqlHook(mysql_conn_id="navisafe_mysql")
+    conn = mysql_hook.get_conn()
     cursor = conn.cursor()
     try:
         # -----------------------------------
