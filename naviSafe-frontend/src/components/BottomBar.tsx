@@ -6,7 +6,7 @@ import { useSelectedShelter } from "../store/selectedShelterStore";
 export const BottomBar = () => {
     const { selectedShelter } = useSelectedShelter();
     const { getLocation } = useCurrentLocation();
-    const {setRouteCoords} = useRouteStore();
+    const {setRoute} = useRouteStore();
 
     if (!selectedShelter) return null;
 
@@ -32,14 +32,14 @@ export const BottomBar = () => {
         const destination = { lat : selectedShelter.lat, lon : selectedShelter.lot};
         
         try{
-            const coords = await getPedestrianRoute(startCoords, destination);
+            const result = await getPedestrianRoute(startCoords, destination);
 
-            if (!coords || coords.length === 0) {
+            if (!result.points || result.points.length === 0) {
                 alert("도보 경로 좌표가 없습니다.");
                 return;
             }
 
-            setRouteCoords(coords);
+            setRoute(result.points, result.distance);
         } catch (err){
             alert("도보 경로를 불러올 수 없습니다.");
         }

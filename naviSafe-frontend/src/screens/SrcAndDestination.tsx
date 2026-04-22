@@ -14,7 +14,7 @@ export const SrcAndDestination = () => {
     const navigate = useNavigate();
     const { sourceAddress, destAddress, setSourceAddress, setDestAddress } =
         useLocationStore();
-    const {setRouteCoords} = useRouteStore();
+    const {setRoute} = useRouteStore();
     const { getLocation } = useCurrentLocation();
 
     const [activeType, setActiveType] = useState<ActiveType>(null);
@@ -192,7 +192,7 @@ export const SrcAndDestination = () => {
                 toLatitude: destAddress.latitude,
             });
 
-            setRouteCoords(data);
+            setRoute(data.points, data.distance);
             navigate("/");
         } catch (e) {
             console.error("경로 조회 실패", e);
