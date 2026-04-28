@@ -4,6 +4,7 @@ import type { ShelterInfo } from "../type/Shelter";
 import { useShelter } from "../hooks/useShelter";
 import { BottomBar } from "../components/BottomBar";
 import { BottomPathFindingBar } from "../components/BottomPathFindingBar";
+import { DistanceCard } from "../components/DistanceCard";
 
 
 export const Home = () => {
@@ -37,6 +38,7 @@ export const Home = () => {
       </div>
       <KakaoMap />
       <BottomBar />
+      <DistanceCard/>
       <BottomPathFindingBar />
     </div>
   );

@@ -1,9 +1,14 @@
 import axios from "axios";
 
+type RouteResult = {
+    points: { lat: number; lon: number }[];
+    distance: number;
+};
+
 export const getPedestrianRoute = async (
         start: { lat: number; lon: number },
         end: { lat: number; lon: number }
-    ) => {
+    ) : Promise<RouteResult> => {
     try {
         const res = await axios.post(
             "https://apis.openapi.sk.com/tmap/routes/pedestrian?version=1",
@@ -35,10 +40,18 @@ export const getPedestrianRoute = async (
             });
             }
         });
+
+        const distance = data.features?.[0]?.properties?.totalDistance ?? 0;
     
-        return coords;
+        return {
+            points: coords,
+            distance,
+        };
     } catch (err) {
         console.error("Tmap 도보 API 오류:", err);
-        return [];
+        return {
+            points: [],
+            distance: 0,
+        };
     }
 };
