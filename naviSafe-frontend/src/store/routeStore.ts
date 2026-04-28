@@ -2,10 +2,14 @@ import { create } from "zustand";
 
 interface RouteStore {
     routeCoords: { lat: number; lon: number }[];
-    setRouteCoords: (coords: { lat: number; lon: number }[]) => void;
+    distance: number;
+    setRoute: (coords: { lat: number; lon: number }[], distance: number) => void;
+    resetRoute: () => void;
 }
 
 export const useRouteStore = create<RouteStore>((set) => ({
     routeCoords: [],
-    setRouteCoords: (coords) => set({ routeCoords: coords }),
+    distance: 0,
+    setRoute: (coords, distance) => set({ routeCoords: coords, distance }),
+    resetRoute: () => set({ routeCoords: [], distance: 0 }),
 }));
