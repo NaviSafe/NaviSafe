@@ -53,7 +53,7 @@ public class AddressService {
         String lat = searchPlaceDto.getLat();
         String lon = searchPlaceDto.getLon();
         String keyword = searchPlaceDto.getKeyword();
-        String url = "https://dapi.kakao.com/v2/local/search/keyword.json?y="+lat+"&x="+lon+"&radius=20000";
+        String url = "https://dapi.kakao.com/v2/local/search/keyword.json?y="+lat+"&x="+lon;
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "KakaoAK " + restApiKey);
