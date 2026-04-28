@@ -2,6 +2,7 @@ package com.naviSafe.naviSafe.domain.MyRootPath.v2.service;
 
 
 import com.naviSafe.naviSafe.domain.MyRootPath.v2.dto.Point;
+import com.naviSafe.naviSafe.domain.MyRootPath.v2.dto.RouteResult;
 import com.naviSafe.naviSafe.domain.MyRootPath.v2.repository.RouteRepository;
 import com.naviSafe.naviSafe.domain.MyRootPath.v2.utils.GeoCoordinateConverter;
 import com.naviSafe.naviSafe.domain.outbreakOccur.entity.OutbreakOccur;
@@ -28,7 +29,7 @@ public class RouteService {
         this.geoCoordinateConverter = geoCoordinateConverter;
     }
 
-    public List<Point> getRoute(double fromLongitude, double fromLatitude, double toLongitude, double toLatitude){
+    public RouteResult getRoute(double fromLongitude, double fromLatitude, double toLongitude, double toLatitude){
         List<OutbreakOccur> outbreakOccurs = outbreakService.findAll();
 
         List<Point> list = outbreakOccurs.stream()
