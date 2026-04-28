@@ -2,6 +2,7 @@ package com.naviSafe.naviSafe.domain.MyRootPath.v2.repository;
 
 import com.naviSafe.naviSafe.domain.MyRootPath.v2.dto.Point;
 import com.naviSafe.naviSafe.domain.MyRootPath.v2.dto.RouteEdge;
+import com.naviSafe.naviSafe.domain.MyRootPath.v2.dto.RouteResult;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
@@ -28,7 +29,7 @@ public class RouteRepository {
     Logger logger = LoggerFactory.getLogger(RouteRepository.class);
 
     @Transactional(transactionManager = "postgresTransactionManager")
-    public List<Point> findRoute(
+    public RouteResult findRoute(
             double startLon,
             double startLat,
             double endLon,
@@ -130,7 +131,8 @@ public class RouteRepository {
                 ar.edge,
                 e.geom,
                 ar.cost,
-                ar.agg_cost
+                ar.agg_cost,
+                ST_Length(e.geom::geography) AS length
             FROM astar_result ar
             JOIN edge e ON e.id = ar.edge
             WHERE ar.edge <> -1
@@ -158,7 +160,7 @@ public class RouteRepository {
         logger.info("A star 경로 조회 완료");
 
         // 3️⃣ 최종 반환
-        return routeEdges.stream()
+        List<Point> points = routeEdges.stream()
                 .flatMap(edge -> {
                     MultiLineString<Position> multi = edge.geom();
                     return IntStream.range(0, multi.getNumGeometries())
@@ -170,5 +172,11 @@ public class RouteRepository {
                 })
                 .map(p -> new Point(p.getCoordinate(1), p.getCoordinate(0)))
                 .toList();
+
+        double totalDistance = results.stream()
+                .mapToDouble(r -> ((Number) r[5]).doubleValue()) // length
+                .sum();
+
+        return new RouteResult(points, totalDistance);
     }
 }
