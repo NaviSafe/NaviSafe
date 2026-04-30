@@ -40,7 +40,7 @@ services:
     networks:
       - data-platform
 
-  navisafe-postgres:
+  navisafe-postgres:  
     build: 
       context: ../dataflow
       dockerfile: Dockerfile.postgres
