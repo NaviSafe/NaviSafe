@@ -1,3 +1,4 @@
+DROP TABLE IF EXISTS edge_base;
 CREATE Table edge_base AS
 SELECT
     l.link_id::bigint AS id,
@@ -26,17 +27,3 @@ FROM link l
                    ON l.f_node = n.node_id
          LEFT JOIN turninfo ti
                    ON n.node_id = ti.node_id;
-
-CREATE INDEX edge_base_source_idx ON edge_base(source);
-CREATE INDEX edge_base_target_idx ON edge_base(target);
-CREATE INDEX edge_base_geom_idx ON edge_base USING GIST(geom);
-
-
-CREATE USER root WITH PASSWORD '991120';
-GRANT ALL PRIVILEGES ON DATABASE navigation TO root;
-
-
-GRANT SELECT ON TABLE link TO root;
-GRANT SELECT ON TABLE node TO root;
-GRANT SELECT ON TABLE turninfo TO root;
-GRANT SELECT ON TABLE edge_base TO root;
