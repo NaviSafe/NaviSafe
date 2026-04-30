@@ -2,6 +2,8 @@ from airflow import DAG
 from airflow.operators.python import PythonOperator
 from datetime import datetime, timedelta
 from pendulum import timezone
+from airflow.utils.dates import days_ago
+
 # import sys, os
 # #sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'plugins'))
 # sys.path.append("/opt/airflow/plugins")
@@ -36,7 +38,7 @@ with DAG(
     default_args=default_args,
     description='매일 코드명 테이블 갱신',
     schedule='@daily',  # 매일 00시
-    start_date=datetime(2026, 4, 15, tzinfo=timezone("Asia/Seoul")),
+    start_date=days_ago(2),
     catchup=False,
     tags=['update', 'daily', 'code']
 ) as dag:
