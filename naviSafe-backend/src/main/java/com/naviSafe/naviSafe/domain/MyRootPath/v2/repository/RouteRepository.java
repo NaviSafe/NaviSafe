@@ -158,6 +158,8 @@ public class RouteRepository {
                 .toList();
 
         logger.info("A star 경로 조회 완료");
+        logger.info("results size: {}", results.size());
+
 
         // 3️⃣ 최종 반환
         List<Point> points = routeEdges.stream()
@@ -176,7 +178,8 @@ public class RouteRepository {
         double totalDistance = results.stream()
                 .mapToDouble(r -> ((Number) r[5]).doubleValue()) // length
                 .sum();
-
+        logger.info("points size: {}", points.size());
+        logger.info("totalDistance: {}", totalDistance);
         return new RouteResult(points, totalDistance);
     }
 }

@@ -1,0 +1,13 @@
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT FROM pg_roles WHERE rolname = 'root'
+    ) THEN
+        CREATE USER root WITH PASSWORD '991120';
+    END IF;
+END
+$$;
+
+GRANT ALL PRIVILEGES ON DATABASE navigation TO root;
+GRANT USAGE ON SCHEMA public TO root;
+GRANT SELECT ON ALL TABLES IN SCHEMA public TO root;

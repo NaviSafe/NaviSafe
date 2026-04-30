@@ -3,10 +3,16 @@ spring:
     name: naviSafe-backend
 
   datasource:
-    #url: jdbc:mysql://host.docker.internal:3307/toy_project
-    url: jdbc:mysql://mysql:3306/toy_project?rewriteBatchedStatements=true&profileSQL=true&logger=Slf4JLogger
-    username: user
-    password: userpass
+      mysql:
+        jdbc-url : jdbc:mysql://mysql.default.svc.cluster.local:3306/toy_project?rewriteBatchedStatements=true&profileSQL=true&logger=Slf4JLogger
+        username: user
+        password: userpass
+        driver-class-name: com.mysql.cj.jdbc.Driver
+      postgres:
+        jdbc-url: jdbc:postgresql://navisafe-postgres.default.svc.cluster.local:5432/navigation
+        username: root
+        password: 991120
+        driver-class-name: org.postgresql.Driver
 
   data:
     redis:
@@ -34,3 +40,9 @@ logging:
 tmap:
   base-url: https://apis.openapi.sk.com
   app-key: f7DCfmmTzk8QeIhdjDMPs4NE9rW7u6FC2bVkPIVF
+
+juso:
+  api-key: U01TX0FVVEgyMDI1MDQyMDAwMTcxODExNTY3NDM=
+
+kakao:
+  api-key: 514d840d2a0e3a68c2b9ab8af0a62efc
