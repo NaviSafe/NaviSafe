@@ -1,8 +1,10 @@
 import logging
 from pyspark.sql.functions import col, from_json, explode
 from pyspark.sql.types import *
-from utils.spark_session import get_spark
-from utils.redis_utils import RedisClient
+from spark_session import get_spark
+from redis_utils import RedisClient
+import os
+from datetime import datetime
 
 log = logging.getLogger("airflow.task")
 
@@ -14,6 +16,26 @@ redis_client = RedisClient(host="redis.default", port=6379, db=0)
 REDIS_QUEUE_KEY = "emergency_alert_queue"   # MySQL 적재용
 REDIS_PUB_CHANNEL = "EMERGENCY_ALERT_CHANNEL" # Redis Pub/Sub
 
+def save_batch_to_s3(batch_df, batch_id):
+    bucket = os.getenv("S3_BUCKET")
+    region = os.getenv("AWS_REGION")
+
+    if not bucket:
+        raise ValueError("S3_BUCKET 환경변수가 없습니다.")
+
+    hadoop_conf = batch_df.sparkSession.sparkContext._jsc.hadoopConfiguration()
+    hadoop_conf.set("fs.s3a.access.key", os.getenv("AWS_ACCESS_KEY_ID"))
+    hadoop_conf.set("fs.s3a.secret.key", os.getenv("AWS_SECRET_ACCESS_KEY"))
+    hadoop_conf.set("fs.s3a.endpoint", f"s3.{region}.amazonaws.com")
+    hadoop_conf.set("fs.s3a.impl", "org.apache.hadoop.fs.s3a.S3AFileSystem")
+
+    today = datetime.now().strftime("%Y-%m-%d")
+    path = f"s3a://{bucket}/processed/emergency_alert/dt={today}/batch_id={batch_id}"
+
+    batch_df.write.mode("append").parquet(path)
+
+    log.info(f"[S3] 저장 완료: {path}")
+
 # -------------------------------------------------
 # Spark Batch 처리
 # -------------------------------------------------
@@ -23,7 +45,8 @@ def process_emergency_alert_batch(batch_df, batch_id):
     if batch_df.count() == 0:
         log.info("[INFO] Empty batch")
         return
-
+    
+    save_batch_to_s3(batch_df, batch_id)
     batch_df.show(truncate=False)
 
     for row in batch_df.collect():
