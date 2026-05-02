@@ -10,14 +10,10 @@ spec:
   mode: cluster
   sparkVersion: 3.5.1
 
-  image: dndjeh/outbreak-streaming:v4 #navisafe-streaming:v13
+  image: dndjeh/outbreak-streaming:v5 #navisafe-streaming:v13
   imagePullPolicy: Never
 
   mainApplicationFile: local:///app/emergency_streaming.py
-
-  deps:
-    packages:
-      - org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.1
 
   sparkConf:
     spark.pyspark.python: python3
@@ -28,12 +24,78 @@ spec:
   restartPolicy:
     type: Never
 
+  volumes:
+    - name: spark-code-volume
+      configMap:
+        name: spark-code
+
   driver:
     cores: 1
     memory: 512m
     serviceAccount: spark
 
+    env:
+      - name: KAFKA_BOOTSTRAP
+        value: kafka-svc.default:9092
+
+      - name: AWS_ACCESS_KEY_ID
+        valueFrom:
+          secretKeyRef:
+            name: aws-secret
+            key: AWS_ACCESS_KEY_ID
+
+      - name: AWS_SECRET_ACCESS_KEY
+        valueFrom:
+          secretKeyRef:
+            name: aws-secret
+            key: AWS_SECRET_ACCESS_KEY
+
+      - name: AWS_REGION
+        valueFrom:
+          secretKeyRef:
+            name: aws-secret
+            key: AWS_REGION
+
+      - name: S3_BUCKET
+        valueFrom:
+          secretKeyRef:
+            name: aws-secret
+            key: S3_BUCKET
+
+    volumeMounts:
+      - name: spark-code-volume
+        mountPath: /app
+
   executor:
     instances: 1
     cores: 1
     memory: 512m
+
+    env:
+      - name: AWS_ACCESS_KEY_ID
+        valueFrom:
+          secretKeyRef:
+            name: aws-secret
+            key: AWS_ACCESS_KEY_ID
+
+      - name: AWS_SECRET_ACCESS_KEY
+        valueFrom:
+          secretKeyRef:
+            name: aws-secret
+            key: AWS_SECRET_ACCESS_KEY
+
+      - name: AWS_REGION
+        valueFrom:
+          secretKeyRef:
+            name: aws-secret
+            key: AWS_REGION
+
+      - name: S3_BUCKET
+        valueFrom:
+          secretKeyRef:
+            name: aws-secret
+            key: S3_BUCKET
+
+    volumeMounts:
+      - name: spark-code-volume
+        mountPath: /app
