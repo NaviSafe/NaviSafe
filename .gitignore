@@ -3,3 +3,4 @@ __pycache__/
 *.pyc
 postgres_data/
 shp_data/
+k8s/aws-secret.yaml
