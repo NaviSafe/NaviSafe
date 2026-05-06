@@ -83,20 +83,6 @@ public class RouteRepository {
         em.createNativeQuery(updateAccidentCost).executeUpdate();
         logger.info("BBOX 기반 돌발상황 발생 노드 cost 업데이트 완료");
 
-        // 회전 제한 업데이트
-        String updateTurnRestriction = """
-            UPDATE edge e
-            SET cost = -1
-            FROM node n
-            JOIN turninfo ti
-              ON n.node_id = ti.node_id
-            WHERE e.source = n.node_id::bigint
-              AND n.turn_p = '1'
-              AND ti.turn_type = '011'
-        """;
-        em.createNativeQuery(updateTurnRestriction).executeUpdate();
-        logger.info("U-TURN 노드 cost 업데이트 완료");
-
         // A* 경로 조회
         String routeSql = """
             WITH start_node AS (
