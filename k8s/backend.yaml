@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: backend
-          image: navisafe-backend:v15
+          image: dndjeh/navisafe-backend:v17
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080

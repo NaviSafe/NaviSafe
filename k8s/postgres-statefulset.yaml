@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: postgres
-          image: navisafe-postgres:v1
+          image: dndjeh/navisafe-postgres:v1
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 5432
