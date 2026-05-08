@@ -1,6 +1,7 @@
-naviSafe-backend/src/main/resources/application.properties
+naviSafe-backend/src/main/resources/application.yml
 __pycache__/
 *.pyc
 postgres_data/
 shp_data/
 k8s/aws-secret.yaml
+k8s/postgres-secret.yaml

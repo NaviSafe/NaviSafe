@@ -33,4 +33,4 @@ WHERE (eb.source, eb.target) IN (
              JOIN turninfo ti
                   ON ti.ed_link = l4.link_id
                       AND ti.st_link = l1.link_id
-    where turn_type IN ('003', '101', '102', '103')
+    where turn_type IN ('003', '101', '102', '103'));
