@@ -9,7 +9,7 @@ export function usePushMessage() {
     const { getLocation } = useCurrentLocation();
     const { fetchShelterById } = useShelter(0);
     const { setShelterType } = useShelterTypeState();
-    const { setRouteCoords } = useRouteStore();
+    const { setRoute } = useRouteStore();
 
     useEffect(() => {
         if (!("serviceWorker" in navigator)) return;
@@ -20,7 +20,7 @@ export function usePushMessage() {
                 pushType,
                 getLocation,
                 fetchShelterById,
-                setRouteCoords,
+                setRoute,
                 setShelterType,
             });
 

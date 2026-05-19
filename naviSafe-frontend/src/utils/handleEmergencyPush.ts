@@ -56,7 +56,7 @@ export async function handleEmergencyPush({
         { lat: nearest.lat, lon: nearest.lot }
     );
 
-    if (!coords?.length) return;
+    if (!coords?.points.length) return;
 
     setRouteCoords(coords);
     setShelterType({
