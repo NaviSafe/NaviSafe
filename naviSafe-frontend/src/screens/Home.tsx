@@ -9,7 +9,7 @@ import { DistanceCard } from "../components/DistanceCard";
 
 export const Home = () => {
   useOutbreakOccur();
-
+  
   const shelterMap: ShelterInfo[] = [
     { code: 1, name: "지진대피소" },
     { code: 2, name: "한파대피소" },

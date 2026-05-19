@@ -11,7 +11,7 @@ spec:
   sparkVersion: 3.5.1
 
   image: dndjeh/outbreak-streaming:v5 #navisafe-streaming:v13
-  imagePullPolicy: Never
+  imagePullPolicy: IfNotPresent
 
   mainApplicationFile: local:///app/emergency_streaming.py
 
