@@ -1,0 +1,109 @@
+import { useState } from "react";
+import { MdArrowBack } from "react-icons/md";
+import { useSearchResultStore } from "../store/SearchResultStore";
+
+
+interface Props {
+    onClose: () => void;
+    onOpenSearch: () => void;
+}
+
+export const SearchResultOverlay = ({ onClose, onOpenSearch }: Props) => {
+
+    const { selectedPlace, selectedResults, setSelectedPlace, setSelectedResults } = useSearchResultStore();
+    const [selectedListItem, setSelectedListItem] = useState(selectedPlace);
+
+    if (!selectedPlace) return null;
+
+    const openAddressSearch = () => {
+        onOpenSearch();
+        setSelectedPlace(null);
+        setSelectedResults([]);
+    }
+
+    return (
+        <div className="fixed inset-0 z-[200] pointer-events-none">
+
+
+            {/* Header */}
+            <div className="absolute top-0 left-0 right-0 z-30 w-full max-w-md mx-auto px-2 pt-3 pb-3 pointer-events-auto">
+                <div className="flex items-center rounded-2xl border border-gray-200 bg-white px-2 py-3 shadow-lg">
+                    <button
+                        onClick={onClose}
+                        className="mr-2 text-gray-500 hover:text-black"
+                    >
+                        <MdArrowBack size={22} />
+                    </button>
+    
+                    <input
+                        readOnly
+                        type="text"
+                        value={selectedPlace.name}
+                        placeholder="주소를 검색하세요"
+                        className="flex-1 text-sm outline-none cursor-pointer"
+                        onClick={openAddressSearch}
+                    />
+                </div>
+            </div>
+
+
+
+            {/* Map */}
+            <div className="
+                absolute inset-0
+            ">
+            </div>
+
+
+            {/* Bottom Sheet */}
+            <div
+                className="absolute bottom-0 left-0 right-0 z-10 bg-white rounded-xl shadow-xl max-h-[35%] overflow-y-auto pointer-events-auto"
+            >
+                <div className="p-0">
+                    <div className="divide-y">
+                        {selectedResults.map((item, idx) => {
+                            const isSelected = item.name === selectedListItem?.name;
+
+                            return (
+                                <div
+                                    key={idx}
+                                    onClick={() => setSelectedListItem(item)}
+                                    className={`py-4 px-3 text-left rounded-xl transition
+                                        ${
+                                            isSelected
+                                            ? "bg-blue-50 border"
+                                            : "hover:bg-gray-50"
+                                        }
+                                    `}
+                                >
+
+                                    <div className={`
+                                        text-sm
+                                        font-medium
+                                        ${
+                                            isSelected
+                                            ? "text-blue-600"
+                                            : "text-gray-800"
+                                        }
+                                    `}>
+                                        {item.name}
+                                    </div>
+
+
+                                    <div className="
+                                        text-xs
+                                        text-gray-500
+                                        mt-1
+                                    ">
+                                        {item.address}
+                                    </div>
+                                </div>
+                            );
+                        })}
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};

@@ -7,6 +7,8 @@ import { MdWarningAmber } from "react-icons/md";
 import { useState } from "react";
 import { DisasterLogList } from "../components/DisasterLogList";
 import { AddressSearchOverlay } from "../components/AddressSearchOverlay";
+import { useSearchResultStore } from "../store/SearchResultStore";
+import { SearchResultOverlay } from "../components/SearchResultOverlay";
 
 
 export const Home = () => {
@@ -22,6 +24,7 @@ export const Home = () => {
   const { shelterType, handleShelterClick } = useShelter(0);
   const [openDisasterLog, setOpenDisasterLog] = useState<boolean>(false);
   const [openSearch, setOpenSearch] = useState(false);
+  const { selectedPlace, setSelectedPlace } = useSearchResultStore();
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center px-0 text-center">
@@ -53,7 +56,7 @@ export const Home = () => {
           </span>
         </div>
         <div className="flex gap-2">
-          {shelterMap.map((map: ShelterInfo) => (
+          {!selectedPlace && shelterMap.map((map: ShelterInfo) => (
             <button
               key={map.code}
               onClick={() => handleShelterClick(map.code)}
@@ -67,33 +70,44 @@ export const Home = () => {
             </button>
           ))}
         </div>
-        <div className="flex justify-end">
-          <button
-            className="
-              w-12 h-12
-              rounded-full
-              bg-white
-              shadow-lg
-              border border-gray-200
-              flex items-center justify-center
-              hover:bg-gray-50
-              active:scale-95
-              transition
-            "
-            onClick={() => setOpenDisasterLog(true)}
-          >
-          <MdWarningAmber size={28} className="text-red-500" />
-          </button>
-        </div>
+        {!selectedPlace && (
+            <div className="flex justify-end">
+              <button
+                className="
+                  w-12 h-12
+                  rounded-full
+                  bg-white
+                  shadow-lg
+                  border border-gray-200
+                  flex items-center justify-center
+                  hover:bg-gray-50
+                  active:scale-95
+                  transition
+                "
+                onClick={() => setOpenDisasterLog(true)}
+              >
+              <MdWarningAmber size={28} className="text-red-500" />
+              </button>
+            </div>
+          )
+        }
       </div>
-      <DisasterLogList
+      {!selectedPlace && (
+        <DisasterLogList
           open={openDisasterLog}
           onClose={() => setOpenDisasterLog(false)}
-      />
+      />)
+      }
       <AddressSearchOverlay
         open = {openSearch}
         onClose={()=> setOpenSearch(false)} 
       />
+
+      {selectedPlace && (
+        <SearchResultOverlay 
+          onClose={() => setSelectedPlace(null)} 
+          onOpenSearch={() => setOpenSearch(true)}/>
+      )}
       <KakaoMap />
       <BottomCurrentLocationBar/>
     </div>
