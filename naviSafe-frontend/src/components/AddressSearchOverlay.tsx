@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { useCurrentLocation } from "../hooks/useCurrentLocation";
 import type { SearchResult } from "../type/Search";
+import { useSearchResultStore } from "../store/SearchResultStore";
 
 interface AddressSearchOverlayProps {
     open: boolean;
@@ -21,91 +22,91 @@ interface HistoryItem {
 const mockRecentKeywords : HistoryItem[]= [
     {
         id: 1,
-        name: "서울특별시 중구 서울역 KTX 공항철도 환승센터 1번 출구",
+        name: "서울특별시 중구 서울역",
         type: "PLACE",
         date: "2026-07-06",
     },
     {
         id: 2,
-        name: "강남역 2호선 5번 출구 삼성타운 버스정류장 환승센터",
+        name: "강남역 2호선",
         type: "STOP",
         date: "2026-07-05",
     },
     {
         id: 3,
-        name: "부산광역시 해운대구 해운대 해수욕장 관광안내소 앞",
+        name: "부산광역시 해운대구 해운대 해수욕장",
         type: "PLACE",
         date: "2026-07-05",
     },
     {
         id: 4,
-        name: "인천국제공항 제1여객터미널 출국장 앞 리무진 버스 정류장",
-        type: "STOP",
+        name: "인천국제공항",
+        type: "PLACE",
         date: "2026-07-04",
     },
     {
         id: 5,
-        name: "판교역 테크노밸리 IT기업 밀집 지역 스타트업 캠퍼스",
+        name: "판교역 테크노밸리",
         type: "SEARCH",
         date: "2026-07-04",
     },
     {
         id: 6,
-        name: "대구 동성로 중앙로역 쇼핑거리 대형 백화점 앞",
+        name: "대구 동성로 중앙로역",
         type: "PLACE",
         date: "2026-07-03",
     },
     {
         id: 7,
-        name: "광주 송정역 KTX 광장 택시 승강장 및 버스 환승 구역",
+        name: "광주 송정역",
         type: "STOP",
         date: "2026-07-03",
     },
     {
         id: 8,
-        name: "제주국제공항 국내선 도착장 렌터카 셔틀 승차장",
-        type: "STOP",
+        name: "제주국제공항 국내선",
+        type: "PLACE",
         date: "2026-07-02",
     },
     {
         id: 9,
-        name: "울산 남구 삼산동 현대백화점 주변 번화가 중심지",
+        name: "울산 남구 삼산동 현대백화점",
         type: "PLACE",
         date: "2026-07-02",
     },
     {
         id: 10,
-        name: "수원역 AK플라자 쇼핑몰 버스 환승센터 앞 광장",
+        name: "수원역 AK플라자 쇼핑몰",
         type: "PLACE",
         date: "2026-07-01",
     },
     {
         id: 11,
-        name: "대전 정부청사역 지하철 1호선 출구 앞 정류장",
+        name: "대전 정부청사역",
         type: "STOP",
         date: "2026-07-01",
     },
     {
         id: 12,
-        name: "송도 국제도시 센트럴파크 수변 산책로 입구",
+        name: "송도 국제도시 센트럴파크",
         type: "PLACE",
         date: "2026-06-30",
     },
     {
         id: 13,
-        name: "잠실역 롯데월드타워 지하광장 택시 승차장",
+        name: "잠실역 롯데월드타워",
         type: "STOP",
         date: "2026-06-30",
     },
     {
         id: 14,
-        name: "홍대입구역 9번 출구 거리 공연장 중심 거리",
+        name: "홍대입구역 9번 출구",
         type: "SEARCH",
         date: "2026-06-29",
     },
     {
         id: 15,
-        name: "노량진 수산시장 앞 대로변 버스 정류장",
+        name: "노량진 수산시장",
         type: "STOP",
         date: "2026-06-29",
     },
@@ -129,6 +130,7 @@ export const AddressSearchOverlay = ({
     const { getLocation } = useCurrentLocation();
 
     const [debouncedKeyword, setDebouncedKeyword] = useState("");
+    const { setSelectedResults, setSelectedPlace } = useSearchResultStore();
     const [searchList, setSearchList] = useState<SearchResult[]>([]);
     const [loading, setLoading] = useState(false);
 
@@ -180,22 +182,6 @@ export const AddressSearchOverlay = ({
                     );
                     return;
                 }
-    
-                const addrRes = await axios.get(
-                    `${import.meta.env.VITE_API_BASE_URL}/api/address/search-juso`,
-                    {
-                        params: { keyword: debouncedKeyword },
-                    }
-                );
-    
-                const jusoList = addrRes.data?.results?.juso ?? [];
-    
-                setSearchList(
-                    jusoList.map((item: any) => ({
-                        type: "address",
-                        address: item.roadAddr,
-                    }))
-                );
             } catch (e) {
                 console.error(e);
                 setSearchList([]);
@@ -218,6 +204,12 @@ export const AddressSearchOverlay = ({
         case "SEARCH":
             return <MdSearch className="text-gray-500" size={18} />;
         }
+    };
+
+    const handleSelect = (item: SearchResult) => {
+        setSelectedPlace(item);
+        setSelectedResults(searchList);
+        onClose();
     };
 
     return (
@@ -300,7 +292,7 @@ export const AddressSearchOverlay = ({
                             <div
                                 key={idx}
                                 className="px-2 py-5 border-b border-gray-200 hover:bg-gray-100 cursor-pointer"
-                                // onClick={() => handleSelect(item)}
+                                onClick={() => handleSelect(item)}
                             >
                                 {item.type === "place" ? (
                                     <>
