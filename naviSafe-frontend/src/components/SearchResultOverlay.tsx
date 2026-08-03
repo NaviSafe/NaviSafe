@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { MdArrowBack } from "react-icons/md";
 import { useSearchResultStore } from "../store/SearchResultStore";
 
@@ -12,6 +12,8 @@ export const SearchResultOverlay = ({ onClose, onOpenSearch }: Props) => {
 
     const { selectedPlace, selectedResults, setSelectedPlace, setSelectedResults } = useSearchResultStore();
     const [selectedListItem, setSelectedListItem] = useState(selectedPlace);
+    const sheetRef = useRef<HTMLDivElement>(null);
+    const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
 
     if (!selectedPlace) return null;
 
@@ -20,6 +22,35 @@ export const SearchResultOverlay = ({ onClose, onOpenSearch }: Props) => {
         setSelectedPlace(null);
         setSelectedResults([]);
     }
+
+    const handleScroll = () => {
+        const sheet = sheetRef.current;
+    
+        if (!sheet) return;
+    
+        const sheetTop = sheet.scrollTop;
+    
+        let closestIndex = 0;
+        let minDistance = Infinity;
+    
+        itemRefs.current.forEach((item, idx) => {
+            if (!item) return;
+    
+            const itemTop =
+                item.offsetTop;
+    
+            const distance = Math.abs(
+                sheetTop - itemTop
+            );
+    
+            if (distance < minDistance) {
+                minDistance = distance;
+                closestIndex = idx;
+            }
+        });
+    
+        setSelectedListItem(selectedResults[closestIndex]);
+    };
 
     return (
         <div className="fixed inset-0 z-[200] pointer-events-none">
@@ -57,6 +88,8 @@ export const SearchResultOverlay = ({ onClose, onOpenSearch }: Props) => {
 
             {/* Bottom Sheet */}
             <div
+                ref={sheetRef}
+                onScroll={handleScroll}
                 className="absolute bottom-0 left-0 right-0 z-10 bg-white rounded-xl shadow-xl max-h-[35%] overflow-y-auto pointer-events-auto"
             >
                 <div className="p-0">
@@ -66,6 +99,9 @@ export const SearchResultOverlay = ({ onClose, onOpenSearch }: Props) => {
 
                             return (
                                 <div
+                                    ref={(el) => {
+                                        itemRefs.current[idx] = el;
+                                    }}
                                     key={idx}
                                     onClick={() => setSelectedListItem(item)}
                                     className={`py-4 px-3 text-left rounded-xl transition
