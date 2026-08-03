@@ -4,6 +4,7 @@ import { useShelterTypeState } from "../store/shelterStore";
 import { useSelectedShelter } from "../store/selectedShelterStore";
 import { useRouteStore } from "../store/routeStore";
 import {useLocationStore} from "../store/myLocationStore";
+import { useMapStore } from "../store/mapStore";
 
 declare global {
     interface Window {
@@ -17,7 +18,9 @@ export const KakaoMap = () => {
     const { setSelectedShelter } = useSelectedShelter();
     const { routeCoords } = useRouteStore();
     const { location } = useLocationStore();
+    const {moveToCurrentLocation, finishMoveToCurrentLocation } = useMapStore();
 
+    
     const [windowHeightSize, setWindowHeightSize] = useState<number>(window.innerHeight);
     const mapRef = useRef<any>(null);
     const clustererRef = useRef<any>(null);
@@ -284,6 +287,26 @@ export const KakaoMap = () => {
         marker.setMap(mapRef.current);
         myLocationMarkerRef.current = marker;
     }, [location, isMapLoaded]);
+
+    // 현재 위치를 맵의 중심으로 이동
+    useEffect(() => {
+        if (
+            !moveToCurrentLocation ||
+            !mapRef.current ||
+            !location
+        ) {
+            return;
+        }
+    
+        const pos = new window.kakao.maps.LatLng(
+            location.lat,
+            location.lon
+        );
+    
+        mapRef.current.setCenter(pos);
+    
+        finishMoveToCurrentLocation();
+    }, [moveToCurrentLocation]);
 
     return (
         <div
