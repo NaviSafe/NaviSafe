@@ -130,7 +130,7 @@ export const AddressSearchOverlay = ({
     const { getLocation } = useCurrentLocation();
 
     const [debouncedKeyword, setDebouncedKeyword] = useState("");
-    const { setSelectedResults, setSelectedPlace } = useSearchResultStore();
+    const { setSelectedResults, setSelectedPlace, setSelectedListItem } = useSearchResultStore();
     const [searchList, setSearchList] = useState<SearchResult[]>([]);
     const [loading, setLoading] = useState(false);
 
@@ -209,6 +209,7 @@ export const AddressSearchOverlay = ({
     const handleSelect = (item: SearchResult) => {
         setSelectedPlace(item);
         setSelectedResults(searchList);
+        setSelectedListItem(item);
         onClose();
     };
 

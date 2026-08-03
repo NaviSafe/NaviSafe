@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import { MdArrowBack } from "react-icons/md";
 import { useSearchResultStore } from "../store/SearchResultStore";
 
@@ -10,8 +10,15 @@ interface Props {
 
 export const SearchResultOverlay = ({ onClose, onOpenSearch }: Props) => {
 
-    const { selectedPlace, selectedResults, setSelectedPlace, setSelectedResults } = useSearchResultStore();
-    const [selectedListItem, setSelectedListItem] = useState(selectedPlace);
+    const {
+        selectedPlace,
+        selectedResults,
+        selectedListItem,
+        setSelectedPlace,
+        setSelectedResults,
+        setSelectedListItem
+    } = useSearchResultStore();
+
     const sheetRef = useRef<HTMLDivElement>(null);
     const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
 

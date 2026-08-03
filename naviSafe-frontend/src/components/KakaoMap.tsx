@@ -5,6 +5,7 @@ import { useSelectedShelter } from "../store/selectedShelterStore";
 import { useRouteStore } from "../store/routeStore";
 import {useLocationStore} from "../store/myLocationStore";
 import { useMapStore } from "../store/mapStore";
+import { useSearchResultStore } from "../store/SearchResultStore";
 
 declare global {
     interface Window {
@@ -18,6 +19,7 @@ export const KakaoMap = () => {
     const { setSelectedShelter } = useSelectedShelter();
     const { routeCoords } = useRouteStore();
     const { location } = useLocationStore();
+    const { selectedListItem, selectedResults } = useSearchResultStore();
     const {moveToCurrentLocation, finishMoveToCurrentLocation } = useMapStore();
 
     
@@ -30,6 +32,7 @@ export const KakaoMap = () => {
     const overlayRef = useRef<any>(null);
     const polylineRef = useRef<any>(null);
     const myLocationMarkerRef = useRef<any>(null);
+    const searchMarkersRef = useRef<any[]>([]);
 
     useEffect(() => {
         const handleWindowResize = () => {
@@ -307,6 +310,73 @@ export const KakaoMap = () => {
     
         finishMoveToCurrentLocation();
     }, [moveToCurrentLocation]);
+
+    // 검색 결과 마커 업데이트
+    useEffect(() => {
+        if (!isMapLoaded || !mapRef.current) return;
+    
+    
+        // 기존 검색 마커 제거
+        searchMarkersRef.current.forEach((marker) => {
+            marker.setMap(null);
+        });
+    
+        searchMarkersRef.current = [];
+    
+        selectedResults.forEach((item) => {
+    
+            if (!item.lat || !item.lng) return;
+    
+    
+            const marker = new window.kakao.maps.Marker({
+                position: new window.kakao.maps.LatLng(
+                    item.lat,
+                    item.lng
+                )
+            });
+    
+    
+            marker.setMap(mapRef.current);
+    
+    
+            searchMarkersRef.current.push(marker);
+        });
+    
+    
+    }, [selectedResults, isMapLoaded]);
+
+    // 선택된 검색 결과 지도 중심 이동
+    useEffect(() => {
+        if(
+            !isMapLoaded ||
+            !mapRef.current ||
+            !selectedListItem
+        ) return;
+
+
+        if(
+            !selectedListItem.lat ||
+            !selectedListItem.lng
+        ) return;
+
+
+        const position = new window.kakao.maps.LatLng(
+            selectedListItem.lat,
+            selectedListItem.lng
+        );
+
+
+        mapRef.current.panTo(position, {
+            animate: {
+                duration:1500
+            }
+        });
+
+        // 확대
+        mapRef.current.setLevel(3);
+
+
+    }, [selectedListItem, isMapLoaded]);
 
     return (
         <div
