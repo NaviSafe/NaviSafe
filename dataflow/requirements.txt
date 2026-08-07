@@ -6,3 +6,5 @@ pymysql
 pyproj
 redis
 mysql-connector-python
+boto3
+botocore
