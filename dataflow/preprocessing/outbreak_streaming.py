@@ -48,7 +48,7 @@ def process_batch(batch_df, batch_id):
         raise
     
     # S3 저장
-    save_batch_to_s3(batch_df, batch_id)
+#    save_batch_to_s3(batch_df, batch_id)
 
     try:
         redis_client = RedisClient(
