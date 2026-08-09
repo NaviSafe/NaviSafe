@@ -365,15 +365,14 @@ export const KakaoMap = () => {
             selectedListItem.lng
         );
 
+        mapRef.current.panTo(position);
 
-        mapRef.current.panTo(position, {
-            animate: {
-                duration:1500
-            }
-        });
+        setTimeout(() => {
+            mapRef.current.setLevel(4, {
+                animate: true
+            });
+        }, 300);
 
-        // 확대
-        mapRef.current.setLevel(3);
 
 
     }, [selectedListItem, isMapLoaded]);
