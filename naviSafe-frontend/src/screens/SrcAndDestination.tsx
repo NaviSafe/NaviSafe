@@ -1,176 +1,23 @@
-import { useEffect, useState } from "react";
 import axios from "axios";
 import useSWRMutation from "swr/mutation";
 
 import { useNavigate } from "react-router-dom";
 import { useLocationStore } from "../store/locationStore";
 import { useRouteStore } from "../store/routeStore";
-import type { SearchResult } from "../type/Search";
-import { useCurrentLocation } from "../hooks/useCurrentLocation";
+import { useSearchResultStore } from "../store/SearchResultStore";
+import { useSearchOverlayStore } from "../store/SearchOverlayStore";
 
-type ActiveType = "source" | "dest" | null;
+import { RecentRoute } from "../components/RecentRoute";
+import { MdSwapVert } from "react-icons/md";
 
 export const SrcAndDestination = () => {
     const navigate = useNavigate();
-    const { sourceAddress, destAddress, setSourceAddress, setDestAddress } =
+    const { sourceAddress, destAddress } =
         useLocationStore();
+    const {openSearch} = useSearchOverlayStore();
     const {setRoute} = useRouteStore();
-    const { getLocation } = useCurrentLocation();
-
-    const [activeType, setActiveType] = useState<ActiveType>(null);
-    const [inputText, setInputText] = useState("");
-    const [debouncedText, setDebouncedText] = useState("");
-    const [searchList, setSearchList] = useState<SearchResult[]>([]);
-    const [loading, setLoading] = useState(false);
-
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            setDebouncedText(inputText);
-        }, 400); // 400ms 후 실행
+    const {setSelectedResults, setSelectedPlace } = useSearchResultStore();
     
-        return () => clearTimeout(timer); // 이전 타이머 취소
-    }, [inputText]);
-
-    useEffect(() => {
-        if (inputText.length < 2) {
-        setSearchList([]);
-        return;
-        }
-
-        const fetchAddress = async () => {
-        try {
-            setLoading(true);
-
-            const currentLocation = await getLocation();
-            const placeRes = await axios.post(
-                `${import.meta.env.VITE_API_BASE_URL}/api/address/search-place`,
-                {
-                    lon : currentLocation.lon,
-                    lat : currentLocation.lat,
-                    keyword : inputText
-                },
-            )
-
-            if (placeRes.data?.documents?.length > 0) {
-                setSearchList(
-                    placeRes.data.documents.map((item: any) => ({
-                        type: "place",
-                        name: item.place_name,
-                        address: item.road_address_name || item.address_name,
-                        lat: Number(item.y),
-                        lng: Number(item.x),
-                    }))
-                );
-                return;
-            }
-
-            const addrRes = await axios.get(
-                `${import.meta.env.VITE_API_BASE_URL}/api/address/search-juso`,
-                {
-                    params: { keyword : inputText },
-                }
-            );
-            const jusoList = addrRes.data?.results?.juso ?? [];
-            setSearchList(
-                jusoList.map((item: any) => ({
-                    type: "address",
-                    address: item.roadAddr,
-                }))
-            );
-        } catch (e) {
-            console.error("주소 검색 실패", e);
-            setSearchList([]);
-        } finally {
-            setLoading(false);
-        }
-        };
-
-        fetchAddress();
-    }, [debouncedText]);
-
-    const getCoordByAddress = (address: string) => {
-        return new Promise<{ lat: number; lng: number }>((resolve, reject) => {
-        const callbackName = `vworldCoord_${Date.now()}`;
-        const script = document.createElement("script");
-    
-        script.src =
-            `https://api.vworld.kr/req/address` +
-            `?service=address` +
-            `&request=GetCoord` +
-            `&version=2.0` +
-            `&crs=EPSG:4326` +
-            `&type=ROAD` +
-            `&address=${encodeURIComponent(address)}` +
-            `&format=json` +
-            `&errorformat=json` +
-            `&callback=${callbackName}` +
-            `&key=${import.meta.env.VITE_ROADADDR_TO_COORD_API_KEY}`;
-    
-            (window as any)[callbackName] = (data: any) => {
-            try {
-            const point = data?.response?.result?.point;
-            if (!point) throw new Error("좌표 없음");
-    
-            resolve({
-                lat: Number(point.y),
-                lng: Number(point.x),
-            });
-            } catch (e) {
-            reject(e);
-            } finally {
-            cleanup();
-            }
-        };
-    
-        script.onerror = () => {
-            reject(new Error("좌표 변환 실패"));
-            cleanup();
-        };
-    
-        const cleanup = () => {
-            delete (window as any)[callbackName];
-            document.body.removeChild(script);
-        };
-    
-        document.body.appendChild(script);
-        });
-    };
-    
-
-
-    const handleSelect = async (item: SearchResult) => {
-        let data;
-    
-        if (item.type === "place") {
-            // 카카오는 좌표 이미 있음
-            data = {
-                address: item.address,
-                latitude: item.lat!,
-                longitude: item.lng!,
-            };
-        } else {
-            // 주소는 좌표 변환 필요
-            const res = await getCoordByAddress(item.address);
-            data = {
-                address: item.address,
-                latitude: res.lat,
-                longitude: res.lng,
-            };
-        }
-    
-        if (activeType === "source") {
-            setSourceAddress(data);
-        }
-    
-        if (activeType === "dest") {
-            setDestAddress(data);
-        }
-    
-        setInputText("");
-        setSearchList([]);
-        setActiveType(null);
-    };
-
     const fetchRoute = async (url: string, { arg }: { arg: any }) => {
         const res = await axios.post(url, arg);
         return res.data;
@@ -193,6 +40,8 @@ export const SrcAndDestination = () => {
             });
 
             setRoute(data.points, data.distance);
+            setSelectedPlace(null);    
+            setSelectedResults([]);
             navigate("/");
         } catch (e) {
             console.error("경로 조회 실패", e);
@@ -200,12 +49,12 @@ export const SrcAndDestination = () => {
     }
 
     return (
-        <div className="relative w-full h-screen flex flex-col gap-3 px-4 pt-4 pb-24">
+        <div className="relative w-full h-screen bg-white overflow-hidden">
             {/* 경로 탐색 로딩 창 */}
             {isMutating && (
                 <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
                     <div className="bg-white px-6 py-5 rounded-2xl shadow-md flex flex-col items-center gap-3">
-                    {/* 🔥 스피너 */}
+                    {/* 스피너 */}
                     <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
                     <div className="text-sm text-gray-600">
                         경로 탐색 중...
@@ -214,85 +63,174 @@ export const SrcAndDestination = () => {
                 </div>
             )}
 
-            {/* 출발지 */}
-            <div className="bg-white rounded-lg px-4 py-3 shadow-sm">
-                <div className="text-sm font-medium mb-1">출발지</div>
-                <input
-                value={
-                    activeType === "source" ? inputText : sourceAddress?.address || ""
-                }
-                placeholder="출발지 입력"
-                className="w-full text-sm outline-none"
-                onFocus={() => {
-                    setActiveType("source");
-                    setInputText("");
-                }}
-                onChange={(e) => setInputText(e.target.value)}
-                />
-            </div>
-        
-            {/* 도착지 */}
-            <div className="bg-white rounded-lg px-4 py-3 shadow-sm">
-                <div className="text-sm font-medium mb-1">도착지</div>
-                <input
-                value={activeType === "dest" ? inputText : destAddress?.address || ""}
-                placeholder="도착지 입력"
-                className="w-full text-sm outline-none"
-                onFocus={() => {
-                    setActiveType("dest");
-                    setInputText("");
-                }}
-                onChange={(e) => setInputText(e.target.value)}
-                />
-            </div>
-        
-            {/* 주소 리스트 */}
-            {activeType && (
-                <div className="bg-white rounded-lg shadow-md flex-1 overflow-y-auto mt-2">
-                {loading && (
-                    <div className="p-4 text-sm text-gray-500">검색 중...</div>
-                )}
-        
-                {!loading && searchList.length === 0 && (
-                    <div className="p-4 text-sm text-gray-400">검색 결과 없음</div>
-                )}
-        
-                {searchList.map((item, idx) => (
+            <div className="bg-blue-500 px-4 pt-4 pb-3">
+                <div className="relative bg-white/10 rounded-md overflow-hidden">
+                    {/* 출발지 */}
                     <div
-                        key={idx}
-                        className="px-4 py-4 border-b cursor-pointer hover:bg-gray-100"
-                        onClick={() => handleSelect(item)}
+                        onClick={() => {
+                            setSelectedPlace(null);
+                            openSearch();
+                            navigate("/");
+                        }}
+                        className="
+                            h-[42px]
+                            px-3
+                            flex
+                            items-center
+                            cursor-pointer
+                            border-b border-white/10
+                        "
                     >
-                    {/* 장소 검색 */}
-                    {item.type === "place" ? (
-                    <>
-                        <div className="font-medium">{item.name}</div>
-                        <div className="text-sm text-gray-500">{item.address}</div>
-                    </>
-                    ) : (
-                    /* 주소 검색 */
-                    <div className="font-medium">{item.address}</div>
-                    )}
-                </div>
-                ))}
-                </div>
-            )}
-            <div className="absolute bottom-4 left-0 w-full px-4 flex gap-2">
-                {/* 취소 버튼 25% */}
-                <button
-                    className="flex-[1] bg-white text-gray-500 border border-gray-500 py-2 rounded-lg font-medium hover:bg-gray-100 transition"
-                    onClick={() => navigate("/")} // 취소 시 메인 페이지
-                >
-                    취소
-                </button>
+                        <span
+                            className={
+                                sourceAddress
+                                    ? "text-sm text-white"
+                                    : "text-sm text-white/60"
+                            }
+                        >
+                            {sourceAddress?.address || "출발지 입력"}
+                        </span>
+                    </div>
 
-                {/* 설정 완료 버튼 75% */}
-                <button
-                    className="flex-[3] bg-blue-500 text-white py-2 rounded-lg font-medium hover:bg-blue-600 transition disabled:opacity-50"
-                    onClick={selectSrcDest} // 완료 시 메인 페이지
-                    disabled={!sourceAddress || !destAddress}
+                    {/* 도착지 */}
+                    <div
+                        onClick={() => {
+                            setSelectedPlace(null);
+                            openSearch();
+                            navigate("/");
+                        }}
+                        className="
+                            h-[42px]
+                            px-3
+                            flex
+                            items-center
+                            cursor-pointer
+                        "
+                    >
+                        <span
+                            className={
+                                destAddress
+                                    ? "text-sm text-white"
+                                    : "text-sm text-white/60"
+                            }
+                        >
+                            {destAddress?.address || "도착지 입력"}
+                        </span>
+                    </div>
+
+                    <button
+                        className="
+                            absolute
+                            right-2
+                            top-1/2
+                            -translate-y-1/2
+                            text-white
+                        "
+                    >
+                        <MdSwapVert size={22} />
+                    </button>
+                </div>
+            </div>
+
+            {/* 최근 경로 */}
+            <div className="flex-1 overflow-y-auto pb-20">
+                <RecentRoute
+                    from="울산광역시청"
+                    to="삼산가든"
+                />
+
+                <RecentRoute
+                    from="울산 남구 신정동 517"
+                    to="삼산가든"
+                />
+
+                <RecentRoute
+                    from="울산 중구 성안동 276"
+                    to="삼산가든"
+                />
+
+                <RecentRoute
+                    from="울산 남구 달동 890"
+                    to="회사"
+                />
+
+                <RecentRoute
+                    from="울산 남구 달동 890"
+                    to="회사"
+                />
+
+                <RecentRoute
+                    from="울산 중구 복산동 702"
+                    to="울산 남구 돌질로 140번길 14-1"
+                />
+
+                <RecentRoute
+                    from="울산 중구 성안동 276"
+                    to="울산 남구 돌질로 140번길 14-1"
+                />
+
+                <RecentRoute
+                    from="울산 중구 복산동 699"
+                    to="울산 남구 돌질로 140번길 14-1"
+                />
+            </div>
+
+
+                {/* 안내 시작 */}
+                <div
+                className="
+                        absolute
+                        bottom-0
+                        left-0
+                        right-0
+                        bg-white
+                        border-t
+                        border-gray-200
+                        p-3
+                        flex
+                        gap-2
+                    "
                 >
-                    설정 완료
+                    {/* 취소 */}
+                    <button
+                        onClick={() => {
+                            setSelectedPlace(null);
+                            setSelectedResults([]);
+                            navigate("/");
+                        }}
+                        className="
+                            flex-[1]
+                            py-3
+                            rounded-xl
+                            border
+                            border-gray-300
+                            bg-white
+                            text-gray-600
+                            font-medium
+                            hover:bg-gray-50
+                            transition
+                        "
+                    >
+                        취소
+                    </button>
+
+                    {/* 안내 시작 */}
+                    <button
+                        onClick={selectSrcDest}
+                        disabled={!sourceAddress || !destAddress || isMutating}
+                        className="
+                            flex-[3]
+                            py-3
+                            rounded-xl
+                            bg-blue-500
+                            text-white
+                            font-semibold
+                            hover:bg-blue-600
+                            disabled:bg-gray-300
+                            transition
+                        "
+                    >
+                    {isMutating ? "경로 탐색 중..." : "안내 시작"}
                 </button>
             </div>
         </div>
