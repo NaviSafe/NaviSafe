@@ -189,17 +189,25 @@ export const SrcAndDestination = () => {
 
             {/* 최근 경로 */}
             <div className="flex-1 overflow-y-auto pb-20">
-                {recentRoutes.map((route, index) => (
-                    <RecentRoute
-                        key={index}
-                        from={route.sourceAddress}
-                        to={route.destAddress}
-                        onClick={() => {
-                            setSourceAddress(route.sourceAddress);
-                            setDestAddress(route.destAddress);
-                        }}
-                    />
-                ))}
+                {recentRoutes.length > 0 ? (
+                    recentRoutes.map((route, index) => (
+                        <RecentRoute
+                            key={index}
+                            from={route.sourceAddress}
+                            to={route.destAddress}
+                            onClick={() => {
+                                setSourceAddress(route.sourceAddress);
+                                setDestAddress(route.destAddress);
+                            }}
+                        />
+                    ))
+                ) : (
+                    <div className="flex items-center justify-center py-20">
+                        <span className="text-sm text-gray-400">
+                            최근 경로가 없습니다.
+                        </span>
+                    </div>
+                )}
             </div>
 
 
