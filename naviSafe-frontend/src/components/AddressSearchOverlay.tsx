@@ -4,11 +4,7 @@ import axios from "axios";
 import { useCurrentLocation } from "../hooks/useCurrentLocation";
 import type { SearchResult } from "../type/Search";
 import { useSearchResultStore } from "../store/SearchResultStore";
-
-interface AddressSearchOverlayProps {
-    open: boolean;
-    onClose: () => void;
-}
+import { useSearchOverlayStore } from "../store/SearchOverlayStore";
 
 type HistoryType = "PLACE" | "STOP" | "SEARCH";
 
@@ -121,10 +117,9 @@ const formatDate = (dateStr: string) => {
     return `${month}.${day}`;
 };
 
-export const AddressSearchOverlay = ({
-    open,
-    onClose,
-    }: AddressSearchOverlayProps) => {
+export const AddressSearchOverlay = () => {
+    const { isOpen, closeSearch } = useSearchOverlayStore();
+
     const [keyword, setKeyword] = useState("");
 
     const { getLocation } = useCurrentLocation();
@@ -136,7 +131,7 @@ export const AddressSearchOverlay = ({
 
     // 닫힐 때 초기화
     useEffect(() => {
-        if (!open) {
+        if (!isOpen) {
         setKeyword("");
         }
     }, [open]);
@@ -193,7 +188,7 @@ export const AddressSearchOverlay = ({
         fetchAddress();
     }, [debouncedKeyword]);
 
-    if (!open) return null;
+    if (!isOpen) return null;
 
     const getTypeIcon = (type: HistoryType) => {
         switch (type) {
@@ -210,7 +205,7 @@ export const AddressSearchOverlay = ({
         setSelectedPlace(item);
         setSelectedResults(searchList);
         setSelectedListItem(item);
-        onClose();
+        closeSearch();
     };
 
     return (
@@ -219,7 +214,7 @@ export const AddressSearchOverlay = ({
         <div className="flex-shrink-0 w-full max-w-md mx-auto px-2 pt-4">
             <div className="flex items-center rounded-2xl border border-gray-200 bg-white px-2 py-3 shadow-lg">
                 <button
-                    onClick={onClose}
+                    onClick={closeSearch}
                     className="mr-2 text-gray-500 hover:text-black"
                 >
                     <MdArrowBack size={22} />
