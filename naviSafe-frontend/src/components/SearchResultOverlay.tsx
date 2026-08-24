@@ -7,11 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { useSearchOverlayStore } from "../store/SearchOverlayStore";
 
 
-interface Props {
-    onClose: () => void;
-}
-
-export const SearchResultOverlay = ({ onClose }: Props) => {
+export const SearchResultOverlay = () => {
 
     const {
         selectedPlace,
@@ -84,7 +80,7 @@ export const SearchResultOverlay = ({ onClose }: Props) => {
             <div className="absolute top-0 left-0 right-0 z-30 w-full max-w-md mx-auto px-2 pt-3 pb-3 pointer-events-auto">
                 <div className="flex items-center rounded-2xl border border-gray-200 bg-white px-2 py-3 shadow-lg">
                     <button
-                        onClick={onClose}
+                        onClick={() => {setSelectedPlace(null)}}
                         className="mr-2 text-gray-500 hover:text-black"
                     >
                         <MdArrowBack size={22} />

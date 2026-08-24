@@ -9,6 +9,7 @@ import { DisasterLogList } from "../components/DisasterLogList";
 import { AddressSearchOverlay } from "../components/AddressSearchOverlay";
 import { useSearchResultStore } from "../store/SearchResultStore";
 import { SearchResultOverlay } from "../components/SearchResultOverlay";
+import { useSearchOverlayStore } from "../store/SearchOverlayStore";
 
 
 export const Home = () => {
@@ -23,7 +24,7 @@ export const Home = () => {
 
   const { shelterType, handleShelterClick } = useShelter(0);
   const [openDisasterLog, setOpenDisasterLog] = useState<boolean>(false);
-  const [openSearch, setOpenSearch] = useState(false);
+  const {openSearch} = useSearchOverlayStore();
   const { selectedPlace, setSelectedPlace } = useSearchResultStore();
 
   return (
@@ -33,7 +34,7 @@ export const Home = () => {
           role="button"
           tabIndex={0}
           onClick={() => {
-            setOpenSearch(true);
+            openSearch();
           }}
           className="flex w-full cursor-text items-center rounded-2xl border border-gray-200 bg-white px-2 py-3 shadow-lg"
         >
@@ -98,15 +99,10 @@ export const Home = () => {
           onClose={() => setOpenDisasterLog(false)}
       />)
       }
-      <AddressSearchOverlay
-        open = {openSearch}
-        onClose={()=> setOpenSearch(false)} 
-      />
+      <AddressSearchOverlay/>
 
       {selectedPlace && (
-        <SearchResultOverlay 
-          onClose={() => setSelectedPlace(null)} 
-          onOpenSearch={() => setOpenSearch(true)}/>
+        <SearchResultOverlay/>
       )}
       <KakaoMap />
       <BottomCurrentLocationBar/>
