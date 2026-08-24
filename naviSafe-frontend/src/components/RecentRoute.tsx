@@ -1,16 +1,25 @@
 import { MdHistory } from "react-icons/md";
 
+interface Address {
+    address: string;
+    latitude: number;
+    longitude: number;
+}
+
 interface RecentRouteProps {
-    from: string;
-    to: string;
+    from: Address;
+    to: Address;
+    onClick: () => void;
 }
 
 export const RecentRoute = ({
     from,
     to,
+    onClick,
 }: RecentRouteProps) => {
     return (
         <div
+            onClick={onClick}
             className="
                 min-h-[58px]
                 px-4
@@ -50,13 +59,13 @@ export const RecentRoute = ({
                     leading-5
                 "
             >
-                <span>{from}</span>
+                <span>{from.address}</span>
 
                 <span className="mx-1 font-semibold text-gray-500">
                     →
                 </span>
 
-                <span>{to}</span>
+                <span>{to.address}</span>
             </div>
         </div>
     );

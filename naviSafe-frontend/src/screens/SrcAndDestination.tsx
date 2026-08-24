@@ -1,5 +1,6 @@
 import axios from "axios";
 import useSWRMutation from "swr/mutation";
+import { useState, useEffect } from "react";
 
 import { useNavigate } from "react-router-dom";
 import { useLocationStore } from "../store/locationStore";
@@ -12,11 +13,33 @@ import { MdSwapVert } from "react-icons/md";
 
 export const SrcAndDestination = () => {
     const navigate = useNavigate();
-    const { sourceAddress, destAddress } =
+    const { sourceAddress, destAddress, setSourceAddress, setDestAddress } =
         useLocationStore();
     const {openSearch} = useSearchOverlayStore();
     const {setRoute} = useRouteStore();
     const {setSelectedResults, setSelectedPlace } = useSearchResultStore();
+    const [recentRoutes, setRecentRoutes] = useState<
+        {
+            sourceAddress: {
+                address: string;
+                latitude: number;
+                longitude: number;
+            };
+            destAddress: {
+                address: string;
+                latitude: number;
+                longitude: number;
+            };
+        }[]
+    >([]);
+
+    useEffect(() => {
+        const savedRoutes = localStorage.getItem("recentRoutes");
+
+        if (savedRoutes) {
+            setRecentRoutes(JSON.parse(savedRoutes));
+        }
+    }, []);
     
     const fetchRoute = async (url: string, { arg }: { arg: any }) => {
         const res = await axios.post(url, arg);
@@ -32,6 +55,38 @@ export const SrcAndDestination = () => {
         if (!sourceAddress || !destAddress) return;
 
         try {
+            const savedRoutes = localStorage.getItem("recentRoutes");
+            const recentRoutes = savedRoutes
+                ? JSON.parse(savedRoutes)
+                : [];
+
+            // 새로운 경로
+            const newRoute = {
+                sourceAddress,
+                destAddress,
+            };
+
+            // 동일한 출발지 + 도착지 조합 제거
+            const filteredRoutes = recentRoutes.filter(
+                (route: any) =>
+                    !(
+                        route.sourceAddress.address === sourceAddress.address &&
+                        route.destAddress.address === destAddress.address
+                    )
+            );
+
+            // 새로운 경로를 맨 앞에 추가 + 최대 15개
+            const updatedRoutes = [
+                newRoute,
+                ...filteredRoutes,
+            ].slice(0, 15);
+
+            // LocalStorage 저장
+            localStorage.setItem(
+                "recentRoutes",
+                JSON.stringify(updatedRoutes)
+            );
+
             const data = await trigger({
                 fromLongitude: sourceAddress.longitude,
                 fromLatitude: sourceAddress.latitude,
@@ -134,45 +189,17 @@ export const SrcAndDestination = () => {
 
             {/* 최근 경로 */}
             <div className="flex-1 overflow-y-auto pb-20">
-                <RecentRoute
-                    from="울산광역시청"
-                    to="삼산가든"
-                />
-
-                <RecentRoute
-                    from="울산 남구 신정동 517"
-                    to="삼산가든"
-                />
-
-                <RecentRoute
-                    from="울산 중구 성안동 276"
-                    to="삼산가든"
-                />
-
-                <RecentRoute
-                    from="울산 남구 달동 890"
-                    to="회사"
-                />
-
-                <RecentRoute
-                    from="울산 남구 달동 890"
-                    to="회사"
-                />
-
-                <RecentRoute
-                    from="울산 중구 복산동 702"
-                    to="울산 남구 돌질로 140번길 14-1"
-                />
-
-                <RecentRoute
-                    from="울산 중구 성안동 276"
-                    to="울산 남구 돌질로 140번길 14-1"
-                />
-
-                <RecentRoute
-                    from="울산 중구 복산동 699"
-                    to="울산 남구 돌질로 140번길 14-1"
-                />
+                {recentRoutes.map((route, index) => (
+                    <RecentRoute
+                        key={index}
+                        from={route.sourceAddress}
+                        to={route.destAddress}
+                        onClick={() => {
+                            setSourceAddress(route.sourceAddress);
+                            setDestAddress(route.destAddress);
+                        }}
+                    />
+                ))}
             </div>
 
 
