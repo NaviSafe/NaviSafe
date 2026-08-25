@@ -103,6 +103,15 @@ export const SrcAndDestination = () => {
         }
     }
 
+    const swapSrcDest = () => {
+        if (!sourceAddress || !destAddress) return;
+    
+        const temp = sourceAddress;
+    
+        setSourceAddress(destAddress);
+        setDestAddress(temp);
+    };
+
     return (
         <div className="relative w-full h-screen bg-white overflow-hidden">
             {/* 경로 탐색 로딩 창 */}
@@ -174,6 +183,7 @@ export const SrcAndDestination = () => {
                     </div>
 
                     <button
+                        onClick={swapSrcDest}
                         className="
                             absolute
                             right-2
