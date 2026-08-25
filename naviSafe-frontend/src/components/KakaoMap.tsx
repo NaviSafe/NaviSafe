@@ -4,6 +4,8 @@ import { useShelterTypeState } from "../store/shelterStore";
 import { useSelectedShelter } from "../store/selectedShelterStore";
 import { useRouteStore } from "../store/routeStore";
 import {useLocationStore} from "../store/myLocationStore";
+import { useMapStore } from "../store/mapStore";
+import { useSearchResultStore } from "../store/SearchResultStore";
 
 declare global {
     interface Window {
@@ -17,7 +19,10 @@ export const KakaoMap = () => {
     const { setSelectedShelter } = useSelectedShelter();
     const { routeCoords } = useRouteStore();
     const { location } = useLocationStore();
+    const { selectedListItem, selectedResults } = useSearchResultStore();
+    const {moveToCurrentLocation, finishMoveToCurrentLocation } = useMapStore();
 
+    
     const [windowHeightSize, setWindowHeightSize] = useState<number>(window.innerHeight);
     const mapRef = useRef<any>(null);
     const clustererRef = useRef<any>(null);
@@ -27,6 +32,9 @@ export const KakaoMap = () => {
     const overlayRef = useRef<any>(null);
     const polylineRef = useRef<any>(null);
     const myLocationMarkerRef = useRef<any>(null);
+    const searchMarkersRef = useRef<any[]>([]);
+    const routeStartMarkerRef = useRef<any>(null);
+    const routeEndMarkerRef = useRef<any>(null);
 
     useEffect(() => {
         const handleWindowResize = () => {
@@ -238,6 +246,15 @@ export const KakaoMap = () => {
             polylineRef.current.setMap(null);
         }
 
+        // 기존 시작점 / 도착점 마커 제거
+        if (routeStartMarkerRef.current) {
+            routeStartMarkerRef.current.setMap(null);
+        }
+
+        if (routeEndMarkerRef.current) {
+            routeEndMarkerRef.current.setMap(null);
+        }
+
         const path = routeCoords.map(coord => new window.kakao.maps.LatLng(coord.lat, coord.lon));
 
         const polyline = new window.kakao.maps.Polyline({
@@ -250,6 +267,35 @@ export const KakaoMap = () => {
 
         polyline.setMap(mapRef.current);
         polylineRef.current = polyline;
+
+        const startMarkerImage = new window.kakao.maps.MarkerImage(
+            "/startMarker.png",
+            new window.kakao.maps.Size(30, 40)
+        );
+    
+        const endMarkerImage = new window.kakao.maps.MarkerImage(
+            "/destMarker.png",
+            new window.kakao.maps.Size(30, 40)
+        );
+
+        // 시작점
+        const startMarker = new window.kakao.maps.Marker({
+            position: path[0],
+            image: startMarkerImage
+        });
+    
+        startMarker.setMap(mapRef.current);
+        routeStartMarkerRef.current = startMarker;
+    
+    
+        // 도착점
+        const endMarker = new window.kakao.maps.Marker({
+            position: path[path.length - 1],
+            image: endMarkerImage
+        });
+    
+        endMarker.setMap(mapRef.current);
+        routeEndMarkerRef.current = endMarker;
 
         // 지도 중심 이동 (선의 시작점)
         mapRef.current.setCenter(path[0]);
@@ -284,6 +330,92 @@ export const KakaoMap = () => {
         marker.setMap(mapRef.current);
         myLocationMarkerRef.current = marker;
     }, [location, isMapLoaded]);
+
+    // 현재 위치를 맵의 중심으로 이동
+    useEffect(() => {
+        if (
+            !moveToCurrentLocation ||
+            !mapRef.current ||
+            !location
+        ) {
+            return;
+        }
+    
+        const pos = new window.kakao.maps.LatLng(
+            location.lat,
+            location.lon
+        );
+    
+        mapRef.current.setCenter(pos);
+    
+        finishMoveToCurrentLocation();
+    }, [moveToCurrentLocation]);
+
+    // 검색 결과 마커 업데이트
+    useEffect(() => {
+        if (!isMapLoaded || !mapRef.current) return;
+    
+    
+        // 기존 검색 마커 제거
+        searchMarkersRef.current.forEach((marker) => {
+            marker.setMap(null);
+        });
+    
+        searchMarkersRef.current = [];
+    
+        selectedResults.forEach((item) => {
+    
+            if (!item.lat || !item.lng) return;
+    
+    
+            const marker = new window.kakao.maps.Marker({
+                position: new window.kakao.maps.LatLng(
+                    item.lat,
+                    item.lng
+                )
+            });
+    
+    
+            marker.setMap(mapRef.current);
+    
+    
+            searchMarkersRef.current.push(marker);
+        });
+    
+    
+    }, [selectedResults, isMapLoaded]);
+
+    // 선택된 검색 결과 지도 중심 이동
+    useEffect(() => {
+        if(
+            !isMapLoaded ||
+            !mapRef.current ||
+            !selectedListItem
+        ) return;
+
+
+        if(
+            !selectedListItem.lat ||
+            !selectedListItem.lng
+        ) return;
+
+
+        const position = new window.kakao.maps.LatLng(
+            selectedListItem.lat,
+            selectedListItem.lng
+        );
+
+        mapRef.current.panTo(position);
+
+        setTimeout(() => {
+            mapRef.current.setLevel(4, {
+                animate: true
+            });
+        }, 300);
+
+
+
+    }, [selectedListItem, isMapLoaded]);
 
     return (
         <div
