@@ -31,7 +31,7 @@ spec:
 
       containers:
         - name: scheduler
-          image: dndjeh/navisafe-airflow:v10
+          image: dndjeh/navisafe-airflow:v14
           imagePullPolicy: IfNotPresent
 
           volumeMounts:

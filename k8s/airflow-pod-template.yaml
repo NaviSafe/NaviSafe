@@ -13,7 +13,7 @@ spec:
 
   containers:
     - name: base
-      image: dndjeh/navisafe-airflow:v10
+      image: dndjeh/navisafe-airflow:v14
       imagePullPolicy: IfNotPresent
 
       env:
