@@ -27,7 +27,7 @@ export const DisasterLogList = ({
                 {/* Header */}
                 <div className="flex items-center justify-between border-b px-5 py-4">
                     <h2 className="text-lg font-bold">
-                        현재 발생 재난
+                        현재 발생한 돌발상황
                     </h2>
 
                     <button
@@ -42,7 +42,7 @@ export const DisasterLogList = ({
                 <div className="max-h-[450px] space-y-3 overflow-y-auto p-4">
                     {outbreakOccurList.length === 0 ? (
                         <div className="py-10 text-center text-sm text-gray-500">
-                            현재 발생한 재난이 없습니다.
+                            현재 발생한 돌발상황이 없습니다.
                         </div>
                     ) : (
                         outbreakOccurList.map((item) => (
