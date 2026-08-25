@@ -25,7 +25,7 @@ export const Home = () => {
   const { shelterType, handleShelterClick } = useShelter(0);
   const [openDisasterLog, setOpenDisasterLog] = useState<boolean>(false);
   const {openSearch} = useSearchOverlayStore();
-  const { selectedPlace, setSelectedPlace } = useSearchResultStore();
+  const { selectedPlace } = useSearchResultStore();
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center px-0 text-center">
