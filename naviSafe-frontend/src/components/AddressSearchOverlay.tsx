@@ -324,30 +324,36 @@ export const AddressSearchOverlay = () => {
                     </span>
                 </div>
 
-                {recentSearches.map((item) => (
-                <div
-                    key={item.id}
-                    onClick={() => setKeyword(item.name)}
-                    className="flex items-center gap-3 py-5 px-2 rounded hover:bg-gray-100 cursor-pointer border-b border-gray-200"
-                >
-                    {/* 아이콘 */}
-                    <div className="flex-shrink-0">
-                    {getCategoryIcon(item.category)}
-                    </div>
+                {recentSearches.length > 0 ? (
+                    recentSearches.map((item) => (
+                        <div
+                            key={item.id}
+                            onClick={() => setKeyword(item.name)}
+                            className="flex items-center gap-3 py-5 px-2 rounded hover:bg-gray-100 cursor-pointer border-b border-gray-200"
+                        >
+                            {/* 아이콘 */}
+                            <div className="flex-shrink-0">
+                                {getCategoryIcon(item.category)}
+                            </div>
 
-                    {/* 내용 */}
-                    <div className="flex-1 min-w-0">
-                        <div className="text-sm text-gray-800 truncate text-left">
-                            {item.name}
+                            {/* 내용 */}
+                            <div className="flex-1 min-w-0">
+                                <div className="text-sm text-gray-800 truncate text-left">
+                                    {item.name}
+                                </div>
+                            </div>
+
+                            {/* 날짜 */}
+                            <div className="text-[11px] text-gray-400 whitespace-nowrap">
+                                {formatDate(item.date || "")}
+                            </div>
                         </div>
+                    ))
+                ) : (
+                    <div className="p-4 text-sm text-gray-400 text-center">
+                        최근 검색어가 없습니다.
                     </div>
-
-                    {/* 날짜 */}
-                    <div className="text-[11px] text-gray-400 whitespace-nowrap">
-                    {formatDate(item.date || "")}
-                    </div>
-                </div>
-                ))}
+                )}
             </>
             )}
 
