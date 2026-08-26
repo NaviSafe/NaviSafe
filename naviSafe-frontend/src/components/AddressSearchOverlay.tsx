@@ -6,107 +6,116 @@ import type { SearchResult } from "../type/Search";
 import { useSearchResultStore } from "../store/SearchResultStore";
 import { useSearchOverlayStore } from "../store/SearchOverlayStore";
 
-type HistoryType = "PLACE" | "STOP" | "SEARCH";
+type CategoryCode =
+    | "MT1"
+    | "CS2"
+    | "PS3"
+    | "SC4"
+    | "AC5"
+    | "PK6"
+    | "OL7"
+    | "SW8"
+    | "BK9"
+    | "CT1"
+    | "AG2"
+    | "PO3"
+    | "AT4"
+    | "AD5"
+    | "FD6"
+    | "CE7"
+    | "HP8"
+    | "PM9";
 
 interface HistoryItem {
-    id: number;
+    id: string | number;
     name: string;
-    type: HistoryType;
+    category: CategoryCode;
+    address: string;
+    lat: number;
+    lng: number;
     date: string;
 }
-
-const mockRecentKeywords : HistoryItem[]= [
+    
+const categoryInfo: Record<
+    CategoryCode,
     {
-        id: 1,
-        name: "서울특별시 중구 서울역",
-        type: "PLACE",
-        date: "2026-07-06",
+        name: string;
+        icon: React.ReactNode;
+    }
+> = {
+    MT1: {
+        name: "대형마트",
+        icon: <MdPlace className="text-blue-500" size={18} />,
     },
-    {
-        id: 2,
-        name: "강남역 2호선",
-        type: "STOP",
-        date: "2026-07-05",
+    CS2: {
+        name: "편의점",
+        icon: <MdPlace className="text-blue-500" size={18} />,
     },
-    {
-        id: 3,
-        name: "부산광역시 해운대구 해운대 해수욕장",
-        type: "PLACE",
-        date: "2026-07-05",
+    PS3: {
+        name: "어린이집·유치원",
+        icon: <MdPlace className="text-blue-500" size={18} />,
     },
-    {
-        id: 4,
-        name: "인천국제공항",
-        type: "PLACE",
-        date: "2026-07-04",
+    SC4: {
+        name: "학교",
+        icon: <MdPlace className="text-blue-500" size={18} />,
     },
-    {
-        id: 5,
-        name: "판교역 테크노밸리",
-        type: "SEARCH",
-        date: "2026-07-04",
+    AC5: {
+        name: "학원",
+        icon: <MdPlace className="text-blue-500" size={18} />,
     },
-    {
-        id: 6,
-        name: "대구 동성로 중앙로역",
-        type: "PLACE",
-        date: "2026-07-03",
+    PK6: {
+        name: "주차장",
+        icon: <MdPlace className="text-blue-500" size={18} />,
     },
-    {
-        id: 7,
-        name: "광주 송정역",
-        type: "STOP",
-        date: "2026-07-03",
+    OL7: {
+        name: "주유소·충전소",
+        icon: <MdPlace className="text-blue-500" size={18} />,
     },
-    {
-        id: 8,
-        name: "제주국제공항 국내선",
-        type: "PLACE",
-        date: "2026-07-02",
+    SW8: {
+        name: "지하철역",
+        icon: <MdDirectionsBus className="text-green-500" size={18} />,
     },
-    {
-        id: 9,
-        name: "울산 남구 삼산동 현대백화점",
-        type: "PLACE",
-        date: "2026-07-02",
+    BK9: {
+        name: "은행",
+        icon: <MdPlace className="text-blue-500" size={18} />,
     },
-    {
-        id: 10,
-        name: "수원역 AK플라자 쇼핑몰",
-        type: "PLACE",
-        date: "2026-07-01",
+    CT1: {
+        name: "문화시설",
+        icon: <MdPlace className="text-purple-500" size={18} />,
     },
-    {
-        id: 11,
-        name: "대전 정부청사역",
-        type: "STOP",
-        date: "2026-07-01",
+    AG2: {
+        name: "중개업소",
+        icon: <MdPlace className="text-gray-500" size={18} />,
     },
-    {
-        id: 12,
-        name: "송도 국제도시 센트럴파크",
-        type: "PLACE",
-        date: "2026-06-30",
+    PO3: {
+        name: "공공기관",
+        icon: <MdPlace className="text-blue-500" size={18} />,
     },
-    {
-        id: 13,
-        name: "잠실역 롯데월드타워",
-        type: "STOP",
-        date: "2026-06-30",
+    AT4: {
+        name: "관광명소",
+        icon: <MdPlace className="text-yellow-500" size={18} />,
     },
-    {
-        id: 14,
-        name: "홍대입구역 9번 출구",
-        type: "SEARCH",
-        date: "2026-06-29",
+    AD5: {
+        name: "숙박",
+        icon: <MdPlace className="text-purple-500" size={18} />,
     },
-    {
-        id: 15,
-        name: "노량진 수산시장",
-        type: "STOP",
-        date: "2026-06-29",
+    FD6: {
+        name: "음식점",
+        icon: <MdPlace className="text-orange-500" size={18} />,
     },
-];
+    CE7: {
+        name: "카페",
+        icon: <MdPlace className="text-amber-700" size={18} />,
+    },
+    HP8: {
+        name: "병원",
+        icon: <MdPlace className="text-red-500" size={18} />,
+    },
+    PM9: {
+        name: "약국",
+        icon: <MdPlace className="text-green-500" size={18} />,
+    },
+};
 
 const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
@@ -119,6 +128,7 @@ const formatDate = (dateStr: string) => {
 
 export const AddressSearchOverlay = () => {
     const { isOpen, closeSearch } = useSearchOverlayStore();
+    const [recentSearches, setRecentSearches] = useState<SearchResult[]>([]);
 
     const [keyword, setKeyword] = useState("");
 
@@ -135,6 +145,23 @@ export const AddressSearchOverlay = () => {
         setKeyword("");
         }
     }, [open]);
+
+    useEffect(() => {
+        if (isOpen) {
+            const stored = localStorage.getItem("recentSearches");
+    
+            if (stored) {
+                try {
+                    setRecentSearches(JSON.parse(stored));
+                } catch (e) {
+                    console.error("최근 검색 기록 불러오기 실패:", e);
+                    setRecentSearches([]);
+                }
+            } else {
+                setRecentSearches([]);
+            }
+        }
+    }, [isOpen]);
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -168,6 +195,8 @@ export const AddressSearchOverlay = () => {
                 if (placeRes.data?.documents?.length > 0) {
                     setSearchList(
                         placeRes.data.documents.map((item: any) => ({
+                            id : item.id,
+                            category: item.category_group_code,
                             type: "place",
                             name: item.place_name,
                             address: item.road_address_name || item.address_name,
@@ -190,18 +219,63 @@ export const AddressSearchOverlay = () => {
 
     if (!isOpen) return null;
 
-    const getTypeIcon = (type: HistoryType) => {
-        switch (type) {
-        case "PLACE":
-            return <MdPlace className="text-blue-500" size={18} />;
-        case "STOP":
-            return <MdDirectionsBus className="text-green-500" size={18} />;
-        case "SEARCH":
-            return <MdSearch className="text-gray-500" size={18} />;
+    // 카테고리 아이콘
+    const getCategoryIcon = (category: string) => {
+        // category가 없거나 빈 문자열이면 돋보기
+        if (!category) {
+            return (
+                <MdSearch
+                    className="text-gray-500"
+                    size={18}
+                />
+            );
         }
+
+        if (category in categoryInfo) {
+            return categoryInfo[
+                category as CategoryCode
+            ].icon;
+        }
+    
+        return (
+            <MdSearch
+                className="text-gray-500"
+                size={18}
+            />
+        );
     };
 
     const handleSelect = (item: SearchResult) => {
+        const stored = localStorage.getItem("recentSearches");
+        const recentSearches: SearchResult[] = stored
+            ? JSON.parse(stored)
+            : [];
+
+        // 중복 제거
+        const filtered = recentSearches.filter(
+            (recent) =>
+                recent.address !== item.address ||
+                recent.lat !== item.lat ||
+                recent.lng !== item.lng
+        );
+
+        const now = new Date().toISOString();
+
+        // 현재 검색한 시각을 date로 저장
+        const historyItem = {
+            ...item,
+            date: now,
+        };
+
+        // 가장 최근 검색을 맨 앞에 추가
+        const updated = [
+            historyItem,
+            ...filtered,
+        ].slice(0, 15);
+
+        // localStorage 저장
+        localStorage.setItem("recentSearches", JSON.stringify(updated));
+
         setSelectedPlace(item);
         setSelectedResults(searchList);
         setSelectedListItem(item);
@@ -250,7 +324,7 @@ export const AddressSearchOverlay = () => {
                     </span>
                 </div>
 
-                {mockRecentKeywords.map((item) => (
+                {recentSearches.map((item) => (
                 <div
                     key={item.id}
                     onClick={() => setKeyword(item.name)}
@@ -258,7 +332,7 @@ export const AddressSearchOverlay = () => {
                 >
                     {/* 아이콘 */}
                     <div className="flex-shrink-0">
-                    {getTypeIcon(item.type)}
+                    {getCategoryIcon(item.category)}
                     </div>
 
                     {/* 내용 */}
@@ -270,7 +344,7 @@ export const AddressSearchOverlay = () => {
 
                     {/* 날짜 */}
                     <div className="text-[11px] text-gray-400 whitespace-nowrap">
-                    {formatDate(item.date)}
+                    {formatDate(item.date || "")}
                     </div>
                 </div>
                 ))}
