@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: dndjeh/navisafe-frontend:v2
+          image: dndjeh/navisafe-frontend:v4
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 5173
@@ -22,7 +22,7 @@ spec:
             - name: NODE_ENV
               value: "development"
             - name: VITE_API_BASE_URL
-              value: "http://localhost:30080"
+              value: "https://www.navisafe.co.kr"
           command: ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
 
 ---
@@ -35,6 +35,6 @@ spec:
   selector:
     app: frontend
   ports:
-    - port: 5173
+    - port: 80
       targetPort: 5173
       nodePort: 30173
