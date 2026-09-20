@@ -29,7 +29,7 @@ public class RouteService {
         this.geoCoordinateConverter = geoCoordinateConverter;
     }
 
-    public RouteResult getRoute(double fromLongitude, double fromLatitude, double toLongitude, double toLatitude){
+    public RouteResult getRoute(double fromLongitude, double fromLatitude, double toLongitude, double toLatitude, List<String> excludeAccTypeNames){
         List<OutbreakOccur> outbreakOccurs = outbreakService.findAll();
 
         List<Point> list = outbreakOccurs.stream()
@@ -37,6 +37,11 @@ public class RouteService {
                 .toList();
 
         List<Point> dangerPoints = outbreakOccurs.stream()
+                .filter(o -> !excludeAccTypeNames.contains(
+                        o.getOutbreakCode()
+                                .getOutbreakCodeName()
+                                .getAccTypeNM()
+                ))
                 .map(o -> geoCoordinateConverter.convert(
                         o.getOutbreakMapGps().getGrs80tmX(), // GRS80TM X
                         o.getOutbreakMapGps().getGrs80tmY()  // GRS80TM Y
