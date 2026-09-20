@@ -3,6 +3,7 @@ import axios from "axios";
 import proj4 from "proj4";
 import { useGpsStore } from "../store/gpsStore";
 import { useOutbreakOccurState } from "../store/outbreakOccurStore";
+import { useOutbreakFilterStore } from "../store/outbreakFilterStore";
 import type { GpsItem } from "../store/gpsStore";
 import type { OutbreakOccur } from "../store/outbreakOccurStore";
 
@@ -19,13 +20,17 @@ const WGS84 = "EPSG:4326";
 export const useOutbreakOccur = () => {
     const setGpsList = useGpsStore((state) => state.setGpsList);
     const setOutbreakOccurList = useOutbreakOccurState((state) => state.setOutbreakOccurList);
+    const excludeAccTypeNames = useOutbreakFilterStore((state) => state.excludeAccTypeNames);
 
     // 초기 데이터 fetch
     useEffect(() => {
         const fetchInitialData = async () => {
         try {
-            const res = await axios.get<OutbreakOccur[]>(
-            `${import.meta.env.VITE_API_BASE_URL}/api/naviSafe/accInfo`
+            const res = await axios.post<OutbreakOccur[]>(
+                `${import.meta.env.VITE_API_BASE_URL}/api/naviSafe/accInfo`, 
+                {
+                    excludeAccTypeNames : excludeAccTypeNames
+                }
             );
             setOutbreakOccurList(res.data);
 
@@ -41,7 +46,7 @@ export const useOutbreakOccur = () => {
         };
 
         fetchInitialData();
-    }, [setGpsList, setOutbreakOccurList]);
+    }, [excludeAccTypeNames, setGpsList, setOutbreakOccurList]);
 
   // WebSocket 실시간 업데이트
     useEffect(() => {
