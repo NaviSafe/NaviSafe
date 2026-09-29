@@ -1,0 +1,10 @@
+kafka-python
+requests
+python-dotenv
+Flask
+pymysql
+pyproj
+redis
+mysql-connector-python
+boto3
+botocore

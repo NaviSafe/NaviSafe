@@ -1,0 +1,26 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: kafka-topic-init
+spec:
+  template:
+    spec:
+      containers:
+      - name: kafka-topic-init
+        image: wurstmeister/kafka:latest
+        command:
+          - /bin/bash
+          - -c
+          - |
+            kafka-topics.sh --create \
+              --bootstrap-server kafka-svc:9092 \
+              --replication-factor 1 \
+              --partitions 1 \
+              --topic outbreak_topic || true
+
+            kafka-topics.sh --create \
+              --bootstrap-server kafka-svc:9092 \
+              --replication-factor 1 \
+              --partitions 1 \
+              --topic emergency_alert_topic || true
+      restartPolicy: OnFailure

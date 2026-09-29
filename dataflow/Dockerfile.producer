@@ -1,0 +1,22 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# 시스템 패키지 최소 설치
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends curl && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# 코드 복사
+COPY producer /app/producer
+COPY requirements.txt /app/requirements.txt
+COPY .env /app/.env
+
+# 패키지 설치
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Python 경로
+ENV PYTHONPATH=/app
+
+# 기본 실행 명령
+CMD ["python", "producer/kafka_producer.py"]

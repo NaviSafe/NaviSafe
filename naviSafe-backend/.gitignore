@@ -37,6 +37,6 @@ out/
 .vscode/
 
 ### resource ###
-src/main/resources/application.yml
+src/main/resources/schedule
 src/main/resources/firebaseServiceAccount.json
 

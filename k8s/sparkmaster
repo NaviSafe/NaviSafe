@@ -1,0 +1,10 @@
+도커 데스크탑으로 접속해서 아래 실행
+export HOME=/tmp
+export USER=spark
+export HADOOP_USER_NAME=spark
+export SPARK_SUBMIT_OPTS="-Divy.home=/tmp/.ivy2 -Divy.cache.dir=/tmp/.ivy2"
+
+spark-submit \
+  --master spark://spark-master:7077 \
+  --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.5,mysql:mysql-connector-java:8.0.33 \
+  /app/outbreak_streaming.py

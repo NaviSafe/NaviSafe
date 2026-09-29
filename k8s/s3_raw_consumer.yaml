@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: s3-raw-consumer
+  namespace: default
+
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: s3-raw-consumer
+
+  template:
+    metadata:
+      labels:
+        app: s3-raw-consumer
+
+    spec:
+      containers:
+        - name: s3-raw-consumer
+          image: dndjeh/navisafe-consumer:v1
+          imagePullPolicy: Always
+
+          command:
+            - python
+            - /app/consumers/s3_raw_consumer.py
+
+          env:
+            - name: KAFKA_BOOTSTRAP
+              value: kafka-svc.default:9092
+
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: aws-secret
+                  key: AWS_ACCESS_KEY_ID
+
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: aws-secret
+                  key: AWS_SECRET_ACCESS_KEY
+
+            - name: AWS_REGION
+              valueFrom:
+                secretKeyRef:
+                  name: aws-secret
+                  key: AWS_REGION
+
+            - name: S3_BUCKET
+              valueFrom:
+                secretKeyRef:
+                  name: aws-secret
+                  key: S3_BUCKET
