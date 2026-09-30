@@ -7,6 +7,8 @@ import { useLocationStore } from "../store/locationStore";
 import { useRouteStore } from "../store/routeStore";
 import { useSearchResultStore } from "../store/SearchResultStore";
 import { useSearchOverlayStore } from "../store/SearchOverlayStore";
+import { useOutbreakFilterStore } from "../store/outbreakFilterStore";
+
 
 import { RecentRoute } from "../components/RecentRoute";
 import { MdSwapVert } from "react-icons/md";
@@ -18,6 +20,11 @@ export const SrcAndDestination = () => {
     const {openSearch} = useSearchOverlayStore();
     const {setRoute} = useRouteStore();
     const {setSelectedResults, setSelectedPlace } = useSearchResultStore();
+    const excludeAccTypeNames =
+        useOutbreakFilterStore(
+            (state) => state.excludeAccTypeNames
+        );
+
     const [recentRoutes, setRecentRoutes] = useState<
         {
             sourceAddress: {
@@ -92,6 +99,7 @@ export const SrcAndDestination = () => {
                 fromLatitude: sourceAddress.latitude,
                 toLongitude: destAddress.longitude,
                 toLatitude: destAddress.latitude,
+                excludeOutbreakTypeName: excludeAccTypeNames
             });
 
             setRoute(data.points, data.distance);
