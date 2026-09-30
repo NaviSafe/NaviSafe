@@ -1,11 +1,13 @@
 package com.naviSafe.naviSafe.domain.outbreakOccur.controller;
 
+import com.naviSafe.naviSafe.domain.outbreakOccur.dto.OutbreakRequestDto;
 import com.naviSafe.naviSafe.domain.outbreakOccur.dto.OutbreakResponseDto;
 import com.naviSafe.naviSafe.domain.outbreakOccur.entity.OutbreakOccur;
 import com.naviSafe.naviSafe.domain.outbreakOccur.service.OutbreakService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -20,11 +22,16 @@ public class OutbreakController {
         this.outbreakService = outbreakService;
     }
 
-    @GetMapping("/api/naviSafe/accInfo")
-    public ResponseEntity<?> getAllOutbreak(){
+    @PostMapping("/api/naviSafe/accInfo")
+    public ResponseEntity<?> getOutbreakInfo(@RequestBody OutbreakRequestDto outbreakRequestDto){
         List<OutbreakOccur> outbreakList = outbreakService.findAll();
 
         List<OutbreakResponseDto> responseDtoList = outbreakList.stream()
+                .filter(o -> !outbreakRequestDto.getExcludeAccTypeNames().contains(
+                        o.getOutbreakCode()
+                                .getOutbreakCodeName()
+                                .getAccTypeNM()
+                ))
                 .map(o -> OutbreakResponseDto.builder()
                         .accId(o.getAccId())
                         .accInfo(o.getAccidentAlert().getAccInfo())

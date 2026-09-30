@@ -20,7 +20,7 @@ public class NewRouteController {
     @PostMapping("/myRootPath_v2")
     public ResponseEntity<RouteResult> getMyRootPath(@RequestBody StartEndCoordRequestDto startEndCoordRequestDto){
         RouteResult myRootPath = routeService.getRoute(
-                startEndCoordRequestDto.getFromLongitude(), startEndCoordRequestDto.getFromLatitude(), startEndCoordRequestDto.getToLongitude(), startEndCoordRequestDto.getToLatitude()
+                startEndCoordRequestDto.getFromLongitude(), startEndCoordRequestDto.getFromLatitude(), startEndCoordRequestDto.getToLongitude(), startEndCoordRequestDto.getToLatitude(), startEndCoordRequestDto.getExcludeOutbreakTypeName()
         );
         return ResponseEntity.ok(myRootPath);
     }
