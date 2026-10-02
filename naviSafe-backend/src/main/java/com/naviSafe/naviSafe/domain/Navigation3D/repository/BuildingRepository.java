@@ -21,17 +21,18 @@ public class BuildingRepository {
 
         String sql = """
             SELECT
-                height,
-                ST_AsGeoJSON(geom) AS geom
-            FROM building
-            WHERE ST_DWithin(
-                geom::geography,
-                ST_SetSRID(
-                    ST_MakePoint(:longitude, :latitude),
-                    4326
-                )::geography,
-                :radius
-            )
+                 height,
+                 grnd_flr,
+                 ST_AsGeoJSON(geom) AS geom
+             FROM building
+             WHERE ST_DWithin(
+                 geom::geography,
+                 ST_SetSRID(
+                     ST_MakePoint(:longitude, :latitude),
+                     4326
+                 )::geography,
+                 :radius
+             )
         """;
 
         List<Object[]> results = postgresEntityManager
@@ -43,13 +44,23 @@ public class BuildingRepository {
 
         return results.stream()
                 .map(row -> {
-                        Double height = row[0] != null ? Double.valueOf(row[0].toString()) : null;
+                    double height = row[0] == null
+                            ? 0.0
+                            : Double.parseDouble(String.valueOf(row[0]));
 
-                        return new BuildingGeometry(
-                                height,
-                                row[1].toString()
-                        );
-                    })
+                    double groundFloor = row[1] == null
+                            ? 0.0
+                            : Double.parseDouble(String.valueOf(row[1]));
+
+                    if (height == 0.0) {
+                        height = groundFloor * 3.5;
+                    }
+
+                    return new BuildingGeometry(
+                            height,
+                            (String) row[2]
+                    );
+                })
                 .toList();
     }
 }
