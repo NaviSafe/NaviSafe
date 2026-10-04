@@ -3,14 +3,24 @@ import axios from "axios";
 import { Canvas } from "@react-three/fiber";
 import * as THREE from "three";
 
+interface RoadGeometry {
+    id: number;
+    geom: string;
+}
+
 interface BuildingGeometry {
-  height: number;
-  geom: string;
+    height: number;
+    geom: string;
 }
 
 interface GeoJsonMultiPolygon {
-  type: "MultiPolygon";
-  coordinates: [number, number][][][];
+    type: "MultiPolygon";
+    coordinates: [number, number][][][];
+}
+
+interface GeoJsonMultiLineString {
+    type: "MultiLineString";
+    coordinates: [number, number][][];
 }
 
 const longitude = 126.96320522724326;
@@ -18,6 +28,7 @@ const latitude = 37.559747577258186;
 
 export const Navigation3D = () => {
   const [buildings, setBuildings] = useState<BuildingGeometry[]>([]);
+  const [roads, setRoads] = useState<RoadGeometry[]>([]);
 
   useEffect(() => {
     const fetchBuildings = async () => {
@@ -38,7 +49,26 @@ export const Navigation3D = () => {
       }
     };
 
+    const fetchRoads = async () => {
+        try {
+          const response = await axios.post<RoadGeometry[]>(
+            `${import.meta.env.VITE_API_BASE_URL}/api/naviSafe/navigation3D/roads`,
+            {
+              longitude,
+              latitude,
+            }
+          );
+      
+          console.log("3D Roads:", response.data);
+      
+          setRoads(response.data);
+        } catch (error) {
+          console.error("3D 도로 조회 실패:", error);
+        }
+      };
+
     fetchBuildings();
+    fetchRoads();
   }, []);
 
   return (
@@ -56,6 +86,13 @@ export const Navigation3D = () => {
             key={index}
             building={building}
           />
+        ))}
+
+        {roads.map((road) => (
+        <Road
+            key={road.id}
+            road={road}
+        />
         ))}
 
         <gridHelper args={[200, 20]} />
@@ -108,6 +145,82 @@ const Building = ({ building }: BuildingProps) => {
       ))}
     </>
   );
+};
+
+interface RoadProps {
+    road: RoadGeometry;
+  }
+  
+const Road = ({ road }: RoadProps) => {
+const geometries = useMemo(() => {
+    const geoJson: GeoJsonMultiLineString = JSON.parse(road.geom);
+
+    return geoJson.coordinates.flatMap((lineString) => {
+    const geometries: THREE.BufferGeometry[] = [];
+
+    for (let i = 0; i < lineString.length - 1; i++) {
+        const [lon1, lat1] = lineString[i];
+        const [lon2, lat2] = lineString[i + 1];
+
+        const x1 = longitudeToMeter(lon1, longitude);
+        const z1 = -latitudeToMeter(lat1, latitude);
+
+        const x2 = longitudeToMeter(lon2, longitude);
+        const z2 = -latitudeToMeter(lat2, latitude);
+
+        const dx = x2 - x1;
+        const dz = z2 - z1;
+
+        const length = Math.sqrt(dx * dx + dz * dz);
+
+        if (length === 0) {
+        continue;
+        }
+
+        // 도로 폭 4m
+        const roadWidth = 4;
+
+        // 도로 진행 방향의 수직 방향
+        const offsetX = (-dz / length) * (roadWidth / 2);
+        const offsetZ = (dx / length) * (roadWidth / 2);
+
+        const geometry = new THREE.BufferGeometry();
+
+        const vertices = new Float32Array([
+        x1 + offsetX, 0.5, z1 + offsetZ,
+        x1 - offsetX, 0.5, z1 - offsetZ,
+        x2 - offsetX, 0.5, z2 - offsetZ,
+
+        x1 + offsetX, 0.5, z1 + offsetZ,
+        x2 - offsetX, 0.5, z2 - offsetZ,
+        x2 + offsetX, 0.5, z2 + offsetZ,
+        ]);
+
+        geometry.setAttribute(
+        "position",
+        new THREE.BufferAttribute(vertices, 3)
+        );
+
+        geometry.computeVertexNormals();
+
+        geometries.push(geometry);
+    }
+
+    return geometries;
+    });
+}, [road]);
+
+return (
+    <>
+    {geometries.map((geometry, index) => (
+        <mesh key={index} geometry={geometry}>
+        <meshStandardMaterial 
+        color={0x666666}
+        side={THREE.DoubleSide} />
+        </mesh>
+    ))}
+    </>
+);
 };
 
 const longitudeToMeter = (
