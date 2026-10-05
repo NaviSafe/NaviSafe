@@ -19,17 +19,32 @@ public class RoadRepository {
     ) {
         String sql = """
             SELECT
-                id,
-                ST_AsGeoJSON(geom) AS geom
-            FROM edge_base
-            WHERE ST_DWithin(
-                geom::geography,
-                ST_SetSRID(
-                    ST_MakePoint(:longitude, :latitude),
-                    4326
-                )::geography,
-                :radius
-            )
+                 id, 
+                 ST_AsGeoJSON(geom) AS geom
+             FROM edge_base
+             WHERE
+                 geom && ST_Expand(
+                     ST_SetSRID(
+                         ST_MakePoint(
+                             :longitude,
+                             :latitude
+                         ),
+                         4326
+                     ),
+                     0.0012,
+                     0.001
+                 )
+                 AND ST_DWithin(
+                     geom::geography,
+                     ST_SetSRID(
+                         ST_MakePoint(
+                             :longitude,
+                             :latitude
+                         ),
+                         4326
+                     )::geography,
+                     :radius
+                 )
             """;
 
         List<Object[]> results = postgresEntityManager

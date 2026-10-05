@@ -21,18 +21,33 @@ public class BuildingRepository {
 
         String sql = """
             SELECT
-                 height,
-                 grnd_flr,
-                 ST_AsGeoJSON(geom) AS geom
-             FROM building
-             WHERE ST_DWithin(
-                 geom::geography,
-                 ST_SetSRID(
-                     ST_MakePoint(:longitude, :latitude),
-                     4326
-                 )::geography,
-                 :radius
-             )
+                  height,
+                  grnd_flr,
+                  ST_AsGeoJSON(geom) AS geom
+              FROM building
+              WHERE
+                  geom && ST_Expand(
+                      ST_SetSRID(
+                          ST_MakePoint(
+                              :longitude,
+                              :latitude
+                          ),
+                          4326
+                      ),
+                      0.0012,
+                      0.001
+                  )
+                  AND ST_DWithin(
+                      geom::geography,
+                      ST_SetSRID(
+                          ST_MakePoint(
+                              :longitude,
+                              :latitude
+                          ),
+                          4326
+                      )::geography,
+                      :radius
+                  )
         """;
 
         List<Object[]> results = postgresEntityManager
